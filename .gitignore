@@ -1,0 +1,13 @@
+*.db
+*.ipch
+*.bsc
+*.opendb
+*.snl
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+
+.vs/*
+Build/*
+Intermediate/*
+Bin/*
