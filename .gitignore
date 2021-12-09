@@ -2,7 +2,7 @@
 *.ipch
 *.bsc
 *.opendb
-*.snl
+*.sln
 *.vcxproj
 *.vcxproj.filters
 *.vcxproj.user
