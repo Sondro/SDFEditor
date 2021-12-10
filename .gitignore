@@ -11,3 +11,5 @@
 Build/*
 Intermediate/*
 Bin/*
+
+imgui.ini

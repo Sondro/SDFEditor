@@ -2,10 +2,8 @@ workspace "SDFEditor"
     location "./"
     language "C++"
     architecture "x86_64"
-    --configurations { "Debug", "Debug Editor", "Development", "Development Editor", "Profile", "Final" }
+    
     configurations { "Debug", "Release" }
-
-    --platforms { "Desktop", "Editor", "iOS", "Android" }
 
     characterset "ASCII"
 
@@ -13,8 +11,12 @@ workspace "SDFEditor"
 
     objdir ("./Intermediate/%{prj.name}/%{cfg.longname}")
 
+    flags { "FatalWarnings" }
+
     filter { "system:windows" }
         defines { "_CRT_SECURE_NO_WARNINGS" }
+        --linkoptions { "/NODEFAULTLIB:msvcrt" }
+        ignoredefaultlibraries { "MSVCRT" }
 
     filter "configurations:Debug"
         defines { "DEBUG" }
@@ -33,7 +35,7 @@ project "SDFEditor"
     kind "ConsoleApp"
     links { "glfw3" }
     targetname "SDFEditor"
-    debugdir "./Bin"
+    debugdir "./Data"
     
     includedirs { 
         "./Source/", 
@@ -51,10 +53,16 @@ project "SDFEditor"
         "./Source/**.cpp",
         "./Source/**.def",
         "./Source/**.inl",
-        "./Source/**.natvis"
+        "./Source/**.natvis",
+        "./Data/Shaders/*.glsl"
     }
-    excludes { "./../../Engine/Source/ThirdParty/imgui/misc/**.*" }
-    --vpaths { ["Source/**"] = "./../../Engine/Source/**.*" }
+
+    vpaths { 
+        ["Source/**"] = "./Source/**.*",
+        ["Shaders/**"] = "./Data/Shaders/**.*"
+    }
+
+    excludes { "./Source/ThirdParty/imgui/misc/**.*" }
 
     --OpenGL system libraries
     filter { "system:windows" }
