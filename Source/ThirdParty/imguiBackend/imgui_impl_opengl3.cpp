@@ -88,6 +88,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 
+#include "ThirdParty/glad/glad.h"
 #include "ThirdParty/imgui/imgui.h"
 #include "imgui_impl_opengl3.h"
 #include <stdio.h>
@@ -605,7 +606,7 @@ bool    ImGui_ImplOpenGL3_CreateDeviceObjects()
 #endif
 
     // Parse GLSL version string
-    int glsl_version = 130;
+    int glsl_version = 430;
     sscanf(bd->GlslVersionString, "#version %d", &glsl_version);
 
     const GLchar* vertex_shader_glsl_120 =

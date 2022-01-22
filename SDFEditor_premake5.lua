@@ -13,6 +13,10 @@ workspace "SDFEditor"
 
     flags { "FatalWarnings" }
 
+    defines { "IMGUI_IMPL_OPENGL_LOADER_CUSTOM" }
+
+    cppdialect "c++17"
+
     filter { "system:windows" }
         defines { "_CRT_SECURE_NO_WARNINGS" }
         --linkoptions { "/NODEFAULTLIB:msvcrt" }
@@ -30,39 +34,77 @@ workspace "SDFEditor"
 
     filter { }
 
+project "sbx"
+    location "./Build"
+    kind "StaticLib"
+    targetname "sbx"
+    
+    includedirs { 
+        "./Source", 
+        "./Source/ThirdParty", 
+        "./External/glfw/include"
+    }
+
+    files  {
+        "./Source/sbx/**.h",
+        "./Source/sbx/**.hpp",
+        "./Source/sbx/**.c",
+        "./Source/sbx/**.cpp",
+        "./Source/sbx/**.def",
+        "./Source/sbx/**.inl",
+        "./Source/sbx/**.natvis",
+        "./Source/ThirdParty/**.h",
+        "./Source/ThirdParty/**.hpp",
+        "./Source/ThirdParty/**.c",
+        "./Source/ThirdParty/**.cpp",
+        "./Source/ThirdParty/**.def",
+        "./Source/ThirdParty/**.inl",
+        "./Source/ThirdParty/**.natvis",
+    }
+
+    vpaths { 
+        ["Source/sbx/**"] = "./Source/sbx/**.*",
+    }
+
+    excludes { "./Source/ThirdParty/imgui/misc/**.*" }
+    excludes { "./Source/ThirdParty/glm/**.cpp" }
+
 project "SDFEditor"
     location "./Build"
     kind "ConsoleApp"
-    links { "glfw3" }
+    links { "glfw3", "sbx" }
     targetname "SDFEditor"
     debugdir "./Data"
     
     includedirs { 
-        "./Source/", 
-        --"./Source/ThirdParty/", 
+        "./Source", 
+        "./Source/ThirdParty", 
         "./External/glfw/include"
     }
 
     libdirs { 
-        "./External/glfw/lib-vc2010-64"
+        "./External/glfw/lib-vc2010-64",
+        "./Bin/sbx/%{cfg.longname}"
     }
 
     files  {
-        "./Source/**.h",
-        "./Source/**.c",
-        "./Source/**.cpp",
-        "./Source/**.def",
-        "./Source/**.inl",
-        "./Source/**.natvis",
+        "./Source/SDFEditor/**.h",
+        "./Source/SDFEditor/**.hpp",
+        "./Source/SDFEditor/**.c",
+        "./Source/SDFEditor/**.cpp",
+        "./Source/SDFEditor/**.def",
+        "./Source/SDFEditor/**.inl",
+        "./Source/SDFEditor/**.natvis",
         "./Data/Shaders/*.glsl"
     }
 
     vpaths { 
-        ["Source/**"] = "./Source/**.*",
+        ["Source/SDFEditor/**"] = "./Source/SDFEditor/**.*",
         ["Shaders/**"] = "./Data/Shaders/**.*"
     }
 
-    excludes { "./Source/ThirdParty/imgui/misc/**.*" }
+    --excludes { "./Source/ThirdParty/imgui/misc/**.*" }
+    --excludes { "./Source/ThirdParty/glm/**.cpp" }
 
     --OpenGL system libraries
     filter { "system:windows" }

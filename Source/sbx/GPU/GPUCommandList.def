@@ -1,0 +1,32 @@
+/*
+ * @file    GPUCommandList.def
+ * @author  David Gallardo Moreno
+ */
+
+#ifndef SBX_GPU_COMMAND
+#define SBX_GPU_COMMAND(_CommandName, ...)
+#endif
+
+SBX_GPU_COMMAND(CreateTextureCmd,           TGPUResourceRef const &, TTextureDesc const &)
+SBX_GPU_COMMAND(DestroyTextureCmd,          TGPUResourceRef const &, TTextureDesc const &)
+SBX_GPU_COMMAND(GenerateTextureMipMapCmd,   TGPUResourceRef const &, TTextureDesc const &)
+SBX_GPU_COMMAND(CopyTextureToBufferCmd,     TGPUResourceRef const &, TTextureDesc const &, CRawBuffer::Ref &)
+SBX_GPU_COMMAND(CopyTextureFromBufferCmd,   TGPUResourceRef const &, TTextureDesc const &, CRawBuffer::Ref const)
+SBX_GPU_COMMAND(CreateProgramCmd,           TGPUResourceRef const &, TGPUProgramDesc::Ref const &)
+SBX_GPU_COMMAND(DestroyProgramCmd,          TGPUResourceRef const &)
+SBX_GPU_COMMAND(ExecuteComputeShaderCmd,    TGPUResourceRef const &, TGPUProgramData::Ref const &)
+SBX_GPU_COMMAND(CreateRenderTargetCmd,      TGPUResourceRef const &, TGPURenderTargetDesc::Ref const &)
+SBX_GPU_COMMAND(DestroyRenderTargetCmd,     TGPUResourceRef const &)
+SBX_GPU_COMMAND(ClearRenderTargetCmd,       TGPUResourceRef const &, uint32_t /*aAttachment*/, TColor32F const &)
+SBX_GPU_COMMAND(BlitRenderTargetCmd,        TGPUResourceRef const & /*aInputRT*/, TGPUResourceRef const & /*aOutputRT*/, TBlitInfo const & /*aBlitInfo*/)
+SBX_GPU_COMMAND(CreateMeshObjectCmd,        TGPUResourceRef const &, TGPUResourceRef const &, TGPUMeshDesc::Ref const &, CRawBuffer::Ref const &)
+SBX_GPU_COMMAND(DestroyMeshObjectCmd,       TGPUResourceRef const &, TGPUResourceRef const &)
+SBX_GPU_COMMAND(RenderMeshObjectCmd,        TGPURenderMeshData::Ref const &)
+SBX_GPU_COMMAND(CreateCubeMapTextureCmd,    TGPUResourceRef const &)
+SBX_GPU_COMMAND(SetupCubeMapTextureCmd,     TGPUResourceRef const &, TTexture::Ref /*aSides*/, uint32_t /*aMip*/)
+SBX_GPU_COMMAND(CreateSharedBlockCmd,       TGPUResourceRef const &, CRawBuffer::Ref const & /* aBlockData */)
+SBX_GPU_COMMAND(UpdateSharedBlockCmd,       TGPUResourceRef const &, CRawBuffer::Ref const & /* aBlockData */, uint32_t /*aOffset*/, uint32_t /*aSize*/)
+SBX_GPU_COMMAND(DestroySharedBlockCmd,      TGPUResourceRef const &)
+
+
+#undef SBX_GPU_COMMAND

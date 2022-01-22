@@ -1,0 +1,19 @@
+/*
+ * @file    FileTypes.def
+ * @author  David Gallardo Moreno
+ * @brief   Supported file types
+ */
+
+//SBX_FILE_TYPE(_name, _ext, _filter)
+
+                //Name      //Extension //Filter
+SBX_FILE_TYPE(  Any,        "",         "Any (*.*)\0*.*\0\0" )
+SBX_FILE_TYPE(  TexGraph,   "tgph",     "TexGraph Document (*.tgph)\0*.tgph\0\0" )
+SBX_FILE_TYPE(  PNG,        "png",      "PNG Image (*.png)\0*.png\0\0" )
+SBX_FILE_TYPE(  TGA,        "tga",      "TGA Image (*.tga)\0*.tga\0\0" )
+SBX_FILE_TYPE(  HDR,        "hdr",      "HDR Image (*.hdr, *.hdri)\0*.hdr\0*.hdri\0\0" )
+SBX_FILE_TYPE(  JSON,       "json",     "JSON File (*.json)\0*.json\0\0" )
+
+#ifdef SBX_FILE_TYPE
+#undef SBX_FILE_TYPE
+#endif
