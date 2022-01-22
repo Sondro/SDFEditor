@@ -8,9 +8,24 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+
 void CRenderer::Init()
 {
     glGenVertexArrays(1, &mDummyVAO);
+   
+    mCPUStrokes.push_back({
+        {-0.4, 0.0, -1.0, 0.4},
+        {0.35, 0.0, 0.0, 0.0}
+    });
+
+    mCPUStrokes.push_back({
+        {0.4, 0.0, -1.0, 0.4},
+        {0.35, 0.0, 0.0, 0.0}
+    });
+
+    mStrokesBuffer = std::make_shared<CGPUShaderStorageObject>();
+    mStrokesBuffer->SetData(mCPUStrokes.size() * sizeof(stroke_t), mCPUStrokes.data(), EGPUBufferFlags::ALL);
+    
 }
 
 void CRenderer::Shutdown()
@@ -29,6 +44,8 @@ void CRenderer::ReloadShaders()
     std::vector<CGPUShaderProgramRef> lPrograms = { mFullscreenVertexProgram, mColorFragmentProgram };
 
     mScreenQuadPipeline = std::make_shared<CGPUShaderPipeline>(lPrograms);
+
+    mStrokesBuffer->Bind(0, mColorFragmentProgram->GetHandler());
 }
 
 void CRenderer::UpdateViewData(uint32_t aWidth, uint32_t aHeight)
@@ -52,7 +69,9 @@ void CRenderer::RenderFrame()
     //Draw full screen quad
     glBindVertexArray(mDummyVAO);
     mScreenQuadPipeline->Bind();
+    
+    
     glDrawArrays(GL_TRIANGLES, 0, 3);
-    mScreenQuadPipeline->Unbind();
+    
     glBindVertexArray(0);
 }

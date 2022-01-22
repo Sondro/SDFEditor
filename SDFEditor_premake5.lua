@@ -20,6 +20,8 @@ workspace "SDFEditor"
     filter { "system:windows" }
         defines { "_CRT_SECURE_NO_WARNINGS" }
         --linkoptions { "/NODEFAULTLIB:msvcrt" }
+        
+    filter { "system:windows", "configurations:Debug" }
         ignoredefaultlibraries { "MSVCRT" }
 
     filter "configurations:Debug"

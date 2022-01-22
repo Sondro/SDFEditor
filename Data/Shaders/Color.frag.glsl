@@ -1,24 +1,64 @@
 #version 450
 
+#extension GL_ARB_shader_storage_buffer_object : require
+
 layout(location = 0) in vec2 inFragUV;
 layout(location = 1) in vec3 inRayOrigin;
 layout(location = 2) in vec3 inRayDirection;
 
 layout(location = 0) out vec4 outColor;
 
-struct ray {
+struct stroke_t
+{
+    vec4 param0; // position.xyz, blend.a
+    vec4 param1; // size.xyz, radius.x, 
+};
+
+layout(std430, binding = 0) buffer strokes_buffer
+{
+    stroke_t strokes[];
+};
+
+struct ray_t 
+{
     vec3 pos;
     vec3 dir;
 };
 
+// polynomial smooth min
+float sminCubic(float a, float b, float k)
+{
+    float h = max(k - abs(a - b), 0.0) / k;
+    return min(a, b) - h * h * h * k * (1.0 / 6.0);
+}
+
+void evalStroke(in out float d, vec3 p, stroke_t stroke)
+{
+    d = sminCubic(d, length(p - stroke.param0.xyz) - stroke.param1.x, stroke.param0.w);
+}
+
 //Distance to scene at point
-float distToScene(vec3 p) {
-    return length(p - vec3(0.0, 0.0, -1.0)) - 0.3;
+float distToScene(vec3 p) 
+{
+    //float a = length(p - vec3(0.0, 0.0, -1.0)) - 0.3;
+    //float b = length(p - vec3(0.35, 0.0, -1.0)) - 0.3;
+    float d = 1000000.0;
+
+    //d = sminCubic(d, length(p - vec3(0.0, 0.0, -1.0)) - 0.3, 0.2);
+    //d = sminCubic(d, length(p - vec3(0.35, 0.0, -1.0)) - 0.3, 0.2);
+
+    for (int i = 0; i < 2; i++)
+    {
+        evalStroke(d, p, strokes[i]);
+    }
+
+    return d;
 }
 
 //Estimate normal based on distToScene function
 const float EPS = 0.001;
-vec3 estimateNormal(vec3 p) {
+vec3 estimateNormal(vec3 p) 
+{
     float xPl = distToScene(vec3(p.x + EPS, p.y, p.z));
     float xMi = distToScene(vec3(p.x - EPS, p.y, p.z));
     float yPl = distToScene(vec3(p.x, p.y + EPS, p.z));
@@ -94,7 +134,7 @@ void main()
     uv *= 2.0;
     //uv.x *= iResolution.x / iResolution.y;//scale, so there is no rectangular distortion
 
-    ray camRay;
+    ray_t camRay;
     camRay.pos = inRayOrigin;
     camRay.dir = normalize(inRayDirection);
 
@@ -135,4 +175,5 @@ void main()
 
     outColor.rgb = LinearToSRGB(outColor.rgb);
     
+    //outColor.rgb = abs(strokes[0].param0.xyz);
 }

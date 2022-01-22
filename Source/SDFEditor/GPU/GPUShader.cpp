@@ -35,7 +35,7 @@ CGPUShaderProgram::CGPUShaderProgram(CShaderCodeRef aCode, EShaderSourceType aTy
     {
         GLchar  log[1024] = { 0 };
         glGetProgramInfoLog(mShaderProgramHandler, 1024, NULL, log);
-        SBX_ERROR("ERROR compiling/linking shader [%s] : %s", mName.c_str(), log);
+        SBX_ERROR("ERROR compiling/linking shader [%s] :\n%s", mName.c_str(), log);
     }
 }
 
@@ -70,5 +70,5 @@ void CGPUShaderPipeline::Bind() const
 
 void CGPUShaderPipeline::Unbind() const
 {
-    glBindProgramPipeline(0);
+//    glBindProgramPipeline(0);
 }

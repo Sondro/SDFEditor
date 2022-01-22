@@ -3,6 +3,15 @@
 
 #include <cstdint>
 #include "SDFEditor/GPU/GPUShader.h"
+#include "SDFEditor/GPU/GPUStorageBuffer.h"
+
+#include <glm/glm.hpp>
+
+struct stroke_t
+{
+    glm::vec4 param0;
+    glm::vec4 param1;
+};
 
 struct TCamera
 {
@@ -30,6 +39,8 @@ private:
     CGPUShaderPipelineRef mScreenQuadPipeline;
     uint32_t mDummyVAO;
 
+    CGPUShaderStorageObjectRef mStrokesBuffer;
 
+    std::vector<stroke_t> mCPUStrokes;
     
 };
