@@ -24,6 +24,9 @@ public:
     void Render();
 
 private:
+    void UpdateCamera();
+
+private:
 
     TAppViewport mSceneViewport;
 

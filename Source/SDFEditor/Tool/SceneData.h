@@ -7,6 +7,8 @@
 
 #include "glm/glm.hpp"
 
+#include "SDFEditor/Tool/Camera.h"
+
 /*
 struct SShape
 {
@@ -20,8 +22,9 @@ struct SShape
 
 struct stroke_t
 {
-    float param0[4];
-    float param1[4];
+    glm::vec4 param0;
+    glm::vec4 param1;
+    glm::ivec4 id;
 };
 
 class CScene
@@ -35,8 +38,10 @@ public:
     void CleanDirtyFlag() { mDirty = false; }
 
     std::vector< stroke_t > mStorkesArray;
+    CCamera mCamera;
 
 private:
     bool mDirty;
+
 };
 

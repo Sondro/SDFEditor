@@ -15,8 +15,9 @@ void DrawStrokesPanel(class CScene& aScene)
         {
             ImGui::PushID(i);
             ImGui::Text("Stroke[%d]", i);
-            lDirty |= ImGui::DragFloat4("param0", (float*)aScene.mStorkesArray[i].param0, 0.01f);
-            lDirty |= ImGui::DragFloat4("param1", (float*)aScene.mStorkesArray[i].param1, 0.01f);
+            lDirty |= ImGui::DragInt4("shapeId", (int32_t*)&aScene.mStorkesArray[i].id.x, 0.01f);
+            lDirty |= ImGui::DragFloat4("param0", (float*)&aScene.mStorkesArray[i].param0.x, 0.01f);
+            lDirty |= ImGui::DragFloat4("param1", (float*)&aScene.mStorkesArray[i].param1.x, 0.01f);
             ImGui::Separator();
             ImGui::PopID();
         } 

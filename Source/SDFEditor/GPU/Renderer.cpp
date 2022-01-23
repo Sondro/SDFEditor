@@ -41,20 +41,33 @@ void CRenderer::ReloadShaders()
 
 void CRenderer::UpdateSceneData(CScene const& aScene)
 {
-    size_t lSizeBytes = aScene.mStorkesArray.size() * sizeof(stroke_t);
-    
-    if (lSizeBytes > mStrokesBuffer->GetStorageSize())
+    if (aScene.IsDirty())
     {
-        mStrokesBuffer->SetData(lSizeBytes, (void*)aScene.mStorkesArray.data(), EGPUBufferFlags::MAP_WRITE_BIT | EGPUBufferFlags::DYNAMIC_STORAGE);
-    }
-    else
-    {
-        void* lStrokesBufferMappedMemory = mStrokesBuffer->Map();
-        ::memcpy(lStrokesBufferMappedMemory, (void*)aScene.mStorkesArray.data(), lSizeBytes);
-        mStrokesBuffer->Unmap();
-    }  
+        size_t lSizeBytes = aScene.mStorkesArray.size() * sizeof(stroke_t);
 
-    glProgramUniform1ui(mColorFragmentProgram->GetHandler(), 1, aScene.mStorkesArray.size() & 0xFFFFFFFF);
+        if (lSizeBytes > mStrokesBuffer->GetStorageSize())
+        {
+            mStrokesBuffer->SetData(lSizeBytes, (void*)aScene.mStorkesArray.data(), EGPUBufferFlags::MAP_WRITE_BIT | EGPUBufferFlags::DYNAMIC_STORAGE);
+        }
+        else
+        {
+            void* lStrokesBufferMappedMemory = mStrokesBuffer->Map();
+            ::memcpy(lStrokesBufferMappedMemory, (void*)aScene.mStorkesArray.data(), lSizeBytes);
+            mStrokesBuffer->Unmap();
+        }
+
+        glProgramUniform1ui(mColorFragmentProgram->GetHandler(), 1, aScene.mStorkesArray.size() & 0xFFFFFFFF);
+    }
+
+    //Update Matrix
+    glm::mat4 lProjection = glm::perspective(aScene.mCamera.mFOV, aScene.mCamera.mAspect, 0.1f, 100.0f);
+    glm::mat4 lView = glm::lookAt(aScene.mCamera.mOrigin, aScene.mCamera.mLookAt, aScene.mCamera.mViewUp);
+    //lProjection[1][1] *= -1; // Invert glm convention for y-up, as in Vulkan is the opposite than in OpenGL
+    glm::mat4 lViewProjection = lProjection * lView;
+    glm::mat4 lInverseViewProjection = glm::inverse(lViewProjection);
+
+    // Update program data
+    glProgramUniformMatrix4fv(mFullscreenVertexProgram->GetHandler(), 0, 1, false, glm::value_ptr(lInverseViewProjection));
 }
 
 void CRenderer::RenderFrame()
@@ -64,16 +77,6 @@ void CRenderer::RenderFrame()
     glViewport(0, 0, mViewWidth, mViewHeight);
     glClearColor(0.45f, 0.55f, 0.60f, 1.00f);
     glClear(GL_COLOR_BUFFER_BIT);
-
-    //Update Matrix
-    glm::mat4 lProjection = glm::perspective(glm::radians(45.0f), (float)mViewWidth / (float)mViewHeight, 0.1f, 100.0f);
-    glm::mat4 lView = glm::lookAt(glm::vec3(0.0f, -1.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    //lProjection[1][1] *= -1; // Invert glm convention for y-up, as in Vulkan is the opposite than in OpenGL
-    glm::mat4 lViewProjection = lProjection * lView;
-    glm::mat4 lInverseViewProjection = glm::inverse(lViewProjection);
-
-    // Update program data
-    glProgramUniformMatrix4fv(mFullscreenVertexProgram->GetHandler(), 0, 1, false, glm::value_ptr(lInverseViewProjection));
 
     //Draw full screen quad
     glBindVertexArray(mDummyVAO);
