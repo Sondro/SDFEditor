@@ -1,29 +1,22 @@
 
 #pragma once
 
-#include <cstdint>
-#include <list>
-#include <vector>
-#include <memory>
+#include "SceneData.h"
 
-struct TShape
+CScene::CScene()
+    : mDirty(true)
 {
-    float px, py, pz, pw;
-    float sx, sy, sz, sw;
-};
+    mStorkesArray.push_back({
+        {-0.4, 0.0, -1.0, 0.4},
+        {0.35, 0.0, 0.0, 0.0}
+    });
 
-class CScene
+    mStorkesArray.push_back({
+        {0.4, 0.0, -1.0, 0.4},
+        {0.35, 0.0, 0.0, 0.0}
+    });
+}
+
+CScene::~CScene()
 {
-public:
-    auto begin() const
-    {
-        return mShapes.begin();
-    }
-    auto end() const
-    {
-        return mShapes.end();
-    }
-private:
-    std::vector< std::shared_ptr<TShape> > mShapes;
-};
-
+}

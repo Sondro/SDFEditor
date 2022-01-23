@@ -14,8 +14,7 @@
 #include <GLFW/glfw3.h> // Will drag system OpenGL headers
 
 #include "GUI/GUIStyles.h"
-
-#include "GPU/Renderer.h"
+#include "Tool/ToolApp.h"
 
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to maximize ease of testing and compatibility with old VS compilers.
 // To link with VS2010-era libraries, VS2015+ requires linking with legacy_stdio_definitions.lib, which we do using this pragma.
@@ -125,9 +124,9 @@ int main(int, char**)
     bool show_another_window = false;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-    CRenderer lRenderer;
-    lRenderer.Init();
-    lRenderer.ReloadShaders();
+    CToolApp lToolApp;
+
+    lToolApp.Init();
 
     // Main loop
     while (!glfwWindowShouldClose(window))
@@ -181,17 +180,12 @@ int main(int, char**)
             ImGui::End();
         }
 
+        lToolApp.Update();
+
         // Rendering
         ImGui::Render();
-        int display_w, display_h;
-        glfwGetFramebufferSize(window, &display_w, &display_h);
-        
-        glViewport(0, 0, display_w, display_h);
-        glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        lRenderer.UpdateViewData(display_w, display_h);
-        lRenderer.RenderFrame();
+                
+        lToolApp.Render();
 
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     	
@@ -210,6 +204,7 @@ int main(int, char**)
     }
 
     // Cleanup
+    lToolApp.Shutdown();
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();

@@ -1,7 +1,10 @@
 
 #include "Renderer.h"
 #include <ThirdParty/glad/glad.h>
+#include <GLFW/glfw3.h>
+
 #include "SDFEditor/Utils/ReadFile.h"
+#include "SDFEditor/Tool/SceneData.h"
 
 #include "glm/glm.hpp"
 #include "glm/mat4x4.hpp"
@@ -13,19 +16,7 @@ void CRenderer::Init()
 {
     glGenVertexArrays(1, &mDummyVAO);
    
-    mCPUStrokes.push_back({
-        {-0.4, 0.0, -1.0, 0.4},
-        {0.35, 0.0, 0.0, 0.0}
-    });
-
-    mCPUStrokes.push_back({
-        {0.4, 0.0, -1.0, 0.4},
-        {0.35, 0.0, 0.0, 0.0}
-    });
-
     mStrokesBuffer = std::make_shared<CGPUShaderStorageObject>();
-    mStrokesBuffer->SetData(mCPUStrokes.size() * sizeof(stroke_t), mCPUStrokes.data(), EGPUBufferFlags::ALL);
-    
 }
 
 void CRenderer::Shutdown()
@@ -48,14 +39,30 @@ void CRenderer::ReloadShaders()
     mStrokesBuffer->Bind(0, mColorFragmentProgram->GetHandler());
 }
 
-void CRenderer::UpdateViewData(uint32_t aWidth, uint32_t aHeight)
+void CRenderer::UpdateSceneData(CScene const& aScene)
 {
-    mViewWidth = aWidth;
-    mViewHeight = aHeight;
+    size_t lSizeBytes = aScene.mStorkesArray.size() * sizeof(stroke_t);
+    
+    if (lSizeBytes > mStrokesBuffer->GetStorageSize())
+    {
+        mStrokesBuffer->SetData(lSizeBytes, (void*)aScene.mStorkesArray.data(), EGPUBufferFlags::MAP_WRITE_BIT | EGPUBufferFlags::DYNAMIC_STORAGE);
+    }
+    else
+    {
+        void* lStrokesBufferMappedMemory = mStrokesBuffer->Map();
+        ::memcpy(lStrokesBufferMappedMemory, (void*)aScene.mStorkesArray.data(), lSizeBytes);
+        mStrokesBuffer->Unmap();
+    }  
 }
 
 void CRenderer::RenderFrame()
 {
+    glfwGetFramebufferSize(glfwGetCurrentContext(), &mViewWidth, &mViewHeight);
+
+    glViewport(0, 0, mViewWidth, mViewHeight);
+    glClearColor(0.45f, 0.55f, 0.60f, 1.00f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
     //Update Matrix
     glm::mat4 lProjection = glm::perspective(glm::radians(45.0f), (float)mViewWidth / (float)mViewHeight, 0.1f, 100.0f);
     glm::mat4 lView = glm::lookAt(glm::vec3(0.0f, -1.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -69,8 +76,7 @@ void CRenderer::RenderFrame()
     //Draw full screen quad
     glBindVertexArray(mDummyVAO);
     mScreenQuadPipeline->Bind();
-    
-    
+
     glDrawArrays(GL_TRIANGLES, 0, 3);
     
     glBindVertexArray(0);

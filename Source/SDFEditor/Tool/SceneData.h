@@ -5,22 +5,9 @@
 #include <vector>
 #include <memory>
 
-template <typename T>
-struct TVec4
-{
-    union
-    {
-        struct
-        {
-            T x, y, z, w;
-        };
-        T mBuffer[4];
-    };
-};
+#include "glm/glm.hpp"
 
-using vec4 = TVec4<float>;
-using ivec4 = TVec4<int32_t>; 
-
+/*
 struct SShape
 {
     vec4  attr0; //xyz: pos, w: 
@@ -29,19 +16,27 @@ struct SShape
     vec4  quat;  //rotation quaternion
     ivec4 id;    //x: primitive, y: material, z: flags (SUBSTRACTIVE | MASK | MIRRORX | MIRRORY | MIRRORZ | REPEAT_CIRCLE), w: repeats
 };
+*/
+
+struct stroke_t
+{
+    glm::vec4 param0;
+    glm::vec4 param1;
+};
 
 class CScene
 {
 public:
-    auto begin() const
-    {
-        return mShapes.begin();
-    }
-    auto end() const
-    {
-        return mShapes.end();
-    }
+    CScene();
+    ~CScene();
+    
+    bool IsDirty() const { return mDirty; }
+    void SetDirty() { mDirty = true; }
+    void CleanDirtyFlag() { mDirty = false; }
+
+    std::vector< stroke_t > mStorkesArray;
+
 private:
-    std::vector< std::shared_ptr<SShape> > mShapes;
+    bool mDirty;
 };
 

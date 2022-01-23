@@ -7,11 +7,6 @@
 
 #include <glm/glm.hpp>
 
-struct stroke_t
-{
-    glm::vec4 param0;
-    glm::vec4 param1;
-};
 
 struct TCamera
 {
@@ -24,13 +19,17 @@ public:
     void Init();
     void Shutdown();
     void ReloadShaders();
-    void UpdateViewData(uint32_t aWidth, uint32_t aHeight);
+    void UpdateSceneData(class CScene const& aScene);
     void RenderFrame();
-    TCamera* GetCameraPtr() { return mCamera;  }
+
+    // Getters
+    TCamera* GetCameraPtr() { return mCamera; }
+    CGPUShaderStorageObjectRef GetStrokesBufferRef() { return mStrokesBuffer; }
+
 private:
     // View data
-    uint32_t mViewWidth;
-    uint32_t mViewHeight;
+    int32_t mViewWidth;
+    int32_t mViewHeight;
     TCamera* mCamera;
 
     // Render data
@@ -39,8 +38,5 @@ private:
     CGPUShaderPipelineRef mScreenQuadPipeline;
     uint32_t mDummyVAO;
 
-    CGPUShaderStorageObjectRef mStrokesBuffer;
-
-    std::vector<stroke_t> mCPUStrokes;
-    
+    CGPUShaderStorageObjectRef mStrokesBuffer;    
 };
