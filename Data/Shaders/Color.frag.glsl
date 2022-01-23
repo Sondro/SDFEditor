@@ -177,17 +177,17 @@ void main()
     float totalDist = 0.0;
     float finalDist = distToScene(camRay.pos);
     int iters = 0;
-    int maxIters = 150;
+    int maxIters = 50;
 
     vec3 color = vec3(0.0, 0.0, 0.0);
 
-    for (iters = 0; iters < maxIters && finalDist>0.002; iters++) {
+    for (iters = 0; iters < maxIters && finalDist>0.008; iters++) {
         camRay.pos += finalDist * camRay.dir;
         totalDist += finalDist;
         finalDist = distToScene(camRay.pos);
     }
 
-    if (finalDist < 0.002)
+    if (finalDist < 0.008)
     {
         color.r = 1.0;
 

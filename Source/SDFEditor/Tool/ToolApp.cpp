@@ -1,4 +1,31 @@
 
+/*
+    MAIN TODO:
+
+    - Separate strokes list and from properties panel (GUI)
+        > stroke selection in list
+    
+    - Primitive selection menu (GUI)
+
+    - Display properties layout per primitivie (GUI)
+
+    - Manage stroke list in cpu with more attributes (different layout) than in gpu
+
+    - Names for strokes (GUI)
+
+    - Implement ImGuizmo (GUI)
+
+    - Stroke selection with bounding box raycast
+        > Draw bounding box (GUI)
+
+    - Scene serializaion/deserialization + save/load
+    
+    - Offscreen render pipeline?
+
+    - Sparse voxel SDF
+
+*/
+
 #include "ToolApp.h"
 
 #include "imgui/imgui.h"
