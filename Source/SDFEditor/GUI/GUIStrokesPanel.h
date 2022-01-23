@@ -1,4 +1,4 @@
 
 #pragma once
 
-void drawStrokesPanel(std::v);
+void DrawStrokesPanel(class CScene& aScene);

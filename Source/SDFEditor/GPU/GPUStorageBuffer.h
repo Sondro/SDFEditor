@@ -31,7 +31,7 @@ public:
 
     size_t GetStorageSize() const { return mStorageSize; }
 
-    void Bind(uint32_t aBinding, uint32_t aProgramHandler);
+    void BindToProgram(uint32_t aProgramHandler, uint32_t aBinding, const char* aLayoutName);
     void Unbind();
 
 private:

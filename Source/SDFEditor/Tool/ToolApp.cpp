@@ -1,6 +1,8 @@
 
 #include "ToolApp.h"
 
+#include "SDFEditor/GUI/GUIStrokesPanel.h"
+
 CToolApp::CToolApp()
 {
 }
@@ -22,6 +24,7 @@ void CToolApp::Shutdown()
 void CToolApp::Update()
 {
     // TODO: Update scene with ui
+    DrawStrokesPanel(mScene);
 
     if (mScene.IsDirty())
     {

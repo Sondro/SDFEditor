@@ -51,9 +51,9 @@ void CGPUShaderStorageObject::UpdateSubData(intptr_t aOffset, size_t aSize, void
     glNamedBufferSubData(mBufferHandler, aOffset, aSize, aData);
 }
 
-void CGPUShaderStorageObject::Bind(uint32_t aBinding, uint32_t aProgramHandler)
+void CGPUShaderStorageObject::BindToProgram(uint32_t aProgramHandler, uint32_t aBinding, const char* aLayoutName)
 {
-    uint32_t block_index = glGetProgramResourceIndex(aProgramHandler, GL_SHADER_STORAGE_BLOCK, "strokes_buffer");
+    uint32_t block_index = glGetProgramResourceIndex(aProgramHandler, GL_SHADER_STORAGE_BLOCK, aLayoutName);
     glShaderStorageBlockBinding(aProgramHandler, block_index, aBinding);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, aBinding, mBufferHandler);
 }

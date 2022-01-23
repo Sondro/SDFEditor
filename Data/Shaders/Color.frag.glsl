@@ -19,6 +19,8 @@ layout(std430, binding = 0) buffer strokes_buffer
     stroke_t strokes[];
 };
 
+layout(location = 1) uniform uint uStrokesNum;
+
 struct ray_t 
 {
     vec3 pos;
@@ -47,7 +49,7 @@ float distToScene(vec3 p)
     //d = sminCubic(d, length(p - vec3(0.0, 0.0, -1.0)) - 0.3, 0.2);
     //d = sminCubic(d, length(p - vec3(0.35, 0.0, -1.0)) - 0.3, 0.2);
 
-    for (int i = 0; i < 2; i++)
+    for (uint i = 0; i < uStrokesNum; i++)
     {
         evalStroke(d, p, strokes[i]);
     }

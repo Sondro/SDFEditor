@@ -36,7 +36,7 @@ void CRenderer::ReloadShaders()
 
     mScreenQuadPipeline = std::make_shared<CGPUShaderPipeline>(lPrograms);
 
-    mStrokesBuffer->Bind(0, mColorFragmentProgram->GetHandler());
+    mStrokesBuffer->BindToProgram(mColorFragmentProgram->GetHandler(), 0, "strokes_buffer");
 }
 
 void CRenderer::UpdateSceneData(CScene const& aScene)
@@ -53,6 +53,8 @@ void CRenderer::UpdateSceneData(CScene const& aScene)
         ::memcpy(lStrokesBufferMappedMemory, (void*)aScene.mStorkesArray.data(), lSizeBytes);
         mStrokesBuffer->Unmap();
     }  
+
+    glProgramUniform1ui(mColorFragmentProgram->GetHandler(), 1, aScene.mStorkesArray.size() & 0xFFFFFFFF);
 }
 
 void CRenderer::RenderFrame()

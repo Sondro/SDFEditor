@@ -20,8 +20,8 @@ struct SShape
 
 struct stroke_t
 {
-    glm::vec4 param0;
-    glm::vec4 param1;
+    float param0[4];
+    float param1[4];
 };
 
 class CScene
