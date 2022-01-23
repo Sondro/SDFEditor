@@ -11,8 +11,8 @@ layout(location = 0) out vec4 outColor;
 struct stroke_t
 {
     vec4 param0;    // position.xyz, blend.a
-    vec4 param1;    // size.xyz, radius.x, 
-    ivec4 id; // shape.x
+    vec4 param1;    // size.xyz, radius.x, round.w
+    ivec4 id;       // shape.x, flags.y
 };
 
 layout(std430, binding = 0) buffer strokes_buffer
@@ -35,9 +35,60 @@ float sminCubic(float a, float b, float k)
     return min(a, b) - h * h * h * k * (1.0 / 6.0);
 }
 
+// - SDFS -------------------------
+float sdEllipsoid(vec3 p, vec3 r)
+{
+    float k0 = length(p / r);
+    float k1 = length(p / (r * r));
+    return k0 * (k0 - 1.0) / k1;
+}
+
+float sdRoundBox(vec3 p, vec3 b, float r)
+{
+    vec3 q = abs(p) - b;
+    return length(max(q, 0.0)) + min(max(q.x, max(q.y, q.z)), 0.0) - r;
+}
+
+float sdTorus(vec3 p, vec2 t)
+{
+    vec2 q = vec2(length(p.xz) - t.x, p.y);
+    return length(q) - t.y;
+}
+
+float sdVerticalCapsule(vec3 p, float h, float r)
+{
+    p.y -= clamp(p.y, 0.0, h);
+    return length(p) - r;
+}
+
+// - STROKE EVALUATION --------------
 void evalStroke(in out float d, vec3 p, stroke_t stroke)
 {
-    d = sminCubic(d, length(p - stroke.param0.xyz) - stroke.param1.x, stroke.param0.w);
+    float shape = d;
+    vec3 position = p - stroke.param0.xyz;
+
+    if (stroke.id.x == 0)
+    {
+        shape = sdEllipsoid(position, stroke.param1.xyz);
+    }
+    else if (stroke.id.x == 1)
+    {
+        float round = clamp(stroke.param1.w, 0.0, 1.0);
+        float smaller = min(min(stroke.param1.x, stroke.param1.y), stroke.param1.z);
+        round = mix(0.0, smaller, round);
+        shape = sdRoundBox(position, stroke.param1.xyz - round, round);
+    }
+    else if (stroke.id.x == 2)
+    {
+        shape = sdTorus(position, stroke.param1.xy);
+    }
+    else if (stroke.id.x == 3)
+    {
+        shape = sdVerticalCapsule(position, stroke.param1.x, stroke.param1.y);
+    }
+
+
+    d = sminCubic(d, shape, stroke.param0.w);
 }
 
 //Distance to scene at point

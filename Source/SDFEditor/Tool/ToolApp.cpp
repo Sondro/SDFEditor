@@ -3,6 +3,7 @@
 
 #include "imgui/imgui.h"
 #include "GLFW/glfw3.h"
+#include "sbx/Core/Log.h"
 
 #include "SDFEditor/GUI/GUIStrokesPanel.h"
 
@@ -86,10 +87,16 @@ void CToolApp::UpdateCamera()
             lCamera.MoveUp(io.DeltaTime * lModifier * lMultiplier);
         }
 
-        if (ImGui::IsKeyPressed(116))
+        static bool lActiveReload = false;
+        if (!lActiveReload && ImGui::IsKeyPressed(294))
         {
+            lActiveReload = true;
             mRenderer.ReloadShaders();
             mScene.SetDirty();
+        }
+        else if (ImGui::IsKeyReleased(294))
+        {
+            lActiveReload = false;
         }
     }
 

@@ -6,6 +6,8 @@
 #include "SDFEditor/Utils/ReadFile.h"
 #include "SDFEditor/Tool/SceneData.h"
 
+#include <sbx/Core/Log.h>
+
 #include "glm/glm.hpp"
 #include "glm/mat4x4.hpp"
 #include <glm/gtc/matrix_transform.hpp>
@@ -17,6 +19,7 @@ void CRenderer::Init()
     glGenVertexArrays(1, &mDummyVAO);
    
     mStrokesBuffer = std::make_shared<CGPUShaderStorageObject>();
+    mStrokesBuffer->SetData(16 * sizeof(stroke_t), nullptr, EGPUBufferFlags::MAP_WRITE_BIT | EGPUBufferFlags::DYNAMIC_STORAGE);
 }
 
 void CRenderer::Shutdown()
@@ -26,6 +29,8 @@ void CRenderer::Shutdown()
 
 void CRenderer::ReloadShaders()
 {
+    SBX_LOG("Loading shaders...");
+
     CShaderCodeRef lScreenQuadVSCode = std::make_shared<std::vector<char>>(std::move(ReadFile("./Shaders/FullScreenTrinagle.vert.glsl")));
     CShaderCodeRef lColorFSCode = std::make_shared<std::vector<char>>(std::move(ReadFile("./Shaders/Color.frag.glsl")));
 
@@ -47,7 +52,9 @@ void CRenderer::UpdateSceneData(CScene const& aScene)
 
         if (lSizeBytes > mStrokesBuffer->GetStorageSize())
         {
-            mStrokesBuffer->SetData(lSizeBytes, (void*)aScene.mStorkesArray.data(), EGPUBufferFlags::MAP_WRITE_BIT | EGPUBufferFlags::DYNAMIC_STORAGE);
+            mStrokesBuffer = std::make_shared<CGPUShaderStorageObject>();
+            mStrokesBuffer->SetData(lSizeBytes + (16 * sizeof(stroke_t)), (void*)aScene.mStorkesArray.data(), EGPUBufferFlags::MAP_WRITE_BIT | EGPUBufferFlags::DYNAMIC_STORAGE);
+            mStrokesBuffer->BindToProgram(mColorFragmentProgram->GetHandler(), 0, "strokes_buffer");
         }
         else
         {
