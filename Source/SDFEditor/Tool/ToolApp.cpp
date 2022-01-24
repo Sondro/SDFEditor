@@ -2,16 +2,16 @@
 /*
     MAIN TODO:
 
+    - [DONE] Manage stroke list in cpu with more attributes (different layout) than in gpu
+
+    - [DONE] Names for strokes (GUI)
+
     - Separate strokes list and from properties panel (GUI)
         > stroke selection in list
     
     - Primitive selection menu (GUI)
 
     - Display properties layout per primitivie (GUI)
-
-    - Manage stroke list in cpu with more attributes (different layout) than in gpu
-
-    - Names for strokes (GUI)
 
     - Implement ImGuizmo (GUI)
 

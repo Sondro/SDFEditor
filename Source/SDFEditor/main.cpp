@@ -12,6 +12,8 @@
 #include <GLES2/gl2.h>
 #endif
 #include <GLFW/glfw3.h> // Will drag system OpenGL headers
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <GLFW/glfw3native.h>
 
 #include "GUI/GUIStyles.h"
 #include "Tool/ToolApp.h"
@@ -64,6 +66,9 @@ int main(int, char**)
         return 1;
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1); // Enable vsync
+
+    //HWND hwnd = glfwGetWin32Window(window);
+    //SetWindowDisplayAffinity(hwnd, WDA_MONITOR);
 
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();

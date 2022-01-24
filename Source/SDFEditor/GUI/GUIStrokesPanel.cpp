@@ -6,6 +6,13 @@
 
 #include <imgui/imgui.h>
 
+struct TGUIState
+{
+    std::vector<uint32_t> mSelectedItems;
+};
+
+TGUIState gGUIState;
+
 void DrawStrokesPanel(class CScene& aScene)
 {
     bool lDirty = false;
@@ -14,7 +21,7 @@ void DrawStrokesPanel(class CScene& aScene)
         for (int32_t i = 0; i < aScene.mStorkesArray.size(); i++)
         {
             ImGui::PushID(i);
-            ImGui::Text("Stroke[%d]", i);
+            ImGui::InputText("Name", aScene.mStorkesArray[i].mName, TStrokeInfo::MAX_NAME_SIZE);
             lDirty |= ImGui::DragInt4("shapeId", (int32_t*)&aScene.mStorkesArray[i].id.x, 0.01f);
             lDirty |= ImGui::DragFloat4("param0", (float*)&aScene.mStorkesArray[i].param0.x, 0.01f);
             lDirty |= ImGui::DragFloat4("param1", (float*)&aScene.mStorkesArray[i].param1.x, 0.01f);
@@ -30,17 +37,7 @@ void DrawStrokesPanel(class CScene& aScene)
 
         if (ImGui::Button("Add New"))
         {
-            stroke_t lDefaultShape = 
-                aScene.mStorkesArray.size() ? 
-                aScene.mStorkesArray.back() : 
-                stroke_t
-                {
-                    {0.4f, 0.0f, -1.0f, 0.4f},
-                    {0.35f, 0.35f, 0.35f, 0.0f},
-                    {1, 0, 0, 0}
-                };
-
-            aScene.mStorkesArray.push_back(lDefaultShape);
+            aScene.AddNewStorke();
             lDirty = true;
         }
     }

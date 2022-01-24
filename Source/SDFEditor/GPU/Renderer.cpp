@@ -53,15 +53,17 @@ void CRenderer::UpdateSceneData(CScene const& aScene)
         if (lSizeBytes > mStrokesBuffer->GetStorageSize())
         {
             mStrokesBuffer = std::make_shared<CGPUShaderStorageObject>();
-            mStrokesBuffer->SetData(lSizeBytes + (16 * sizeof(stroke_t)), (void*)aScene.mStorkesArray.data(), EGPUBufferFlags::MAP_WRITE_BIT | EGPUBufferFlags::DYNAMIC_STORAGE);
+            mStrokesBuffer->SetData(lSizeBytes + (16 * sizeof(stroke_t)), nullptr, EGPUBufferFlags::MAP_WRITE_BIT | EGPUBufferFlags::DYNAMIC_STORAGE);
             mStrokesBuffer->BindToProgram(mColorFragmentProgram->GetHandler(), 0, "strokes_buffer");
         }
-        else
+
+        stroke_t* lStrokesBufferMappedMemory = (stroke_t*)mStrokesBuffer->Map();
+        for (size_t i = 0; i < aScene.mStorkesArray.size(); i++)
         {
-            void* lStrokesBufferMappedMemory = mStrokesBuffer->Map();
-            ::memcpy(lStrokesBufferMappedMemory, (void*)aScene.mStorkesArray.data(), lSizeBytes);
-            mStrokesBuffer->Unmap();
+            ::memcpy(lStrokesBufferMappedMemory + i, (void*)&aScene.mStorkesArray[i], sizeof(stroke_t));
         }
+        mStrokesBuffer->Unmap();
+        
 
         glProgramUniform1ui(mColorFragmentProgram->GetHandler(), 1, aScene.mStorkesArray.size() & 0xFFFFFFFF);
     }

@@ -20,11 +20,36 @@ struct SShape
 };
 */
 
+// Base stroke to be added to the gpu
 struct stroke_t
 {
     glm::vec4 param0;
     glm::vec4 param1;
     glm::ivec4 id;
+};
+
+// Extra stroke data to be used by the client
+struct TStrokeInfo : public stroke_t
+{
+    enum
+    {
+        MAX_NAME_SIZE = 250,
+    };
+
+    TStrokeInfo(const TStrokeInfo& aOther)
+        : stroke_t(aOther)
+    {
+        ::memcpy(mName, aOther.mName, MAX_NAME_SIZE);
+    }
+
+    TStrokeInfo(const stroke_t& aBaseStroke, const char* aName)
+        : stroke_t(aBaseStroke)
+    {
+        ::snprintf(mName, MAX_NAME_SIZE, "%s", aName);
+        mName[MAX_NAME_SIZE - 1] = 0;
+    }
+
+    char mName[MAX_NAME_SIZE];
 };
 
 class CScene
@@ -37,11 +62,14 @@ public:
     void SetDirty() { mDirty = true; }
     void CleanDirtyFlag() { mDirty = false; }
 
-    std::vector< stroke_t > mStorkesArray;
+    uint32_t AddNewStorke(uint32_t aBaseStrokeIndex = UINT32_MAX);
+
+    std::vector< TStrokeInfo > mStorkesArray;
     CCamera mCamera;
 
 private:
     bool mDirty;
+    uint32_t mNextStrokeId;
 
 };
 
