@@ -29,10 +29,36 @@ struct ray_t
 };
 
 // polynomial smooth min
-float sminCubic(float a, float b, float k)
+//float sminCubic(float a, float b, float k)
+//{
+//    float h = max(k - abs(a - b), 0.0) / k;
+//    return min(a, b) - h * h * h * k * (1.0 / 6.0);
+//}
+
+// - SMOOTH OPERATIONS --------------------------
+// https://www.shadertoy.com/view/lt3BW2
+float opSmoothUnion(float d1, float d2, float k)
 {
-    float h = max(k - abs(a - b), 0.0) / k;
-    return min(a, b) - h * h * h * k * (1.0 / 6.0);
+    float h = max(k - abs(d1 - d2), 0.0);
+    return min(d1, d2) - h * h * 0.25 / k;
+    //float h = clamp( 0.5 + 0.5*(d2-d1)/k, 0.0, 1.0 );
+    //return mix( d2, d1, h ) - k*h*(1.0-h);
+}
+
+float opSmoothSubtraction(float d1, float d2, float k)
+{
+    float h = max(k - abs(-d1 - d2), 0.0);
+    return max(-d1, d2) + h * h * 0.25 / k;
+    //float h = clamp( 0.5 - 0.5*(d2+d1)/k, 0.0, 1.0 );
+    //return mix( d2, -d1, h ) + k*h*(1.0-h);
+}
+
+float opSmoothIntersection(float d1, float d2, float k)
+{
+    float h = max(k - abs(d1 - d2), 0.0);
+    return max(d1, d2) + h * h * 0.25 / k;
+    //float h = clamp( 0.5 - 0.5*(d2-d1)/k, 0.0, 1.0 );
+    //return mix( d2, d1, h ) + k*h*(1.0-h);
 }
 
 // - SDFS -------------------------
@@ -62,9 +88,9 @@ float sdVerticalCapsule(vec3 p, float h, float r)
 }
 
 // - STROKE EVALUATION --------------
-void evalStroke(in out float d, vec3 p, stroke_t stroke)
+float evalStroke(vec3 p, in stroke_t stroke)
 {
-    float shape = d;
+    float shape = 1000000.0;
     vec3 position = p - stroke.param0.xyz;
 
     if (stroke.id.x == 0)
@@ -84,11 +110,11 @@ void evalStroke(in out float d, vec3 p, stroke_t stroke)
     }
     else if (stroke.id.x == 3)
     {
-        shape = sdVerticalCapsule(position, stroke.param1.x, stroke.param1.y);
+        vec2 params = max(stroke.param1.xy, vec2(0.0, 0.0));
+        shape = sdVerticalCapsule(position - vec3(0.0, -params.x * 0.5, 0.0), params.x, params.y);
     }
-
-
-    d = sminCubic(d, shape, stroke.param0.w);
+    
+    return shape;
 }
 
 //Distance to scene at point
@@ -96,14 +122,49 @@ float distToScene(vec3 p)
 {
     //float a = length(p - vec3(0.0, 0.0, -1.0)) - 0.3;
     //float b = length(p - vec3(0.35, 0.0, -1.0)) - 0.3;
-    float d = 1000000.0;
+    //float d = evalStroke(p, strokes[0]);
+    float d = 100000.0;
 
     //d = sminCubic(d, length(p - vec3(0.0, 0.0, -1.0)) - 0.3, 0.2);
     //d = sminCubic(d, length(p - vec3(0.35, 0.0, -1.0)) - 0.3, 0.2);
 
     for (uint i = 0; i < uStrokesNum; i++)
     {
-        evalStroke(d, p, strokes[i]);
+        float shape = evalStroke(p, strokes[i]);
+
+        float clampedBlend = max(0.0001, strokes[i].param0.w);
+
+        //float m1 = ((stroke.id.y & 1) == 1) || ((stroke.id.y & 2) == 2) ? -1.0 : 1.0;
+        //float m2 = ((stroke.id.y & 1) == 1) && ((stroke.id.y & 2) == 0) ? -1.0 : 1.0;
+        //d = (index == 0) ? min(shape, d) : opSmoothAll(shape, d, max(0.0001, stroke.param0.w), m1, m2);
+
+        // SMOOTH OPERATIONS
+
+        if ((strokes[i].id.y & 3) == 0)
+        {
+            d = opSmoothUnion(shape, d, clampedBlend);
+        }
+        else if ((strokes[i].id.y & 1) == 1)
+        {
+            d = opSmoothSubtraction(shape, d, clampedBlend);
+        }
+        else if ((strokes[i].id.y & 2) == 2)
+        {
+            d = opSmoothIntersection(shape, d, clampedBlend);
+        }
+
+        /*if ((strokes[i].id.y & 3) == 0)
+        {
+            d = sminCubic(d, shape, clampedBlend);
+        }
+        else if ((strokes[i].id.y & 1) == 1)
+        {
+            d = max(-shape, d);
+        }
+        else if ((strokes[i].id.y & 2) == 2)
+        {
+            d = max(shape, d);
+        }*/
     }
 
     return d;
@@ -157,6 +218,24 @@ vec3 SRGBToLinear(vec3 rgb)
     );
 }
 
+
+vec3 aces_tonemap(vec3 color) {
+    mat3 m1 = mat3(
+        0.59719, 0.07600, 0.02840,
+        0.35458, 0.90834, 0.13383,
+        0.04823, 0.01566, 0.83777
+    );
+    mat3 m2 = mat3(
+        1.60475, -0.10208, -0.00327,
+        -0.53108, 1.10813, -0.07276,
+        -0.07367, -0.00605, 1.07602
+    );
+    vec3 v = m1 * color;
+    vec3 a = v * (v + 0.0245786) - 0.000090537;
+    vec3 b = v * (0.983729 * v + 0.4329510) + 0.238081;
+    return pow(clamp(m2 * (a / b), 0.0, 1.0), vec3(1.0 / 2.2));
+}
+
 // -----------------------
 
 void main()
@@ -177,17 +256,18 @@ void main()
     float totalDist = 0.0;
     float finalDist = distToScene(camRay.pos);
     int iters = 0;
-    int maxIters = 50;
+    int maxIters = 70;
 
     vec3 color = vec3(0.0, 0.0, 0.0);
 
-    for (iters = 0; iters < maxIters && finalDist>0.008; iters++) {
+    for (iters = 0; iters < maxIters && finalDist>0.02; iters++) 
+    {
         camRay.pos += finalDist * camRay.dir;
         totalDist += finalDist;
         finalDist = distToScene(camRay.pos);
     }
 
-    if (finalDist < 0.008)
+    if (finalDist < 0.02)
     {
         color.r = 1.0;
 
@@ -206,10 +286,22 @@ void main()
 
     else
     {
-        outColor = vec4(0.05, 0.05, 0.1, 1.0);
+        // Background color
+        vec3 bgColor = vec3(0.07, 0.08, 0.19) * 0.8;
+        outColor = vec4(bgColor, 1.0);
     }
 
     outColor.rgb = LinearToSRGB(outColor.rgb);
     
+    {
+        // Vignette
+        vec2 uv2 = inFragUV * (vec2(1.0) - inFragUV.yx);   //vec2(1.0)- uv.yx; -> 1.-u.yx; Thanks FabriceNeyret !
+        float vig = uv2.x * uv2.y * 13.0; // multiply with sth for intensity
+        vig = pow(vig, 0.35); // change pow for modifying the extend of the  vignette
+        vig = mix(0.4, 1.0, vig);
+        vig = smoothstep(0.0, 0.75, vig);
+        outColor.rgb *= vig;
+    }
+
     //outColor.rgb = abs(strokes[0].param0.xyz);
 }

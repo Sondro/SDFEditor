@@ -49,7 +49,7 @@ uint32_t CScene::AddNewStorke(uint32_t aBaseStrokeIndex)
         {
             stroke_t lDefaultShape =
             {
-                {0.4f, 0.0f, -1.0f, 0.4f},
+                {0.4f, 0.0f, -1.0f, 0.01f},
                 {0.35f, 0.35f, 0.35f, 0.0f},
                 {1, 0, 0, 0},
 

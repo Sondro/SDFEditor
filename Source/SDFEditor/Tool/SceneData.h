@@ -20,6 +20,20 @@ struct SShape
 };
 */
 
+namespace EStrokeOp
+{
+    enum Type
+    {
+        OpAdd = 0,
+        OpSubstract = 1,
+        OpIntersect = 2,
+        OpReplace = 3,
+        
+        OpsMaskAll = 0x3,
+        OpsShift = 0,
+    };
+}
+
 // Base stroke to be added to the gpu
 struct stroke_t
 {

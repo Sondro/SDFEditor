@@ -9,18 +9,24 @@
     - [DONE] Separate strokes list and from properties panel (GUI)
         > [DONE] stroke selection in list
     
-    - Primitive selection menu (GUI)
+    - [DONE] Primitive selection menu (GUI)
+	
+	- [DONE]  Move up, Move Down in the list options (GUI)
 
-    - Display properties layout per primitivie (GUI)
-
-    - Implement ImGuizmo (GUI)
+    - Substract operation (GUI + Data + Shader)
+        > bitfield for operations
+        > operation checks in gui
 
     - Stroke Rotation (Data + Shader)
+
+    - Implement ImGuizmo (GUI)
 
     - Stroke selection with bounding box raycast
         > Draw bounding box (GUI)
 
     - Scene serializaion/deserialization + save/load
+
+    - Display properties layout per primitivie (GUI)
 
     - Copy / Paste strokes
 
