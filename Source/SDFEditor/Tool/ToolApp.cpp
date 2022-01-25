@@ -6,8 +6,8 @@
 
     - [DONE] Names for strokes (GUI)
 
-    - Separate strokes list and from properties panel (GUI)
-        > stroke selection in list
+    - [DONE] Separate strokes list and from properties panel (GUI)
+        > [DONE] stroke selection in list
     
     - Primitive selection menu (GUI)
 
@@ -15,13 +15,22 @@
 
     - Implement ImGuizmo (GUI)
 
+    - Stroke Rotation (Data + Shader)
+
     - Stroke selection with bounding box raycast
         > Draw bounding box (GUI)
 
     - Scene serializaion/deserialization + save/load
+
+    - Copy / Paste strokes
+
+    - Undo / Redo
+
+
+    // Future
     
     - Offscreen render pipeline?
-
+    - Half resolution? Checkerboard?
     - Sparse voxel SDF
 
 */
@@ -90,15 +99,15 @@ void CToolApp::UpdateCamera()
         if (io.KeysDown['W'] || io.KeysDown['S'])
         {
             lDirection = io.KeysDown['S'] ? "backwards" : "forward";
-            float lLambda = (io.KeysDown['S'] ? -1.f : 1.f) * io.DeltaTime * 5.0f * lMultiplier;
+            float lLambda = (io.KeysDown['S'] ? -1.f : 1.f) * io.DeltaTime * 3.0f * lMultiplier;
             lCamera.MoveFront(lLambda);
         }
 
         if (io.KeysDown['A'] || io.KeysDown['D'])
         {
             lDirection = io.KeysDown['A'] ? "left" : "rigth";
-            float lLambda = (io.KeysDown['A'] ? -1.f : 1.f) * io.DeltaTime * 5.0f * lMultiplier;
-            lCamera.MoveRight(lLambda * 1.7f);
+            float lLambda = (io.KeysDown['A'] ? -1.f : 1.f) * io.DeltaTime * 3.0f * lMultiplier;
+            lCamera.MoveRight(lLambda * 1.2f);
         }
 
         /* if(ImGui::IsKeyDown(io.KeyMap[ImGuiKey_Space]))
