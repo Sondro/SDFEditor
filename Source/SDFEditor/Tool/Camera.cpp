@@ -19,7 +19,7 @@ glm::vec3 rotate(const glm::vec3& vect, const glm::quat& quat)
 }
 
 CCamera::CCamera()
-    : mOrigin(0.0f, 2.0f, 1.5f)
+    : mOrigin(0.0f, 1.5f, 2.5f)
     , mLookAt(0.0f, 1.0f, 0.0f)
     , mViewUp(0.0f, 1.0f, 0.0f)
     , mFOV(45.0f)
@@ -124,7 +124,12 @@ void CCamera::Pan(float lambda_x, float lambda_y)
 
 void CCamera::UpdateAspect(float aViewWidth, float aViewHeight)
 {
-    mAspect = aViewWidth / aViewHeight;
+    if (aViewWidth > 0 && aViewHeight > 0)
+    {
+        mViewWidth = aViewWidth;
+        mViewHeight = aViewHeight;
+        mAspect = aViewWidth / aViewHeight;
+    }
 }
 
 glm::mat4 CCamera::GetProjectionMatrix() const

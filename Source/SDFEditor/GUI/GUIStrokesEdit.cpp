@@ -5,6 +5,10 @@
 #include "SDFEditor/Tool/SceneData.h"
 
 #include <imgui/imgui.h>
+#include <imgui/ImGuizmo.h>
+
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include <algorithm>
 
@@ -137,10 +141,12 @@ void DrawStrokesPanel(class CScene& aScene)
             //lDirty |= ImGui::DragInt4("shapeId", (int32_t*)&aScene.mStorkesArray[lSelectedIndex].id.x, 0.01f);
 
 
-            lDirty |= ImGui::DragFloat("Blend", (float*)&lStrokeInfo.posb.w, 0.01f);
+            lDirty |= ImGui::DragFloat("Blend", (float*)&lStrokeInfo.posb.w, 0.01f, 0.0f, 1.0f);
+            lStrokeInfo.posb.w = glm::clamp(lStrokeInfo.posb.w, 0.0f, 1.0f);
             if (lStrokeInfo.id.x == EPrimitive::PrBox)
             {
-                lDirty |= ImGui::DragFloat("Round", (float*)&lStrokeInfo.param0.w, 0.01f);
+                lDirty |= ImGui::DragFloat("Round", (float*)&lStrokeInfo.param0.w, 0.01f, 0.0f, 1.0f);
+                lStrokeInfo.param0.w = glm::clamp(lStrokeInfo.param0.w, 0.0f, 1.0f);
             }
             lDirty |= ImGui::DragFloat4("param1", (float*)&lStrokeInfo.param1.x, 0.01f);
 
@@ -161,6 +167,7 @@ void DrawStrokesPanel(class CScene& aScene)
             ImGui::PopID();
         }        
     }
+
     ImGui::End();
     if (lDirty)
     {
@@ -170,13 +177,82 @@ void DrawStrokesPanel(class CScene& aScene)
 
 void DrawStrokesGuizmos(CScene& aScene)
 {
+    glm::mat4 lProjection = glm::perspective(aScene.mCamera.mFOV, aScene.mCamera.mAspect, 0.1f, 100.0f);
+    glm::mat4 lView = aScene.mCamera.GetViewMatrix();
+    ImGuiIO& io = ImGui::GetIO();
+    ImGuizmo::SetRect(0, 0, aScene.mCamera.mViewWidth * 1.1f, aScene.mCamera.mViewHeight * 1.1f);
+    ImGuizmo::DrawGrid(glm::value_ptr(lView), glm::value_ptr(lProjection), glm::value_ptr(glm::mat4(1.0f)), 20.f);
+
     if (gGUIState.ValidStrokeSelected(aScene))
     {
         int32_t lSelectedIndex = gGUIState.mSelectedItems[0];
         TStrokeInfo& lStrokeInfo = aScene.mStorkesArray[lSelectedIndex];
 
-        //aScene.mCamera.
+        static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::TRANSLATE | ImGuizmo::BOUNDS);
+        static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::WORLD);
+        if (ImGui::IsKeyPressed(90))
+            mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
+        if (ImGui::IsKeyPressed(69))
+            mCurrentGizmoOperation = ImGuizmo::ROTATE;
+        if (ImGui::IsKeyPressed(82)) // r Key
+            mCurrentGizmoOperation = ImGuizmo::SCALE;
+        //if (ImGui::RadioButton("Translate", mCurrentGizmoOperation == ImGuizmo::TRANSLATE))
+        //    mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
+        //ImGui::SameLine();
+        //if (ImGui::RadioButton("Rotate", mCurrentGizmoOperation == ImGuizmo::ROTATE))
+        //    mCurrentGizmoOperation = ImGuizmo::ROTATE;
+        //ImGui::SameLine();
+        //if (ImGui::RadioButton("Scale", mCurrentGizmoOperation == ImGuizmo::SCALE))
+        //    mCurrentGizmoOperation = ImGuizmo::SCALE;
+        /*float matrixTranslation[3], matrixRotation[3], matrixScale[3];
+        ImGuizmo::DecomposeMatrixToComponents(matrix.m16, matrixTranslation, matrixRotation, matrixScale);
+        ImGui::InputFloat3("Tr", matrixTranslation, 3);
+        ImGui::InputFloat3("Rt", matrixRotation, 3);
+        ImGui::InputFloat3("Sc", matrixScale, 3);*/
 
+        static float rot[3] = { 0,0,0 };
+        glm::mat4 lTransformationMatrix;
+        ImGuizmo::RecomposeMatrixFromComponents(&lStrokeInfo.posb.x, rot, &lStrokeInfo.param0.x, glm::value_ptr(lTransformationMatrix));
 
+        /*if (mCurrentGizmoOperation != ImGuizmo::SCALE)
+        {
+            if (ImGui::RadioButton("Local", mCurrentGizmoMode == ImGuizmo::LOCAL))
+                mCurrentGizmoMode = ImGuizmo::LOCAL;
+            ImGui::SameLine();
+            if (ImGui::RadioButton("World", mCurrentGizmoMode == ImGuizmo::WORLD))
+                mCurrentGizmoMode = ImGuizmo::WORLD;
+        }*/
+        static bool useSnap(false);
+        if (ImGui::IsKeyPressed(83))
+            useSnap = !useSnap;
+        //ImGui::Checkbox("", &useSnap);
+        //ImGui::SameLine();
+       // glm::vec3 snap;
+       /* switch (mCurrentGizmoOperation)
+        {
+        case ImGuizmo::TRANSLATE:
+            snap = config.mSnapTranslation;
+            ImGui::InputFloat3("Snap", &snap.x);
+            break;
+        case ImGuizmo::ROTATE:
+            snap = config.mSnapRotation;
+            ImGui::InputFloat("Angle Snap", &snap.x);
+            break;
+        case ImGuizmo::SCALE:
+            snap = config.mSnapScale;
+            ImGui::InputFloat("Scale Snap", &snap.x);
+            break;
+        }*/
+        
+
+        
+        //ImGuizmo::DrawCubes(glm::value_ptr(lView), glm::value_ptr(lProjection), &lTransformationMatrix[0][0], 4);
+
+        static float bounds[] = { -1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f };
+        if (ImGuizmo::Manipulate(glm::value_ptr(lView), glm::value_ptr(lProjection), mCurrentGizmoOperation, mCurrentGizmoMode, glm::value_ptr(lTransformationMatrix), NULL, NULL, bounds, NULL))
+        {
+            ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(lTransformationMatrix), &lStrokeInfo.posb.x, rot, &lStrokeInfo.param0.x);
+            aScene.SetDirty();
+        }
     }
 }

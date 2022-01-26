@@ -25,5 +25,8 @@ public:
     float mFOV;
     float mAspect;
 
+    float mViewWidth;
+    float mViewHeight;
+
     void Update();
 };

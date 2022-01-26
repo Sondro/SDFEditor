@@ -5,6 +5,8 @@
 layout(location = 0) in vec2 inFragUV;
 layout(location = 1) in vec3 inRayOrigin;
 layout(location = 2) in vec3 inRayDirection;
+layout(location = 4) in vec4 inNear;
+layout(location = 5) in vec4 inFar;
 
 layout(location = 0) out vec4 outColor;
 
@@ -245,16 +247,21 @@ void main()
     //vec3 direction = normalize(inRayDirection);
     //outColor = vec4(abs(direction.xyz), 1.0);
 
-    
     vec2 uv = inFragUV;
     uv -= vec2(0.5);//offset, so center of screen is origin
     uv *= 2.0;
     //uv.x *= iResolution.x / iResolution.y;//scale, so there is no rectangular distortion
 
-    ray_t camRay;
-    camRay.pos = inRayOrigin;
-    camRay.dir = normalize(inRayDirection);
 
+    vec3 origin = inNear.xyz / inNear.w;  //ray's origin
+    vec3 far3 = inFar.xyz / inFar.w;
+    vec3 dir = far3 - origin;
+    dir = normalize(dir);        //ray's direction
+
+    ray_t camRay;
+    camRay.pos = origin; // inRayOrigin;
+    camRay.dir = dir; // normalize(inRayDirection);
+    
     float totalDist = 0.0;
     float finalDist = distToScene(camRay.pos);
     int iters = 0;
