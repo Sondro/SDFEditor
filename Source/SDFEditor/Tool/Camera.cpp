@@ -3,6 +3,7 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/glm.hpp"
 #include "glm/gtx/quaternion.hpp"
+#include <glm/gtc/matrix_transform.hpp>
 
 //using vec3_t = glm::vec3;
 //using quat_t = glm::quaternion;
@@ -124,6 +125,16 @@ void CCamera::Pan(float lambda_x, float lambda_y)
 void CCamera::UpdateAspect(float aViewWidth, float aViewHeight)
 {
     mAspect = aViewWidth / aViewHeight;
+}
+
+glm::mat4 CCamera::GetProjectionMatrix() const
+{
+    return glm::perspective(mFOV, mAspect, 0.1f, 100.0f);
+}
+
+glm::mat4 CCamera::GetViewMatrix() const
+{
+    return glm::lookAt(mOrigin, mLookAt, mViewUp);
 }
 
 void CCamera::Update()

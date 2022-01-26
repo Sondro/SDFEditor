@@ -34,9 +34,24 @@ namespace EStrokeOp
     };
 }
 
+namespace EPrimitive
+{
+    enum Type
+    {
+        PrEllipsoid,
+        PrBox,
+        PrTorus,
+        PrCapsule,
+
+        PrCount,
+    };
+}
+
 // Base stroke to be added to the gpu
 struct stroke_t
 {
+    glm::vec4 posb;
+    glm::vec4 quat;
     glm::vec4 param0;
     glm::vec4 param1;
     glm::ivec4 id;

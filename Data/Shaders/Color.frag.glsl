@@ -10,7 +10,9 @@ layout(location = 0) out vec4 outColor;
 
 struct stroke_t
 {
-    vec4 param0;    // position.xyz, blend.a
+    vec4 posb;      // position.xyz, blend.a
+    vec4 quat;      // rotation
+    vec4 param0;    
     vec4 param1;    // size.xyz, radius.x, round.w
     ivec4 id;       // shape.x, flags.y
 };
@@ -91,26 +93,26 @@ float sdVerticalCapsule(vec3 p, float h, float r)
 float evalStroke(vec3 p, in stroke_t stroke)
 {
     float shape = 1000000.0;
-    vec3 position = p - stroke.param0.xyz;
+    vec3 position = p - stroke.posb.xyz;
 
     if (stroke.id.x == 0)
     {
-        shape = sdEllipsoid(position, stroke.param1.xyz);
+        shape = sdEllipsoid(position, stroke.param0.xyz);
     }
     else if (stroke.id.x == 1)
     {
-        float round = clamp(stroke.param1.w, 0.0, 1.0);
-        float smaller = min(min(stroke.param1.x, stroke.param1.y), stroke.param1.z);
+        float round = clamp(stroke.param0.w, 0.0, 1.0);
+        float smaller = min(min(stroke.param0.x, stroke.param0.y), stroke.param0.z);
         round = mix(0.0, smaller, round);
-        shape = sdRoundBox(position, stroke.param1.xyz - round, round);
+        shape = sdRoundBox(position, stroke.param0.xyz - round, round);
     }
     else if (stroke.id.x == 2)
     {
-        shape = sdTorus(position, stroke.param1.xy);
+        shape = sdTorus(position, stroke.param0.xy);
     }
     else if (stroke.id.x == 3)
     {
-        vec2 params = max(stroke.param1.xy, vec2(0.0, 0.0));
+        vec2 params = max(stroke.param0.xy, vec2(0.0, 0.0));
         shape = sdVerticalCapsule(position - vec3(0.0, -params.x * 0.5, 0.0), params.x, params.y);
     }
     
@@ -132,11 +134,11 @@ float distToScene(vec3 p)
     {
         float shape = evalStroke(p, strokes[i]);
 
-        float clampedBlend = max(0.0001, strokes[i].param0.w);
+        float clampedBlend = max(0.0001, strokes[i].posb.w);
 
         //float m1 = ((stroke.id.y & 1) == 1) || ((stroke.id.y & 2) == 2) ? -1.0 : 1.0;
         //float m2 = ((stroke.id.y & 1) == 1) && ((stroke.id.y & 2) == 0) ? -1.0 : 1.0;
-        //d = (index == 0) ? min(shape, d) : opSmoothAll(shape, d, max(0.0001, stroke.param0.w), m1, m2);
+        //d = (index == 0) ? min(shape, d) : opSmoothAll(shape, d, max(0.0001, stroke.posb.w), m1, m2);
 
         // SMOOTH OPERATIONS
 
@@ -303,5 +305,5 @@ void main()
         outColor.rgb *= vig;
     }
 
-    //outColor.rgb = abs(strokes[0].param0.xyz);
+    //outColor.rgb = abs(strokes[0].posb.xyz);
 }

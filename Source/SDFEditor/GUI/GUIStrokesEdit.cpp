@@ -1,6 +1,6 @@
 
 
-#include "GUIStrokesPanel.h"
+#include "GUIStrokesEdit.h"
 
 #include "SDFEditor/Tool/SceneData.h"
 
@@ -12,6 +12,11 @@ struct TGUIState
 {
     std::vector<uint32_t> mSelectedItems;
     int32_t mVisibleItemsInList{ 10 };
+
+    bool ValidStrokeSelected(class CScene& aScene)
+    {
+        return (mSelectedItems.size() == 1) && (mSelectedItems[0] < aScene.mStorkesArray.size());
+    }
 };
 
 TGUIState gGUIState;
@@ -108,8 +113,7 @@ void DrawStrokesPanel(class CScene& aScene)
         }
         ImGui::EndDisabled();
 
-        if ((gGUIState.mSelectedItems.size() == 1) && 
-            (gGUIState.mSelectedItems[0] < aScene.mStorkesArray.size()))
+        if (gGUIState.ValidStrokeSelected(aScene))
         {
             int32_t lSelectedIndex = gGUIState.mSelectedItems[0];
             TStrokeInfo& lStrokeInfo = aScene.mStorkesArray[lSelectedIndex];
@@ -123,7 +127,7 @@ void DrawStrokesPanel(class CScene& aScene)
             lDirty |= ImGui::Combo("Primitive", &lStrokeInfo.id.x, lPrimitiveList);
 
             // OPERATION
-            static const char* lStrokeOpList = "Add\0Substract\0Mask\0"; //Replace\0";
+            static const char* lStrokeOpList = "Add\0Substract\0Intersect\0"; //Replace\0";
             int32_t lOpIndex = lStrokeInfo.id.y & EStrokeOp::OpsMaskAll;
             lDirty |= ImGui::Combo("Operation", &lOpIndex, lStrokeOpList);
             lStrokeInfo.id.y &= ~EStrokeOp::OpsMaskAll;
@@ -131,8 +135,22 @@ void DrawStrokesPanel(class CScene& aScene)
 
             // PROPERTIES
             //lDirty |= ImGui::DragInt4("shapeId", (int32_t*)&aScene.mStorkesArray[lSelectedIndex].id.x, 0.01f);
-            lDirty |= ImGui::DragFloat4("param0", (float*)&lStrokeInfo.param0.x, 0.01f);
+
+
+            lDirty |= ImGui::DragFloat("Blend", (float*)&lStrokeInfo.posb.w, 0.01f);
+            if (lStrokeInfo.id.x == EPrimitive::PrBox)
+            {
+                lDirty |= ImGui::DragFloat("Round", (float*)&lStrokeInfo.param0.w, 0.01f);
+            }
             lDirty |= ImGui::DragFloat4("param1", (float*)&lStrokeInfo.param1.x, 0.01f);
+
+            lDirty |= ImGui::DragFloat3("Position", (float*)&lStrokeInfo.posb.x, 0.01f);
+            glm::vec3 lEulerAngles = lStrokeInfo.quat;
+            lDirty |= ImGui::DragFloat3("Rotation", (float*)&lEulerAngles.x, 0.01f);
+            lStrokeInfo.quat = glm::vec4(lEulerAngles, 1.0);
+
+            lDirty |= ImGui::DragFloat3("Size", (float*)&lStrokeInfo.param0.x, 0.01f);
+
             if (ImGui::Button("Remove") && aScene.mStorkesArray.size() > 0)
             {
                 aScene.mStorkesArray.erase(aScene.mStorkesArray.begin() + lSelectedIndex);
@@ -147,5 +165,18 @@ void DrawStrokesPanel(class CScene& aScene)
     if (lDirty)
     {
         aScene.SetDirty();
+    }
+}
+
+void DrawStrokesGuizmos(CScene& aScene)
+{
+    if (gGUIState.ValidStrokeSelected(aScene))
+    {
+        int32_t lSelectedIndex = gGUIState.mSelectedItems[0];
+        TStrokeInfo& lStrokeInfo = aScene.mStorkesArray[lSelectedIndex];
+
+        //aScene.mCamera.
+
+
     }
 }

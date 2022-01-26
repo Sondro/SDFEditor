@@ -13,9 +13,9 @@
 	
 	- [DONE]  Move up, Move Down in the list options (GUI)
 
-    - Substract operation (GUI + Data + Shader)
-        > bitfield for operations
-        > operation checks in gui
+    - [DONE] Substract operation (GUI + Data + Shader)
+        > [DONE] bitfield for operations
+        > [DONE] operation checks in gui
 
     - Stroke Rotation (Data + Shader)
 
@@ -47,7 +47,7 @@
 #include "GLFW/glfw3.h"
 #include "sbx/Core/Log.h"
 
-#include "SDFEditor/GUI/GUIStrokesPanel.h"
+#include "SDFEditor/GUI/GUIStrokesEdit.h"
 
 
 CToolApp::CToolApp()
@@ -70,10 +70,11 @@ void CToolApp::Shutdown()
 
 void CToolApp::Update()
 {
+    UpdateCamera();
+
     // TODO: Update scene with ui
     DrawStrokesPanel(mScene);
-
-    UpdateCamera();
+    DrawStrokesGuizmos(mScene);
 
     mRenderer.UpdateSceneData(mScene);
 
