@@ -180,9 +180,10 @@ void DrawStrokesGuizmos(CScene& aScene)
     glm::mat4 lProjection = glm::perspective(aScene.mCamera.mFOV, aScene.mCamera.mAspect, 0.1f, 100.0f);
     glm::mat4 lView = aScene.mCamera.GetViewMatrix();
     ImGuiIO& io = ImGui::GetIO();
-    ImGuizmo::SetRect(0, 0, aScene.mCamera.mViewWidth * 1.1f, aScene.mCamera.mViewHeight * 1.1f);
+    ImGuizmo::SetOrthographic(false);
+    ImGuizmo::SetRect(ImGui::GetMainViewport()->Pos.x, ImGui::GetMainViewport()->Pos.y, ImGui::GetMainViewport()->Size.x, ImGui::GetMainViewport()->Size.y);
     ImGuizmo::DrawGrid(glm::value_ptr(lView), glm::value_ptr(lProjection), glm::value_ptr(glm::mat4(1.0f)), 20.f);
-
+    
     if (gGUIState.ValidStrokeSelected(aScene))
     {
         int32_t lSelectedIndex = gGUIState.mSelectedItems[0];
