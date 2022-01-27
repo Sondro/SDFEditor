@@ -19,7 +19,7 @@ glm::vec3 rotate(const glm::vec3& vect, const glm::quat& quat)
 }
 
 CCamera::CCamera()
-    : mOrigin(0.0f, 1.5f, 2.5f)
+    : mOrigin(0.0f, 1.5f, 4.5f)
     , mLookAt(0.0f, 1.0f, 0.0f)
     , mViewUp(0.0f, 1.0f, 0.0f)
     , mFOV(45.0f)

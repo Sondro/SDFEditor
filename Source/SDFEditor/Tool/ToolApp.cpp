@@ -17,14 +17,18 @@
         > [DONE] bitfield for operations
         > [DONE] operation checks in gui
 
-    - Stroke Rotation (Data + Shader)
 
-    - Implement ImGuizmo (GUI)
+    - [HALF DONE] Implement ImGuizmo (GUI)
+        > Adapt transform guizmos to primitive
 
     - Stroke selection with bounding box raycast
         > Draw bounding box (GUI)
 
     - Scene serializaion/deserialization + save/load
+	
+	- Stroke Rotation (Data + Shader)
+	
+    - ImGuizmo options panel
 
     - Display properties layout per primitivie (GUI)
 

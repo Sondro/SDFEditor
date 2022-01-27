@@ -115,7 +115,7 @@ float evalStroke(vec3 p, in stroke_t stroke)
     else if (stroke.id.x == 3)
     {
         vec2 params = max(stroke.param0.xy, vec2(0.0, 0.0));
-        shape = sdVerticalCapsule(position - vec3(0.0, -params.x * 0.5, 0.0), params.x, params.y);
+        shape = sdVerticalCapsule(position - vec3(0.0, -params.x * 0.5, 0.0), params.y, params.x);
     }
     
     return shape;
@@ -150,7 +150,7 @@ float distToScene(vec3 p)
         }
         else if ((strokes[i].id.y & 1) == 1)
         {
-            d = opSmoothSubtraction(shape, d, clampedBlend);
+            d = opSmoothSubtraction(shape + clampedBlend * 0.4, d, clampedBlend);
         }
         else if ((strokes[i].id.y & 2) == 2)
         {
@@ -297,6 +297,7 @@ void main()
     {
         // Background color
         vec3 bgColor = vec3(0.07, 0.08, 0.19) * 0.8;
+        //bgColor += (1.0 - distance(inFragUV, vec2(0.5, 0.5))) * vec3(0.0, 0.01, 0.01);
         outColor = vec4(bgColor, 1.0);
     }
 
@@ -307,7 +308,7 @@ void main()
         vec2 uv2 = inFragUV * (vec2(1.0) - inFragUV.yx);   //vec2(1.0)- uv.yx; -> 1.-u.yx; Thanks FabriceNeyret !
         float vig = uv2.x * uv2.y * 13.0; // multiply with sth for intensity
         vig = pow(vig, 0.35); // change pow for modifying the extend of the  vignette
-        vig = mix(0.4, 1.0, vig);
+        vig = mix(0.35, 1.0, vig);
         vig = smoothstep(0.0, 0.75, vig);
         outColor.rgb *= vig;
     }
