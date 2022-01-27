@@ -26,7 +26,7 @@
 
     - Scene serializaion/deserialization + save/load
 	
-	- Stroke Rotation (Data + Shader)
+	- [REVIEW] Stroke Rotation (Data + Shader)
 	
     - ImGuizmo options panel
 

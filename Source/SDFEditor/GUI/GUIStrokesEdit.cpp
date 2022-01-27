@@ -151,9 +151,12 @@ void DrawStrokesPanel(class CScene& aScene)
             lDirty |= ImGui::DragFloat4("param1", (float*)&lStrokeInfo.param1.x, 0.01f);
 
             lDirty |= ImGui::DragFloat3("Position", (float*)&lStrokeInfo.posb.x, 0.01f);
-            glm::vec3 lEulerAngles = lStrokeInfo.quat;
-            lDirty |= ImGui::DragFloat3("Rotation", (float*)&lEulerAngles.x, 0.01f);
-            lStrokeInfo.quat = glm::vec4(lEulerAngles, 1.0);
+
+            if (ImGui::DragFloat3("Rotation", (float*)&lStrokeInfo.mEulerAngles.x, 0.01f))
+            {
+                lStrokeInfo.UpdateRotation();
+                lDirty = true;
+            }
 
             lDirty |= ImGui::DragFloat3("Size", (float*)&lStrokeInfo.param0.x, 0.01f);
 
@@ -190,7 +193,7 @@ void DrawStrokesGuizmos(CScene& aScene)
         TStrokeInfo& lStrokeInfo = aScene.mStorkesArray[lSelectedIndex];
 
         static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::TRANSLATE | ImGuizmo::BOUNDS);
-        static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::WORLD);
+        static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::LOCAL);
         if (ImGui::IsKeyPressed(90))
             mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
         if (ImGui::IsKeyPressed(69))
@@ -211,9 +214,8 @@ void DrawStrokesGuizmos(CScene& aScene)
         ImGui::InputFloat3("Rt", matrixRotation, 3);
         ImGui::InputFloat3("Sc", matrixScale, 3);*/
 
-        static float rot[3] = { 0,0,0 };
         glm::mat4 lTransformationMatrix;
-        ImGuizmo::RecomposeMatrixFromComponents(&lStrokeInfo.posb.x, rot, &lStrokeInfo.param0.x, glm::value_ptr(lTransformationMatrix));
+        ImGuizmo::RecomposeMatrixFromComponents(&lStrokeInfo.posb.x, &lStrokeInfo.mEulerAngles.x, &lStrokeInfo.param0.x, glm::value_ptr(lTransformationMatrix));
 
         /*if (mCurrentGizmoOperation != ImGuizmo::SCALE)
         {
@@ -252,7 +254,8 @@ void DrawStrokesGuizmos(CScene& aScene)
         static float bounds[] = { -1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f };
         if (ImGuizmo::Manipulate(glm::value_ptr(lView), glm::value_ptr(lProjection), mCurrentGizmoOperation, mCurrentGizmoMode, glm::value_ptr(lTransformationMatrix), NULL, NULL, bounds, NULL))
         {
-            ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(lTransformationMatrix), &lStrokeInfo.posb.x, rot, &lStrokeInfo.param0.x);
+            ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(lTransformationMatrix), &lStrokeInfo.posb.x, &lStrokeInfo.mEulerAngles.x, &lStrokeInfo.param0.x);
+            lStrokeInfo.UpdateRotation();
             aScene.SetDirty();
         }
     }

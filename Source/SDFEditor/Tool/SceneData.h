@@ -6,6 +6,7 @@
 #include <memory>
 
 #include "glm/glm.hpp"
+#include "glm/gtc/quaternion.hpp"
 
 #include "SDFEditor/Tool/Camera.h"
 
@@ -67,16 +68,24 @@ struct TStrokeInfo : public stroke_t
 
     TStrokeInfo(const TStrokeInfo& aOther)
         : stroke_t(aOther)
+        , mEulerAngles(aOther.mEulerAngles)
     {
         ::memcpy(mName, aOther.mName, MAX_NAME_SIZE);
+        UpdateRotation();
     }
 
-    TStrokeInfo(const stroke_t& aBaseStroke, const char* aName)
+    TStrokeInfo(const stroke_t& aBaseStroke, glm::vec3 aEulerAngles, const char* aName)
         : stroke_t(aBaseStroke)
+        , mEulerAngles(aEulerAngles)
     {
         ::snprintf(mName, MAX_NAME_SIZE, "%s", aName);
         mName[MAX_NAME_SIZE - 1] = 0;
+        UpdateRotation();
     }
+
+    void UpdateRotation();
+
+    glm::vec3 mEulerAngles {0,0,0};
 
     char mName[MAX_NAME_SIZE];
 };

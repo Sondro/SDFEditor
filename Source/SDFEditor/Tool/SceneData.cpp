@@ -3,6 +3,19 @@
 
 #include "SceneData.h"
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/glm.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/euler_angles.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
+void TStrokeInfo::UpdateRotation()
+{
+    glm::quat q = glm::conjugate(glm::quat(glm::radians(mEulerAngles)));
+    //glm::quat q = glm::conjugate(glm::toQuat(glm::orientate3(glm::radians(mEulerAngles))));
+    quat = glm::vec4(q.x, q.y, q.z, q.w);
+}
+
 CScene::CScene()
     : mDirty(true)
     , mNextStrokeId(0)
@@ -54,10 +67,9 @@ uint32_t CScene::AddNewStorke(uint32_t aBaseStrokeIndex)
                 {0.35f, 0.35f, 0.35f, 0.0f},    // param0
                 {0.0, 0.0, 0.0, 0.0},           // param1
                 {1, 0, 0, 0},                   // id
-
             };
 
-            mStorkesArray.emplace_back(lDefaultShape, "");
+            mStorkesArray.emplace_back(lDefaultShape, glm::vec3(0.0f), "");
         }
     }
 
@@ -65,3 +77,4 @@ uint32_t CScene::AddNewStorke(uint32_t aBaseStrokeIndex)
 
     return mNextStrokeId++;
 }
+

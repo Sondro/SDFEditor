@@ -39,6 +39,13 @@ struct ray_t
 //    return min(a, b) - h * h * h * k * (1.0 / 6.0);
 //}
 
+// - MATHS -------------------------------
+vec3 quatMultVec3(vec4 q, vec3 v) 
+{
+    vec3 t = cross(q.xyz, cross(q.xyz, v) + q.w * v);
+    return v + t + t;
+}
+
 // - SMOOTH OPERATIONS --------------------------
 // https://www.shadertoy.com/view/lt3BW2
 float opSmoothUnion(float d1, float d2, float k)
@@ -95,7 +102,10 @@ float sdVerticalCapsule(vec3 p, float h, float r)
 float evalStroke(vec3 p, in stroke_t stroke)
 {
     float shape = 1000000.0;
+
+    // mirror goes here
     vec3 position = p - stroke.posb.xyz;
+    position = quatMultVec3(stroke.quat, position);
 
     if (stroke.id.x == 0)
     {
