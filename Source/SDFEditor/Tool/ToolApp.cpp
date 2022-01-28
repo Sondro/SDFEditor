@@ -18,19 +18,27 @@
         > [DONE] operation checks in gui
 
 
-    - [HALF DONE] Implement ImGuizmo (GUI)
-        > Adapt transform guizmos to primitive
+    - [DONE] Implement ImGuizmo (GUI)
+    
 
     - Stroke selection with bounding box raycast
         > Draw bounding box (GUI)
 
-    - Scene serializaion/deserialization + save/load
+    - [DONE (basic)] Scene serializaion/deserialization + save/load (Core)
 	
-	- [REVIEW] Stroke Rotation (Data + Shader)
+	- [DONE, REVIEW] Stroke Rotation (Data + Shader)
 	
-    - ImGuizmo options panel
+    - ImGuizmo options panel (GUI)
+        > Rotate, Translate, Scale toggle
+        > World, Local
+        > Bounds on/off
+        > Grid on/off
+
+    - Fix Camera Moving overalpping ImGuizmo (GUI + Camera)
 
     - Display properties layout per primitivie (GUI)
+
+    - Adapt transform guizmos to primitive (GUI)
 
     - Copy / Paste strokes
 
@@ -52,7 +60,7 @@
 #include "sbx/Core/Log.h"
 
 #include "SDFEditor/GUI/GUIStrokesEdit.h"
-
+#include "SDFEditor/Utils/FileIO.h"
 
 CToolApp::CToolApp()
 {
@@ -132,18 +140,26 @@ void CToolApp::UpdateCamera()
             lDirection = io.KeysDown['E'] ? "downwards" : "upwards";
             float lModifier = io.KeysDown['E'] ? -5.f : 5.0f;
             lCamera.MoveUp(io.DeltaTime * lModifier * lMultiplier);
+        
         }
 
-        static bool lActiveReload = false;
-        if (!lActiveReload && ImGui::IsKeyPressed(294))
+        // F5 Reload Shaders
+        if (ImGui::IsKeyPressed(294, false))
         {
-            lActiveReload = true;
             mRenderer.ReloadShaders();
             mScene.SetDirty();
         }
-        else if (ImGui::IsKeyReleased(294))
+
+        // F3 Load Scene
+        if (ImGui::IsKeyPressed(292, false))
         {
-            lActiveReload = false;
+            LoadScene("test.dfs");
+        }
+
+        // F4 Save Scene
+        if (ImGui::IsKeyPressed(293, false))
+        {
+            SaveScene("test.dfs");
         }
     }
 
@@ -181,5 +197,36 @@ void CToolApp::UpdateCamera()
         lWasMoving = false;
         glfwSetCursorPos(glfwGetCurrentContext(), lPrevCursorX, lPrevCursorY);
         glfwSetInputMode(glfwGetCurrentContext(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    }
+}
+
+void CToolApp::SaveScene(const std::string&  aFilePath)
+{
+
+    size_t lStrokesBytesSize = mScene.mStorkesArray.size() * sizeof(TStrokeInfo);
+    uint32_t lNumElements = mScene.mStorkesArray.size() & 0xFFFFFFFF;
+
+    std::vector<char> lData(lStrokesBytesSize + sizeof(lNumElements));
+
+    ::memcpy(lData.data(), &lNumElements, sizeof(lNumElements));
+    ::memcpy(lData.data() + sizeof(lNumElements), mScene.mStorkesArray.data(), lStrokesBytesSize);
+
+    WriteFile(aFilePath, lData);
+}
+
+void CToolApp::LoadScene(const std::string& aFilePath)
+{
+    std::vector<char> lData = ReadFile(aFilePath);
+
+    if (lData.size() > 0)
+    {
+
+        uint32_t lNumElements = 0;
+        ::memcpy(&lNumElements, lData.data(), sizeof(lNumElements));
+
+        mScene.mStorkesArray.clear();
+        mScene.mStorkesArray.resize(lNumElements);
+        ::memcpy(mScene.mStorkesArray.data(), lData.data() + sizeof(lNumElements), lNumElements * sizeof(TStrokeInfo));
+        mScene.SetDirty();
     }
 }

@@ -1,9 +1,10 @@
 
 #include "sbx/Common.h"
-#include "ReadFile.h"
+#include "FileIO.h"
 
 #include <cstdint>
 #include <fstream>
+#include <iostream>
 
 std::vector<char> ReadFile(const std::string& aFilename)
 {
@@ -33,4 +34,19 @@ std::vector<char> ReadFile(const std::string& aFilename)
     file.close();
 
     return fileBuffer;
+}
+
+
+void WriteFile(const std::string& aFilename, std::vector<char> const & aData)
+{
+    std::ofstream file(aFilename, std::ios::binary | std::ios::ate);
+
+    if (!file.is_open())
+    {
+        SBX_ERROR("Failed to open a file!");
+    }
+
+    file.write(aData.data(), aData.size());
+
+    file.close();
 }

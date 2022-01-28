@@ -25,6 +25,8 @@ public:
 
 private:
     void UpdateCamera();
+    void SaveScene(const std::string& aFilePath);
+    void LoadScene(const std::string& aFilePath);
 
 private:
 

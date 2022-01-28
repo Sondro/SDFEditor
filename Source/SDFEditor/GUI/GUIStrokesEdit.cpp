@@ -194,11 +194,11 @@ void DrawStrokesGuizmos(CScene& aScene)
 
         static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::TRANSLATE | ImGuizmo::BOUNDS);
         static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::LOCAL);
-        if (ImGui::IsKeyPressed(90))
+        if (io.KeysDown['T'])
             mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
-        if (ImGui::IsKeyPressed(69))
+        if (io.KeysDown['R'])
             mCurrentGizmoOperation = ImGuizmo::ROTATE;
-        if (ImGui::IsKeyPressed(82)) // r Key
+        if (io.KeysDown['Y']) // r Key
             mCurrentGizmoOperation = ImGuizmo::SCALE;
         //if (ImGui::RadioButton("Translate", mCurrentGizmoOperation == ImGuizmo::TRANSLATE))
         //    mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
@@ -258,5 +258,14 @@ void DrawStrokesGuizmos(CScene& aScene)
             lStrokeInfo.UpdateRotation();
             aScene.SetDirty();
         }
+    }
+}
+
+void RaycastSelectStroke(CScene& aScene)
+{
+    
+    for (int32_t i = 0; i < aScene.mStorkesArray.size(); i++)
+    {
+
     }
 }

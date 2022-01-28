@@ -66,6 +66,8 @@ struct TStrokeInfo : public stroke_t
         MAX_NAME_SIZE = 250,
     };
 
+    TStrokeInfo() { ; }
+
     TStrokeInfo(const TStrokeInfo& aOther)
         : stroke_t(aOther)
         , mEulerAngles(aOther.mEulerAngles)
