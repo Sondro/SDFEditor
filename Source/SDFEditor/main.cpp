@@ -125,10 +125,17 @@ int main(int, char**)
     //io.Fonts->AddFontDefault();
     //io.Fonts->AddFontFromFileTTF("./fonts/Roboto-Medium.ttf", 18.0f);
     //io.Fonts->AddFontFromFileTTF("./fonts/Cousine-Regular.ttf", 15.0f);
-    io.Fonts->AddFontFromFileTTF("./fonts/DroidSans.ttf", 17.0f);
+    io.Fonts->AddFontFromFileTTF("./fonts/DroidSans.ttf", 20.0f);
     //io.Fonts->AddFontFromFileTTF("./fonts/ProggyTiny.ttf", 16.0f);
     //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
     //IM_ASSERT(font != NULL);
+
+    // Icons font
+    ImFontConfig config;
+    config.MergeMode = true;
+    config.GlyphMinAdvanceX = 13.0f; // Use if you want to make the icon monospaced
+    static ImWchar lIconRanges[] = { 0xe800, 0xe804, 0xf047, 0xf047, 0xf1b2, 0xf1b2, 0 };
+    io.Fonts->AddFontFromFileTTF("./fonts/icons.ttf", 20.0f, &config, lIconRanges);
 
     // Our state
     bool show_demo_window = true;

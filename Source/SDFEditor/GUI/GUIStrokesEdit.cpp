@@ -12,6 +12,17 @@
 
 #include <algorithm>
 
+// Icon glyphs
+#define ICON_ROTATE u8"\ue800"
+#define ICON_GRID   u8"\ue801"
+#define ICON_SCALE  u8"\ue802"
+#define ICON_WORLD  u8"\ue803"
+#define ICON_LOCAL  u8"\ue804"
+#define ICON_MOVE   u8"\uf047"
+#define ICON_BOX    u8"\uf1b2"
+
+
+
 namespace GEditor
 {
     struct TGUIState
@@ -19,8 +30,10 @@ namespace GEditor
         std::vector<uint32_t> mSelectedItems;
         int32_t mVisibleItemsInList{ 10 };
 
-        ImGuizmo::OPERATION mCurrentGizmoOperation{ ImGuizmo::TRANSLATE | ImGuizmo::BOUNDS };
-        ImGuizmo::MODE mCurrentGizmoMode{ ImGuizmo::LOCAL };
+        ImGuizmo::OPERATION mCurrentGizmoOperation{ ImGuizmo::TRANSLATE };
+        ImGuizmo::MODE mCurrentGizmoMode{ ImGuizmo::MODE::LOCAL };
+        bool mGridActive{ true };
+        bool mBoundsActive{ true };
 
         bool ValidStrokeSelected(class CScene& aScene)
         {
@@ -188,78 +201,123 @@ namespace GEditor
         }
     }
 
+    template <typename T>
+    bool GuizmoButtonValue(const char* aIconStr, T* aVariable, T aValue)
+    {
+        const static ImVec2 kGuizmoButtonSize = ImVec2(40.0f, 40.0f);
+        bool lPressed = false;
+        const bool lActive = *aVariable == aValue;
+        if (lActive) { ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive)); }
+        lPressed = ImGui::Button(aIconStr, kGuizmoButtonSize);
+        if (lPressed) { *aVariable = aValue;  }
+        if (lActive) { ImGui::PopStyleColor(1); }
+        return lPressed;
+    }
+
+    bool GuizmoButtonToggle(const char* aIconStr, bool* aVariable)
+    {
+        const static ImVec2 kGuizmoButtonSize = ImVec2(40.0f, 40.0f);
+        bool lPressed = false;
+        const bool lActive = *aVariable;
+        if (lActive) { ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive)); }
+        lPressed = ImGui::Button(aIconStr, kGuizmoButtonSize);
+        if (lPressed) { *aVariable = !*aVariable; }
+        if (lActive) { ImGui::PopStyleColor(1); }
+        return lPressed;
+    }
+
+
     void DrawStrokesGuizmos(CScene& aScene)
     {
         glm::mat4 lProjection = glm::perspective(aScene.mCamera.mFOV, aScene.mCamera.mAspect, 0.1f, 100.0f);
         glm::mat4 lView = aScene.mCamera.GetViewMatrix();
         ImGuiIO& io = ImGui::GetIO();
+        const ImVec2 kViewPos = ImGui::GetMainViewport()->Pos;
+        const ImVec2 kViewSize = ImGui::GetMainViewport()->Size;
         ImGuizmo::SetOrthographic(false);
-        ImGuizmo::SetRect(ImGui::GetMainViewport()->Pos.x, ImGui::GetMainViewport()->Pos.y, ImGui::GetMainViewport()->Size.x, ImGui::GetMainViewport()->Size.y);
-        ImGuizmo::DrawGrid(glm::value_ptr(lView), glm::value_ptr(lProjection), glm::value_ptr(glm::mat4(1.0f)), 20.f);
+        ImGuizmo::SetRect(kViewPos.x, kViewPos.y, kViewSize.x, kViewSize.y);
+        
 
+        // draw guizmos icons panel
+        ImGuiWindowFlags lWindowFlags = 0;
+        lWindowFlags |= ImGuiWindowFlags_NoTitleBar
+                     |  ImGuiWindowFlags_NoResize
+                     |  ImGuiWindowFlags_NoMove
+                     |  ImGuiWindowFlags_NoScrollbar
+                     |  ImGuiWindowFlags_NoScrollWithMouse
+                     |  ImGuiWindowFlags_NoCollapse
+                     |  ImGuiWindowFlags_NoSavedSettings
+                     |  ImGuiWindowFlags_NoFocusOnAppearing
+                     |  ImGuiWindowFlags_NoBringToFrontOnFocus
+                     |  ImGuiWindowFlags_NoNavInputs
+                     |  ImGuiWindowFlags_NoNavFocus
+                     |  ImGuiWindowFlags_NoDocking;
+
+        const ImVec2 kGuizmoPanelSize = ImVec2(400, 50);
+        const ImVec2 kGuizmoPanelPos = ImVec2(kViewPos.x + kViewSize.x - kGuizmoPanelSize.x - 20, kViewPos.y + 20);
+        ImGui::SetNextWindowSize(kGuizmoPanelSize, ImGuiCond_Always);
+        ImGui::SetNextWindowPos(kGuizmoPanelPos, ImGuiCond_Always);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, 0x00000000);
+        if (ImGui::Begin("Guizmos Control Panel", NULL, lWindowFlags))
+        {
+            ImGui::PopStyleColor(1);
+            ImGui::PopStyleVar(1);
+            ImGui::SetWindowFontScale(1.39f);
+            ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 2.0f);
+            ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 10.0f);
+            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(6.7f, 7.0f));
+            ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_WindowBg));
+            ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.1f, 0.10f, 0.12f, 0.70f));
+            GuizmoButtonValue(ICON_MOVE, &gGUIState.mCurrentGizmoOperation, ImGuizmo::TRANSLATE);
+            ImGui::SameLine(0.0f, 5.0f);
+            GuizmoButtonValue(ICON_ROTATE, &gGUIState.mCurrentGizmoOperation, ImGuizmo::ROTATE);
+            ImGui::SameLine(0.0f, 5.0f);
+            GuizmoButtonValue(ICON_SCALE, &gGUIState.mCurrentGizmoOperation, ImGuizmo::SCALE);
+            ImGui::SameLine(0.0f, 25.0f);
+            GuizmoButtonValue(ICON_WORLD, &gGUIState.mCurrentGizmoMode, ImGuizmo::WORLD);
+            ImGui::SameLine(0.0f, 5.0f);
+            GuizmoButtonValue(ICON_LOCAL, &gGUIState.mCurrentGizmoMode, ImGuizmo::LOCAL);
+            ImGui::SameLine(0.0f, 25.0f);
+            GuizmoButtonToggle(ICON_GRID, &gGUIState.mGridActive);
+            ImGui::SameLine(0.0f, 25.0f);
+            GuizmoButtonToggle(ICON_BOX, &gGUIState.mBoundsActive);
+            ImGui::PopStyleColor(2);
+            ImGui::PopStyleVar(3);
+
+            ImGuizmo::OPERATION mCurrentGizmoOperation{ ImGuizmo::TRANSLATE | ImGuizmo::BOUNDS };
+            ImGuizmo::MODE mCurrentGizmoMode{ ImGuizmo::MODE::LOCAL };
+            bool mGridActive{ true };
+            bool mBoundsActive{ true };
+
+            //font scale test helper
+            //static float font_scale = 1.0f;
+            //ImGui::DragFloat("scale", &font_scale, 0.001f, 0.5f, 2.0f);
+            //font_scale = glm::clamp(font_scale, 0.5f, 2.0f);
+            //ImGui::SetWindowFontScale(font_scale);
+        }
+        ImGui::End();
+        
+        if (gGUIState.mGridActive)
+        {
+            ImGuizmo::DrawGrid(glm::value_ptr(lView), glm::value_ptr(lProjection), glm::value_ptr(glm::mat4(1.0f)), 20.f);
+        }
+
+        // draw gizmos over selected stroke
         if (gGUIState.ValidStrokeSelected(aScene))
         {
             int32_t lSelectedIndex = gGUIState.mSelectedItems[0];
             TStrokeInfo& lStrokeInfo = aScene.mStorkesArray[lSelectedIndex];
 
-            //static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::TRANSLATE | ImGuizmo::BOUNDS);
-            //static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::LOCAL);
             if (io.KeysDown['T'])
                 gGUIState.mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
             if (io.KeysDown['R'])
                 gGUIState.mCurrentGizmoOperation = ImGuizmo::ROTATE;
             if (io.KeysDown['Y']) // r Key
                 gGUIState.mCurrentGizmoOperation = ImGuizmo::SCALE;
-            //if (ImGui::RadioButton("Translate", mCurrentGizmoOperation == ImGuizmo::TRANSLATE))
-            //    mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
-            //ImGui::SameLine();
-            //if (ImGui::RadioButton("Rotate", mCurrentGizmoOperation == ImGuizmo::ROTATE))
-            //    mCurrentGizmoOperation = ImGuizmo::ROTATE;
-            //ImGui::SameLine();
-            //if (ImGui::RadioButton("Scale", mCurrentGizmoOperation == ImGuizmo::SCALE))
-            //    mCurrentGizmoOperation = ImGuizmo::SCALE;
-            /*float matrixTranslation[3], matrixRotation[3], matrixScale[3];
-            ImGuizmo::DecomposeMatrixToComponents(matrix.m16, matrixTranslation, matrixRotation, matrixScale);
-            ImGui::InputFloat3("Tr", matrixTranslation, 3);
-            ImGui::InputFloat3("Rt", matrixRotation, 3);
-            ImGui::InputFloat3("Sc", matrixScale, 3);*/
 
             glm::mat4 lTransformationMatrix;
             ImGuizmo::RecomposeMatrixFromComponents(&lStrokeInfo.posb.x, &lStrokeInfo.mEulerAngles.x, &lStrokeInfo.param0.x, glm::value_ptr(lTransformationMatrix));
-
-            /*if (mCurrentGizmoOperation != ImGuizmo::SCALE)
-            {
-                if (ImGui::RadioButton("Local", mCurrentGizmoMode == ImGuizmo::LOCAL))
-                    mCurrentGizmoMode = ImGuizmo::LOCAL;
-                ImGui::SameLine();
-                if (ImGui::RadioButton("World", mCurrentGizmoMode == ImGuizmo::WORLD))
-                    mCurrentGizmoMode = ImGuizmo::WORLD;
-            }*/
-            static bool useSnap(false);
-            if (ImGui::IsKeyPressed(83))
-                useSnap = !useSnap;
-            //ImGui::Checkbox("", &useSnap);
-            //ImGui::SameLine();
-           // glm::vec3 snap;
-           /* switch (mCurrentGizmoOperation)
-            {
-            case ImGuizmo::TRANSLATE:
-                snap = config.mSnapTranslation;
-                ImGui::InputFloat3("Snap", &snap.x);
-                break;
-            case ImGuizmo::ROTATE:
-                snap = config.mSnapRotation;
-                ImGui::InputFloat("Angle Snap", &snap.x);
-                break;
-            case ImGuizmo::SCALE:
-                snap = config.mSnapScale;
-                ImGui::InputFloat("Scale Snap", &snap.x);
-                break;
-            }*/
-
-
-
-            //ImGuizmo::DrawCubes(glm::value_ptr(lView), glm::value_ptr(lProjection), &lTransformationMatrix[0][0], 4);
 
             static float bounds[] = { -1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f };
             if (ImGuizmo::Manipulate(glm::value_ptr(lView), 
@@ -267,7 +325,7 @@ namespace GEditor
                                      gGUIState.mCurrentGizmoOperation, 
                                      gGUIState.mCurrentGizmoMode, 
                                      glm::value_ptr(lTransformationMatrix), 
-                                     NULL, NULL, bounds, NULL))
+                                     NULL, NULL, gGUIState.mBoundsActive ? bounds : NULL, NULL))
             {
                 ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(lTransformationMatrix), &lStrokeInfo.posb.x, &lStrokeInfo.mEulerAngles.x, &lStrokeInfo.param0.x);
                 lStrokeInfo.UpdateRotation();
