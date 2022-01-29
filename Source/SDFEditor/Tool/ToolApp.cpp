@@ -28,7 +28,7 @@
 	
 	- [DONE] Stroke Rotation (Data + Shader)
 	
-    - ImGuizmo options panel (GUI)
+    - [DONE] ImGuizmo options panel (GUI)
         > Rotate, Translate, Scale toggle
         > World, Local
         > Bounds on/off
