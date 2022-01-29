@@ -24,9 +24,9 @@
     - Stroke selection with bounding box raycast
         > Draw bounding box (GUI)
 
-    - [DONE (basic)] Scene serializaion/deserialization + save/load (Core)
+    - [(basic test done)] Scene serializaion/deserialization + save/load (Core)
 	
-	- [DONE, REVIEW] Stroke Rotation (Data + Shader)
+	- [DONE] Stroke Rotation (Data + Shader)
 	
     - ImGuizmo options panel (GUI)
         > Rotate, Translate, Scale toggle
@@ -83,10 +83,11 @@ void CToolApp::Shutdown()
 void CToolApp::Update()
 {
     UpdateCamera();
+    HandleShortcuts();
 
     // TODO: Update scene with ui
-    DrawStrokesPanel(mScene);
-    DrawStrokesGuizmos(mScene);
+    GEditor::DrawStrokesPanel(mScene);
+    GEditor::DrawStrokesGuizmos(mScene);
 
     mRenderer.UpdateSceneData(mScene);
 
@@ -112,7 +113,7 @@ void CToolApp::UpdateCamera()
 
     const char* lDirection = "unknown";
 
-    if (!io.WantCaptureKeyboard)
+    if (!io.WantCaptureKeyboard && !io.KeyCtrl && !io.KeyAlt)
     {
 
         if (io.KeysDown['W'] || io.KeysDown['S'])
@@ -141,25 +142,6 @@ void CToolApp::UpdateCamera()
             float lModifier = io.KeysDown['E'] ? -5.f : 5.0f;
             lCamera.MoveUp(io.DeltaTime * lModifier * lMultiplier);
         
-        }
-
-        // F5 Reload Shaders
-        if (ImGui::IsKeyPressed(294, false))
-        {
-            mRenderer.ReloadShaders();
-            mScene.SetDirty();
-        }
-
-        // F3 Load Scene
-        if (ImGui::IsKeyPressed(292, false))
-        {
-            LoadScene("test.dfs");
-        }
-
-        // F4 Save Scene
-        if (ImGui::IsKeyPressed(293, false))
-        {
-            SaveScene("test.dfs");
         }
     }
 
@@ -200,9 +182,37 @@ void CToolApp::UpdateCamera()
     }
 }
 
+bool CToolApp::HandleShortcuts()
+{
+    ImGuiIO& io = ImGui::GetIO();
+
+    // F5 Reload Shaders
+    if (ImGui::IsKeyPressed(294, false))
+    {
+        mRenderer.ReloadShaders();
+        mScene.SetDirty();
+        return true;
+    }
+
+    // F3 Load Scene
+    if (ImGui::IsKeyPressed(292, false))
+    {
+        LoadScene("test.dfs");
+        return true;
+    }
+
+    // Ctrl + S Save Scene
+    if (io.KeyCtrl && ImGui::IsKeyPressed('S', false))
+    {
+        SaveScene("test.dfs");
+        return true;
+    }
+
+    return false;
+}
+
 void CToolApp::SaveScene(const std::string&  aFilePath)
 {
-
     size_t lStrokesBytesSize = mScene.mStorkesArray.size() * sizeof(TStrokeInfo);
     uint32_t lNumElements = mScene.mStorkesArray.size() & 0xFFFFFFFF;
 
@@ -216,6 +226,8 @@ void CToolApp::SaveScene(const std::string&  aFilePath)
 
 void CToolApp::LoadScene(const std::string& aFilePath)
 {
+    GEditor::ResetSelection();
+
     std::vector<char> lData = ReadFile(aFilePath);
 
     if (lData.size() > 0)

@@ -25,6 +25,7 @@ public:
 
 private:
     void UpdateCamera();
+    bool HandleShortcuts();
     void SaveScene(const std::string& aFilePath);
     void LoadScene(const std::string& aFilePath);
 

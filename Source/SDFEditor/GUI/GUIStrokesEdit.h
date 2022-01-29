@@ -1,6 +1,14 @@
 
 #pragma once
 
-void DrawStrokesPanel(class CScene& aScene);
-void DrawStrokesGuizmos(class CScene& aScene);
-void RaycastSelectStroke(class CScene& aScene);
+class CScene;
+
+namespace GEditor
+{
+    void ResetSelection();
+
+    void DrawStrokesPanel(CScene& aScene);
+    void DrawStrokesGuizmos(CScene& aScene);
+
+    void RaycastSelectStroke(CScene& aScene);
+}
