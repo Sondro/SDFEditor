@@ -33,6 +33,14 @@ GLenum sTexWrap[] =
     GL_CLAMP_TO_EDGE
 };
 
+GLenum sImgAccess[] =
+{
+    GL_READ_ONLY,
+    GL_WRITE_ONLY,
+    GL_READ_WRITE
+};
+
+
 CGPUTexture::CGPUTexture(TGPUTextureConfig const& aConfig)
     : mConfig(aConfig)
 {
@@ -60,7 +68,13 @@ CGPUTexture::~CGPUTexture()
     glDeleteTextures(1, &mTextureHandler);
 }
 
-void CGPUTexture::Bind(uint32_t aLocation)
+void CGPUTexture::BindTexture(uint32_t aUnit)
 {
+    glActiveTexture(GL_TEXTURE0 + aUnit);
+    glBindTexture(mTarget, mTextureHandler);
+}
 
+void CGPUTexture::BindImage(uint32_t aLocation, uint32_t aMip, EImgAccess::Type aAccess)
+{
+    glBindImageTexture(0, mTextureHandler, aMip, GL_FALSE, 0, sImgAccess[aAccess], sTexFormat[mConfig.mFormat]);
 }

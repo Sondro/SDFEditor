@@ -10,7 +10,7 @@ namespace ETexTarget
         TEXTURE_2D,
         TEXTURE_3D
     };
-};
+}
 
 namespace ETexFormat
 {
@@ -21,7 +21,7 @@ namespace ETexFormat
         RGBA16F,
         RGBA32F,
     };
-};
+}
 
 namespace ETexFilter
 {
@@ -34,7 +34,7 @@ namespace ETexFilter
         NEAREST_MIPMAP_LINEAR,
         LINEAR_MIPMAP_LINEAR
     };
-};
+}
 
 namespace ETexWrap
 {
@@ -43,7 +43,17 @@ namespace ETexWrap
         REPEAT,
         CLAMP_TO_EDGE
     };
-};
+}
+
+namespace EImgAccess
+{
+    enum Type
+    {
+        READ_ONLY,
+        WRITE_ONLY,
+        READ_WRITE
+    };
+}
 
 struct TGPUTextureConfig
 {
@@ -65,7 +75,8 @@ class CGPUTexture
 public:
     CGPUTexture(TGPUTextureConfig const & aConfig);
     ~CGPUTexture();
-    void Bind(uint32_t aLocation);
+    void BindTexture(uint32_t aUnit);
+    void BindImage(uint32_t aLocation, uint32_t aMip, EImgAccess::Type aAccess);
 private:
     TGPUTextureConfig mConfig;
 

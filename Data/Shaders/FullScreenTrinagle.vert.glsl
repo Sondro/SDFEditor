@@ -57,7 +57,7 @@ void main()
     //outRayOrigin = ray_origin_wc;
     //outRayDirection = ray_dir_wc;
 
-    outNear = invViewProj * vec4(clipPos, -1, 1);
+    outNear = invViewProj * vec4(clipPos, 0, 1);
     //nearPos /= nearPos.w;
     outFar = invViewProj * vec4(clipPos, 1, 1);
     //farPos /= farPos.w;

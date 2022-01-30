@@ -2,7 +2,10 @@
 
 #include "GUIStrokesEdit.h"
 
-#include "SDFEditor/Tool/SceneData.h"
+#include <SDFEditor/Tool/SceneData.h>
+#include <SDFEditor/Math/Box.h>
+
+#include <sbx/Core/Log.h>
 
 #include <imgui/imgui.h>
 #include <imgui/ImGuizmo.h>
@@ -334,12 +337,74 @@ namespace GEditor
         }
     }
 
+    void CreateCameraRay(CScene const & aScene, glm::vec3& aRayOrigin, glm::vec3& aRayDirection)
+    {
+        const ImVec2 kViewPos = ImGui::GetMainViewport()->Pos;
+        const ImVec2 kViewSize = ImGui::GetMainViewport()->Size;
+
+        ImGuiIO& io = ImGui::GetIO();
+
+        const glm::mat4 proj = aScene.mCamera.GetProjectionMatrix();
+        const glm::mat4 view = aScene.mCamera.GetViewMatrix();
+
+        const glm::mat4 invVP = glm::inverse(proj * view);
+
+        const float mox = ((io.MousePos.x - kViewPos.x) / kViewSize.x) * 2.f - 1.f;
+        const float moy = (1.f - ((io.MousePos.y - kViewPos.y) / kViewSize.y)) * 2.f - 1.f;
+
+        const float zNear = 0.f;
+        const float zFar = (1.f - FLT_EPSILON);
+
+        glm::vec4 lOrigin = invVP * glm::vec4(mox, moy, zNear, 1.f);
+        lOrigin *= 1.f / lOrigin.w;
+        glm::vec4 lEnd = invVP * glm::vec4(mox, moy, zFar, 1.f);
+        lEnd *= 1.f / lEnd.w;       
+
+        aRayOrigin = glm::vec3(lOrigin.x, lOrigin.y, lOrigin.z);
+        aRayDirection = glm::normalize(lEnd - lOrigin);
+    }
+
     void RaycastSelectStroke(CScene& aScene)
     {
+        gGUIState.mSelectedItems.clear();
+
+        glm::vec3 lRayOrigin = glm::vec3(1.0);
+        glm::vec3 lRayDirection = glm::vec3(1.0);
+        float lPrevDistance = 1000000.0f;
+        int32_t lIntersectedIndex = UINT32_MAX;
+
+        // calculate ray based on mouse position
+        CreateCameraRay(aScene, lRayOrigin, lRayDirection);
+
+        static const glm::vec3 kUnitVec(1.0f, 1.0f, 1.0f);
 
         for (int32_t i = 0; i < aScene.mStorkesArray.size(); i++)
         {
+            TStrokeInfo& lStrokeInfo = aScene.mStorkesArray[i];
+           
+            // Calculate box with stroke properties
+            const glm::vec3 lScale = lStrokeInfo.GetScale();
+            glm::mat4 lTransformationMatrix;
+            ImGuizmo::RecomposeMatrixFromComponents(&lStrokeInfo.posb.x, &lStrokeInfo.mEulerAngles.x, &kUnitVec.x, glm::value_ptr(lTransformationMatrix));
 
+
+            float lDistance = 1000000000.0f;
+            bool lIntersects = SBox(lScale, lTransformationMatrix).CheckRayIntersection2(lRayOrigin, lRayDirection, &lDistance);
+            if (lDistance < lPrevDistance)
+            {
+                lPrevDistance = lDistance;
+                lIntersectedIndex = i;
+            }
+        }
+
+        if (lIntersectedIndex != UINT32_MAX)
+        {
+            //SBX_LOG("Clicked Stroke %s", aScene.mStorkesArray[lIntersectedIndex].mName);
+            gGUIState.mSelectedItems.push_back(lIntersectedIndex);
+        }
+        else
+        {
+            //SBX_LOG("Clicked Nothing");
         }
     }
 

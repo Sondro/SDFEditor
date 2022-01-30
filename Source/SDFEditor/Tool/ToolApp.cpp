@@ -17,12 +17,10 @@
         > [DONE] bitfield for operations
         > [DONE] operation checks in gui
 
-
     - [DONE] Implement ImGuizmo (GUI)
-    
 
-    - Stroke selection with bounding box raycast
-        > Draw bounding box (GUI)
+    - [DONE] Stroke selection with bounding box raycast
+        > [PENDING] Draw bounding box (GUI)
 
     - [(basic test done)] Scene serializaion/deserialization + save/load (Core)
 	
@@ -34,22 +32,27 @@
         > Bounds on/off
         > Grid on/off
 
-    - Fix Camera Moving overalpping ImGuizmo (GUI + Camera)
-
     - Display properties layout per primitivie (GUI)
 
     - Adapt transform guizmos to primitive (GUI)
 
-    - Copy / Paste strokes
-
     - Undo / Redo
 
+    - Copy / Paste strokes
+
+    - Delete key input to remove strokes
+
+    // Bugs
+
+    - [LOW] Fix Camera Moving overalpping ImGuizmo (GUI + Camera)
 
     // Future
     
     - Offscreen render pipeline?
     - Half resolution? Checkerboard?
     - Sparse voxel SDF
+
+
 
 */
 
@@ -82,12 +85,22 @@ void CToolApp::Shutdown()
 
 void CToolApp::Update()
 {
-    UpdateCamera();
-    HandleShortcuts();
+    bool lCameraMoving = false;
+    UpdateCamera(lCameraMoving);
 
     // TODO: Update scene with ui
     GEditor::DrawStrokesPanel(mScene);
     GEditor::DrawStrokesGuizmos(mScene);
+
+    HandleShortcuts();
+
+    ImGuiIO& io = ImGui::GetIO();
+    if (!lCameraMoving && !io.WantCaptureMouse && ImGui::IsMouseClicked(0))
+    {
+        GEditor::RaycastSelectStroke(mScene);
+
+    }
+
 
     mRenderer.UpdateSceneData(mScene);
 
@@ -99,7 +112,7 @@ void CToolApp::Render()
     mRenderer.RenderFrame();
 }
 
-void CToolApp::UpdateCamera()
+void CToolApp::UpdateCamera(bool& aCameraMoving)
 {
     CCamera& lCamera = mScene.mCamera;
     
@@ -113,6 +126,7 @@ void CToolApp::UpdateCamera()
 
     const char* lDirection = "unknown";
 
+    aCameraMoving = false;
     if (!io.WantCaptureKeyboard && !io.KeyCtrl && !io.KeyAlt)
     {
 
@@ -121,6 +135,7 @@ void CToolApp::UpdateCamera()
             lDirection = io.KeysDown['S'] ? "backwards" : "forward";
             float lLambda = (io.KeysDown['S'] ? -1.f : 1.f) * io.DeltaTime * 3.0f * lMultiplier;
             lCamera.MoveFront(lLambda);
+            aCameraMoving = true;
         }
 
         if (io.KeysDown['A'] || io.KeysDown['D'])
@@ -128,6 +143,7 @@ void CToolApp::UpdateCamera()
             lDirection = io.KeysDown['A'] ? "left" : "rigth";
             float lLambda = (io.KeysDown['A'] ? -1.f : 1.f) * io.DeltaTime * 3.0f * lMultiplier;
             lCamera.MoveRight(lLambda * 1.2f);
+            aCameraMoving = true;
         }
 
         /* if(ImGui::IsKeyDown(io.KeyMap[ImGuiKey_Space]))
@@ -141,7 +157,7 @@ void CToolApp::UpdateCamera()
             lDirection = io.KeysDown['E'] ? "downwards" : "upwards";
             float lModifier = io.KeysDown['E'] ? -5.f : 5.0f;
             lCamera.MoveUp(io.DeltaTime * lModifier * lMultiplier);
-        
+            aCameraMoving = true;
         }
     }
 
@@ -160,19 +176,8 @@ void CToolApp::UpdateCamera()
             glfwGetCursorPos(glfwGetCurrentContext(), &lPrevCursorX, &lPrevCursorY);
             lWasMoving = true;
         }
-        /*else
-        {
-            double lCurrentCursorX, lCurrentCursorY;
-            glfwGetCursorPos(glfwGetCurrentContext(), &lCurrentCursorX, &lCurrentCursorY);
-            float lMouseDeltaX = float(lCurrentCursorX - lPrevCursorX);
-            float lMouseDeltaY = float(lCurrentCursorY - lPrevCursorY);
-
-            lCamera.Pan(-lMouseDeltaX * lModifier, -lMouseDeltaY * lModifier);
-
-            glfwSetCursorPos(glfwGetCurrentContext(), lPrevCursorX, lPrevCursorY);
-            lPrevCursorX = lCurrentCursorX;
-            lPrevCursorY = lCurrentCursorY;
-        }*/
+        
+        aCameraMoving = true;
     }
     else if(lWasMoving)
     {

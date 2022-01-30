@@ -1703,6 +1703,11 @@ namespace IMGUIZMO_NAMESPACE
                overSmallAnchor = false;
             }
 
+            if (overBigAnchor || overSmallAnchor)
+            {
+                ImGui::CaptureMouseFromApp();
+            }
+
             unsigned int bigAnchorColor = overBigAnchor ? selectionColor : (IM_COL32(0xAA, 0xAA, 0xAA, 0) + anchorAlpha);
             unsigned int smallAnchorColor = overSmallAnchor ? selectionColor : (IM_COL32(0xAA, 0xAA, 0xAA, 0) + anchorAlpha);
 
@@ -1753,6 +1758,7 @@ namespace IMGUIZMO_NAMESPACE
 
          if (gContext.mbUsingBounds && (gContext.mActualID == -1 || gContext.mActualID == gContext.mEditingID))
          {
+            ImGui::CaptureMouseFromApp();
             matrix_t scale;
             scale.SetToIdentity();
 

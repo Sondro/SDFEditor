@@ -24,7 +24,7 @@ public:
     void Render();
 
 private:
-    void UpdateCamera();
+    void UpdateCamera(bool& aCameraMoving);
     bool HandleShortcuts();
     void SaveScene(const std::string& aFilePath);
     void LoadScene(const std::string& aFilePath);

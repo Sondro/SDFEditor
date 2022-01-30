@@ -1,5 +1,5 @@
 
-#include "sbx/Common.h"
+#include <sbx/Core/ErrorHandling.h>
 #include "FileIO.h"
 
 #include <cstdint>

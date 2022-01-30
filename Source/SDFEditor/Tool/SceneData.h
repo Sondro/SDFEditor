@@ -87,6 +87,20 @@ struct TStrokeInfo : public stroke_t
 
     void UpdateRotation();
 
+    glm::vec3 GetScale() const
+    {
+        // TODO: compose scale based on stroke
+        return glm::vec3(param0.x, param0.y, param0.z);
+    }
+
+    void SetScale(glm::vec3 const & aScale)
+    {
+        // TODO: Set Scale based on stroke
+        param0.x = aScale.x;
+        param0.y = aScale.y;
+        param0.z = aScale.z;
+    }
+
     glm::vec3 mEulerAngles {0,0,0};
 
     char mName[MAX_NAME_SIZE];
