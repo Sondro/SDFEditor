@@ -6,7 +6,9 @@
 #ifndef __SBX_ERROR_HANDLING_H__
 #define __SBX_ERROR_HANDLING_H__
 
+#include <cstdint>
 #include <sbx/Core/Platform.h>
+#include <sbx/Core/Log.h>
 
 #ifndef _SBX_FINAL
 #   define SBX_ERRORS_ENABLED 1

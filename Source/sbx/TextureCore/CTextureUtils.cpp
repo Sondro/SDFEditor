@@ -67,38 +67,6 @@ namespace sbx
         }
     }
 
-    void CTextureUtils::LoadFromFile(TPath const & aPath, CGPUTexture::Ref & aTexture)
-    {
-        int32_t lWidth = 0, lHeight = 0, lComponents = 0;
-        void* lData = stbi_load(aPath, &lWidth, &lHeight, &lComponents, 4);
-        if(lData)
-        {
-            CRawBuffer::Ref lRawBuffer = CRawBuffer::CreateInstance(lWidth * lHeight * lComponents, lData);
-            stbi_image_free(lData);
-            CGPUTexture::Ref lTexture = CGPUTexture::CreateInstance(TTextureDesc(lWidth, lHeight, lComponents, 1));
-            lTexture->CopyFromBuffer(lRawBuffer);
-            aTexture = lTexture;
-        }
-        else
-        {
-            aTexture = nullptr;
-        }
-    };
-
-    /*void CTextureUtils::SaveToFile(const char* aPath, CGPUTexture::Ref const & aTexture)
-    {
-        TTextureDesc lTexDesc = aTexture->GetDesc();
-        CRawBuffer::Ref lRawBuffer = CRawBuffer::CreateInstance(lTexDesc->GetBufferSize());
-        std::string lPath = aPath;
-        aTexture->CopyToBuffer(lRawBuffer, [lTexDesc, lRawBuffer, lPath, aPath]()
-        {
-            stbi_write_png(lPath.c_str(), lTexDesc->mWidth, lTexDesc->mHeight, lTexDesc->mComponents, lRawBuffer->GetByteArray(), 0);
-        });
-    }*/
-
-
-
-
     bool CTextureUtils::StoreTexturePack(TPath const & aPath, FVector< TTexture > const & aTexturePack)
     {
         std::ofstream lOutput( aPath, std::ios::binary );
