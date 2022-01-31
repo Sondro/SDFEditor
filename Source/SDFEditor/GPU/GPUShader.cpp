@@ -20,13 +20,19 @@ GLenum sShaderStages[] =
     GL_COMPUTE_SHADER_BIT
 };
 
-CGPUShaderProgram::CGPUShaderProgram(CShaderCodeRef aCode, EShaderSourceType aType, std::string const& aName)
+CGPUShaderProgram::CGPUShaderProgram(CShaderCodeRefList const & aCode, EShaderSourceType aType, std::string const& aName)
     : mShaderProgramHandler(UINT32_MAX)
     , mType(aType)
     , mName(aName)
 {
-    const char* lCode = aCode->data();
-    mShaderProgramHandler = glCreateShaderProgramv(sShaderTypes[(uint32_t)aType], 1, &lCode);
+    std::vector <char*> lCodeStrings;
+    lCodeStrings.push_back("#version 450\n");
+    for (auto& lStr : aCode)
+    {
+        lCodeStrings.push_back(lStr->data());
+    }
+
+    mShaderProgramHandler = glCreateShaderProgramv(sShaderTypes[(uint32_t)aType], (GLsizei)lCodeStrings.size(), lCodeStrings.data());
 
     GLint status;
     glGetProgramiv(mShaderProgramHandler, GL_LINK_STATUS, &status);

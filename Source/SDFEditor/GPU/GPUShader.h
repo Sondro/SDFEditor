@@ -7,6 +7,7 @@
 #include <string>
 
 using CShaderCodeRef = std::shared_ptr<std::vector<char>>;
+using CShaderCodeRefList = std::vector<CShaderCodeRef>;
 using CGPUShaderProgramRef = std::shared_ptr<class CGPUShaderProgram>;
 using CGPUShaderPipelineRef = std::shared_ptr<class CGPUShaderPipeline>;
 
@@ -20,7 +21,7 @@ enum class EShaderSourceType
 class CGPUShaderProgram
 {
 public:
-    CGPUShaderProgram(CShaderCodeRef aCode, EShaderSourceType aType, std::string const & aName);
+    CGPUShaderProgram(CShaderCodeRefList const & aCode, EShaderSourceType aType, std::string const & aName);
     ~CGPUShaderProgram();
     uint32_t GetHandler() const { return mShaderProgramHandler; }
 

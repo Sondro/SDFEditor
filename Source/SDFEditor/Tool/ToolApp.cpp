@@ -42,6 +42,10 @@
 
     - Delete key input to remove strokes
 
+    - Handle group selection and transform
+
+    - Custom stroke list widget to replace ImGui::Selectable
+
     // Bugs
 
     - [LOW] Fix Camera Moving overalpping ImGuizmo (GUI + Camera)
