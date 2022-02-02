@@ -8,6 +8,10 @@
 #include <sbx/Core/Log.h>
 
 #include <imgui/imgui.h>
+#ifndef IMGUI_DEFINE_MATH_OPERATORS
+#define IMGUI_DEFINE_MATH_OPERATORS
+#endif
+#include <imgui/imgui_internal.h>
 #include <imgui/ImGuizmo.h>
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -54,14 +58,30 @@ namespace GEditor
                 ImGui::PopItemWidth();
                 gGUIState.mVisibleItemsInList = glm::clamp(gGUIState.mVisibleItemsInList, 5, 20);
             }
-
-            if (ImGui::BeginListBox("StrokesListBox", ImVec2(-FLT_MIN, (float(gGUIState.mVisibleItemsInList) + 0.5f) * ImGui::GetTextLineHeightWithSpacing())))
+            
+            // Custom selectable widget
+            const float item_height = ImGui::GetTextLineHeightWithSpacing();
+            if (ImGui::BeginChildFrame(ImGui::GetID("StrokesListFrame"), ImVec2(-FLT_MIN, (float(gGUIState.mVisibleItemsInList) + 0.5f) * item_height)))
             {
+                const ImU32 lActiveColor = ImGui::GetColorU32(ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
+                const ImU32 lHoveredColor = ImGui::GetColorU32(ImGui::GetStyleColorVec4(ImGuiCol_ButtonHovered));
                 for (int32_t i = 0; i < aScene.mStorkesArray.size(); i++)
                 {
+                    const ImVec2 lRegionOrigin = ImGui::GetCursorScreenPos() - ImVec2(2.0f, 0.0f);
+                    const ImVec2 lRegionEnd = ImVec2(lRegionOrigin.x + ImGui::GetWindowWidth() + 2.0f, lRegionOrigin.y + item_height);
+
                     auto lItemIt = std::find(gGUIState.mSelectedItems.begin(), gGUIState.mSelectedItems.end(), i);
                     const bool lIsSelected = lItemIt != gGUIState.mSelectedItems.end();
-                    if (ImGui::Selectable(aScene.mStorkesArray[i].mName, lIsSelected))
+                    const bool lIsHovered = ImGui::IsMouseHoveringRect(lRegionOrigin, lRegionEnd);
+                    
+                    if (lIsSelected || lIsHovered)
+                    {
+                        ImGui::GetWindowDrawList()->AddRectFilled(lRegionOrigin, lRegionEnd, lIsSelected ? lActiveColor : lHoveredColor);
+                    }
+                    ImGui::GetCurrentWindow()->DC.CursorPos.y += 2.0f;
+                    ImGui::Text("%s", aScene.mStorkesArray[i].mName);
+                    ImGui::ItemAdd(ImRect(lRegionOrigin, lRegionEnd), ImGui::GetCurrentWindow()->GetID(1000 + i));
+                    if (ImGui::IsItemHovered() && ImGui::IsItemClicked())
                     {
                         if (!ImGui::GetIO().KeyCtrl)
                         {
@@ -81,7 +101,10 @@ namespace GEditor
                         }
                     }
                 }
-                ImGui::EndListBox();
+                /*for (int n = 0; n < close_queue.Size; n++)
+                    if (close_queue[n]->Dirty)
+                        ImGui::Text("%s", close_queue[n]->Name);*/
+                ImGui::EndChildFrame();
             }
 
             if (ImGui::Button("Add New"))
@@ -177,7 +200,7 @@ namespace GEditor
 
                 lDirty |= ImGui::DragFloat3("Size", (float*)&lStrokeInfo.param0.x, 0.01f);
 
-                if (ImGui::Button("Remove") && aScene.mStorkesArray.size() > 0)
+                if ((ImGui::Button("Remove") || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Delete), false)) && aScene.mStorkesArray.size() > 0)
                 {
                     aScene.mStorkesArray.erase(aScene.mStorkesArray.begin() + lSelectedIndex);
                     gGUIState.mSelectedItems.clear();

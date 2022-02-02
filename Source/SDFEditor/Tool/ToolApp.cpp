@@ -40,11 +40,11 @@
 
     - Copy / Paste strokes
 
-    - Delete key input to remove strokes
+    - [DONE] Delete key input to remove strokes
 
     - Handle group selection and transform
 
-    - Custom stroke list widget to replace ImGui::Selectable
+    - [DONE (basic)]Custom stroke list widget to replace ImGui::Selectable
 
     // Bugs
 
