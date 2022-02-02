@@ -15,16 +15,7 @@
 
 #include <algorithm>
 
-// Icon glyphs
-#define ICON_ROTATE u8"\ue800"
-#define ICON_GRID   u8"\ue801"
-#define ICON_SCALE  u8"\ue802"
-#define ICON_WORLD  u8"\ue803"
-#define ICON_LOCAL  u8"\ue804"
-#define ICON_MOVE   u8"\uf047"
-#define ICON_BOX    u8"\uf1b2"
-
-
+#include "GUIIconGlyphs.h"
 
 namespace GEditor
 {
@@ -256,7 +247,7 @@ namespace GEditor
                      |  ImGuiWindowFlags_NoNavFocus
                      |  ImGuiWindowFlags_NoDocking;
 
-        const ImVec2 kGuizmoPanelSize = ImVec2(400, 50);
+        const ImVec2 kGuizmoPanelSize = ImVec2(470, 50);
         const ImVec2 kGuizmoPanelPos = ImVec2(kViewPos.x + kViewSize.x - kGuizmoPanelSize.x - 20, kViewPos.y + 20);
         ImGui::SetNextWindowSize(kGuizmoPanelSize, ImGuiCond_Always);
         ImGui::SetNextWindowPos(kGuizmoPanelPos, ImGuiCond_Always);
@@ -266,29 +257,35 @@ namespace GEditor
         {
             ImGui::PopStyleColor(1);
             ImGui::PopStyleVar(1);
-            ImGui::SetWindowFontScale(1.39f);
+            ImGui::SetWindowFontScale(1.25f);
             ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 2.0f);
             ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 10.0f);
-            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(6.7f, 7.0f));
+            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(8.0f, 8.0f));
             ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_WindowBg));
             ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.1f, 0.10f, 0.12f, 0.70f));
+            GuizmoButtonValue(" " ICON_MOUSE_POINTER, &gGUIState.mCurrentGizmoOperation, ImGuizmo::OPERATION(0));
+            ImGui::SameLine(0.0f, 5.0f);
             GuizmoButtonValue(ICON_MOVE, &gGUIState.mCurrentGizmoOperation, ImGuizmo::TRANSLATE);
             ImGui::SameLine(0.0f, 5.0f);
             GuizmoButtonValue(ICON_ROTATE, &gGUIState.mCurrentGizmoOperation, ImGuizmo::ROTATE);
             ImGui::SameLine(0.0f, 5.0f);
+            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10.0f, 8.0f));
             GuizmoButtonValue(ICON_SCALE, &gGUIState.mCurrentGizmoOperation, ImGuizmo::SCALE);
+            ImGui::PopStyleVar(1);
             ImGui::SameLine(0.0f, 25.0f);
             GuizmoButtonValue(ICON_WORLD, &gGUIState.mCurrentGizmoMode, ImGuizmo::WORLD);
             ImGui::SameLine(0.0f, 5.0f);
-            GuizmoButtonValue(ICON_LOCAL, &gGUIState.mCurrentGizmoMode, ImGuizmo::LOCAL);
+            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(9.0f, 8.0f));
+            GuizmoButtonValue(ICON_BOX, &gGUIState.mCurrentGizmoMode, ImGuizmo::LOCAL);
+            ImGui::PopStyleVar(1);
             ImGui::SameLine(0.0f, 25.0f);
             GuizmoButtonToggle(ICON_GRID, &gGUIState.mGridActive);
             ImGui::SameLine(0.0f, 25.0f);
-            GuizmoButtonToggle(ICON_BOX, &gGUIState.mBoundsActive);
+            GuizmoButtonToggle(ICON_BOUNDS, &gGUIState.mBoundsActive);
             ImGui::PopStyleColor(2);
             ImGui::PopStyleVar(3);
 
-            ImGuizmo::OPERATION mCurrentGizmoOperation{ ImGuizmo::TRANSLATE | ImGuizmo::BOUNDS };
+            ImGuizmo::OPERATION mCurrentGizmoOperation{ ImGuizmo::TRANSLATE };
             ImGuizmo::MODE mCurrentGizmoMode{ ImGuizmo::MODE::LOCAL };
             bool mGridActive{ true };
             bool mBoundsActive{ true };
