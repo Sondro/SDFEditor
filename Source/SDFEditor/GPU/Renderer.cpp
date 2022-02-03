@@ -22,6 +22,23 @@ namespace EUniformLoc
     };
 };
 
+namespace EBlockBinding
+{
+    enum Type
+    {
+        strokes_buffer = 0,
+        slot_list_buffer = 1,
+        slot_count_buffer = 2,
+    };
+};
+
+const char* sBlockNames[] =
+{
+    "strokes_buffer",
+    "slot_list_buffer",
+    "slot_count_buffer",
+};
+
 void CRenderer::Init()
 {
     glGenVertexArrays(1, &mDummyVAO);
@@ -38,8 +55,54 @@ void CRenderer::Init()
     SBX_LOG("workGroupSizes: (%d, %d, %d)", workGroupSizes[0], workGroupSizes[1], workGroupSizes[2]);
     SBX_LOG("workGroupCounts: (%d, %d, %d)", workGroupCounts[0], workGroupCounts[1], workGroupCounts[2]);
 
-    mStrokesBuffer = std::make_shared<CGPUShaderStorageObject>();
-    mStrokesBuffer->SetData(16 * sizeof(stroke_t), nullptr, EGPUBufferFlags::MAP_WRITE_BIT | EGPUBufferFlags::DYNAMIC_STORAGE);
+    // Strokes buffer
+    mStrokesBuffer = std::make_shared<CGPUShaderStorageObject>(EGPUBufferBindTarget::SHADER_BUFFER_STORAGE);
+    mStrokesBuffer->SetData(16 * sizeof(stroke_t), nullptr, EGPUBufferFlags::DYNAMIC_STORAGE);
+    mStrokesBuffer->BindShaderStorage(EBlockBinding::strokes_buffer);
+
+    // SDF Lut texture
+    TGPUTextureConfig lSdfLutConfig;
+    lSdfLutConfig.mTarget = ETexTarget::TEXTURE_3D;
+    lSdfLutConfig.mExtentX =  128;
+    lSdfLutConfig.mExtentY = 128;
+    lSdfLutConfig.mSlices = 128;
+    lSdfLutConfig.mFormat = ETexFormat::RGBA8;
+    lSdfLutConfig.mMinFilter = ETexFilter::NEAREST;
+    lSdfLutConfig.mMagFilter = ETexFilter::NEAREST;
+    lSdfLutConfig.mWrapS = ETexWrap::CLAMP_TO_EDGE;
+    lSdfLutConfig.mWrapT = ETexWrap::CLAMP_TO_EDGE;
+    lSdfLutConfig.mWrapR = ETexWrap::CLAMP_TO_EDGE;
+    lSdfLutConfig.mMips = 1;
+    mSdfLut = std::make_shared<CGPUTexture>(lSdfLutConfig);
+
+    // SDF Atlas buffer
+    TGPUTextureConfig lSdfAtlasConfig;
+    lSdfAtlasConfig.mTarget = ETexTarget::TEXTURE_3D;
+    lSdfAtlasConfig.mExtentX = 1024;
+    lSdfAtlasConfig.mExtentY = 1024;
+    lSdfAtlasConfig.mSlices = 256;
+    lSdfAtlasConfig.mFormat = ETexFormat::R8;
+    lSdfAtlasConfig.mMinFilter = ETexFilter::LINEAR;
+    lSdfAtlasConfig.mMagFilter = ETexFilter::LINEAR;
+    lSdfAtlasConfig.mWrapS = ETexWrap::CLAMP_TO_EDGE;
+    lSdfAtlasConfig.mWrapT = ETexWrap::CLAMP_TO_EDGE;
+    lSdfAtlasConfig.mWrapR = ETexWrap::CLAMP_TO_EDGE;
+    lSdfAtlasConfig.mMips = 1;
+    mSdfAtlas = std::make_shared<CGPUTexture>(lSdfLutConfig);
+
+    // Slot list buffer
+    mSlotListBuffer = std::make_shared<CGPUShaderStorageObject>(EGPUBufferBindTarget::SHADER_BUFFER_STORAGE);
+    size_t lListSize = size_t(lSdfLutConfig.mExtentX) * 
+                       size_t(lSdfLutConfig.mExtentY) * 
+                       size_t(lSdfLutConfig.mSlices) * 
+                       sizeof(uint32_t);
+    mSlotListBuffer->SetData(lListSize, nullptr, EGPUBufferFlags::DYNAMIC_STORAGE);
+    mSlotListBuffer->BindShaderStorage(EBlockBinding::slot_list_buffer);
+
+    // Atomic Counter buffer
+    mSlotCounterBuffer = std::make_shared<CGPUShaderStorageObject>(EGPUBufferBindTarget::SHADER_BUFFER_STORAGE);
+    mSlotCounterBuffer->SetData(sizeof(uint32_t) * 3, nullptr, EGPUBufferFlags::DYNAMIC_STORAGE);
+    mSlotCounterBuffer->BindShaderStorage(EBlockBinding::slot_count_buffer);
 }
 
 void CRenderer::Shutdown()
@@ -51,18 +114,32 @@ void CRenderer::ReloadShaders()
 {
     SBX_LOG("Loading shaders...");
 
-    CShaderCodeRef lSDFCommonCode = std::make_shared<std::vector<char>>(std::move(ReadFile("./Shaders/SDFCommon.h.glsl")));
-    CShaderCodeRef lScreenQuadVSCode = std::make_shared<std::vector<char>>(std::move(ReadFile("./Shaders/FullScreenTrinagle.vert.glsl")));
-    CShaderCodeRef lColorFSCode = std::make_shared<std::vector<char>>(std::move(ReadFile("./Shaders/Color.frag.glsl")));
+    // Shared SDF code
+    CShaderCodeRef lSdfCommonCode = std::make_shared<std::vector<char>>(std::move(ReadFile("./Shaders/SdfCommon.h.glsl")));
+    
+    // Compute lut shader program
+    {
+        CShaderCodeRef lComputeLutCode = std::make_shared<std::vector<char>>(std::move(ReadFile("./Shaders/ComputeSdfLut.comp.glsl")));
+        mComputeLutProgram = std::make_shared<CGPUShaderProgram>(CShaderCodeRefList{ lSdfCommonCode, lComputeLutCode }, EShaderSourceType::COMPUTE_SHADER, "ComputeLut");
+        mComputeLutPipeline = std::make_shared<CGPUShaderPipeline>(std::vector<CGPUShaderProgramRef>{ mComputeLutProgram });
+    }
 
-    mFullscreenVertexProgram = std::make_shared<CGPUShaderProgram>(CShaderCodeRefList{ lScreenQuadVSCode }, EShaderSourceType::VERTEX_SHADER, "ScreenQuadVS");
-    mColorFragmentProgram = std::make_shared<CGPUShaderProgram>(CShaderCodeRefList{ lSDFCommonCode, lColorFSCode }, EShaderSourceType::FRAGMENT_SHADER, "BaseFragmentFS");
+    // Compute lut shader program
+    {
+        CShaderCodeRef lComputeAtlasCode = std::make_shared<std::vector<char>>(std::move(ReadFile("./Shaders/ComputeSdfAtlas.comp.glsl")));
+        mComputeAtlasProgram = std::make_shared<CGPUShaderProgram>(CShaderCodeRefList{ lSdfCommonCode, lComputeAtlasCode }, EShaderSourceType::COMPUTE_SHADER, "ComputeLut");
+        mComputeAtlasPipeline = std::make_shared<CGPUShaderPipeline>(std::vector<CGPUShaderProgramRef>{ mComputeLutProgram });
+    }
 
-    std::vector<CGPUShaderProgramRef> lPrograms = { mFullscreenVertexProgram, mColorFragmentProgram };
-
-    mScreenQuadPipeline = std::make_shared<CGPUShaderPipeline>(lPrograms);
-
-    mStrokesBuffer->BindToProgram(mColorFragmentProgram->GetHandler(), 0, "strokes_buffer");
+    // Draw on screen shader program
+    {
+        CShaderCodeRef lScreenQuadVSCode = std::make_shared<std::vector<char>>(std::move(ReadFile("./Shaders/FullScreenTrinagle.vert.glsl")));
+        CShaderCodeRef lColorFSCode = std::make_shared<std::vector<char>>(std::move(ReadFile("./Shaders/Color.frag.glsl")));
+        mFullscreenVertexProgram = std::make_shared<CGPUShaderProgram>(CShaderCodeRefList{ lScreenQuadVSCode }, EShaderSourceType::VERTEX_SHADER, "ScreenQuadVS");
+        mColorFragmentProgram = std::make_shared<CGPUShaderProgram>(CShaderCodeRefList{ lSdfCommonCode, lColorFSCode }, EShaderSourceType::FRAGMENT_SHADER, "BaseFragmentFS");
+        std::vector<CGPUShaderProgramRef> lPrograms = { mFullscreenVertexProgram, mColorFragmentProgram };
+        mScreenQuadPipeline = std::make_shared<CGPUShaderPipeline>(lPrograms);
+    }
 }
 
 void CRenderer::UpdateSceneData(CScene const& aScene)
@@ -73,26 +150,34 @@ void CRenderer::UpdateSceneData(CScene const& aScene)
 
         if (lSizeBytes > mStrokesBuffer->GetStorageSize())
         {
-            mStrokesBuffer = std::make_shared<CGPUShaderStorageObject>();
-            mStrokesBuffer->SetData(lSizeBytes + (16 * sizeof(stroke_t)), nullptr, EGPUBufferFlags::MAP_WRITE_BIT | EGPUBufferFlags::DYNAMIC_STORAGE);
-            mStrokesBuffer->BindToProgram(mColorFragmentProgram->GetHandler(), 0, "strokes_buffer");
+            mStrokesBuffer = std::make_shared<CGPUShaderStorageObject>(EGPUBufferBindTarget::SHADER_BUFFER_STORAGE);
+            mStrokesBuffer->SetData(lSizeBytes + (16 * sizeof(stroke_t)), nullptr, EGPUBufferFlags::DYNAMIC_STORAGE);
+            //mStrokesBuffer->BindToProgram(mColorFragmentProgram->GetHandler(), 0, "strokes_buffer");
+            mStrokesBuffer->BindShaderStorage(EBlockBinding::strokes_buffer);
         }
 
-        stroke_t* lStrokesBufferMappedMemory = (stroke_t*)mStrokesBuffer->Map();
+        //stroke_t* lStrokesBufferMappedMemory = (stroke_t*)mStrokesBuffer->Map();
         for (size_t i = 0; i < aScene.mStorkesArray.size(); i++)
         {
-            ::memcpy(lStrokesBufferMappedMemory + i, (void*)&aScene.mStorkesArray[i], sizeof(stroke_t));
+            //::memcpy(lStrokesBufferMappedMemory + i, (void*)&aScene.mStorkesArray[i], sizeof(stroke_t));
+            mStrokesBuffer->UpdateSubData(sizeof(stroke_t) * i, sizeof(stroke_t), (void*)&aScene.mStorkesArray[i]);
         }
-        mStrokesBuffer->Unmap();
-        
+        //mStrokesBuffer->Unmap();
 
+        glProgramUniform1ui(mComputeLutProgram->GetHandler(), EUniformLoc::uStrokesNum, aScene.mStorkesArray.size() & 0xFFFFFFFF);
+        glProgramUniform1ui(mComputeAtlasProgram->GetHandler(), EUniformLoc::uStrokesNum, aScene.mStorkesArray.size() & 0xFFFFFFFF);
         glProgramUniform1ui(mColorFragmentProgram->GetHandler(), EUniformLoc::uStrokesNum, aScene.mStorkesArray.size() & 0xFFFFFFFF);
+
+        // Execute compute lut
+        mComputeLutPipeline->Bind();
+        glDispatchCompute(128, 128, 128);
+
     }
 
     //Update Matrix
     glm::mat4 lProjection = aScene.mCamera.GetProjectionMatrix(); //glm::perspective(aScene.mCamera.mFOV, aScene.mCamera.mAspect, 0.1f, 100.0f);
     glm::mat4 lView = aScene.mCamera.GetViewMatrix(); //glm::lookAt(aScene.mCamera.mOrigin, aScene.mCamera.mLookAt, aScene.mCamera.mViewUp);
-    //lProjection[1][1] *= -1; // Invert glm convention for y-up, as in Vulkan is the opposite than in OpenGL
+    //lProjection[1][1] *= -1; // Remember to do this in Vulkan
     //glm::mat4 lViewProjection = lProjection * lView;
     //glm::mat4 lInverseViewProjection = glm::inverse(lViewProjection);
 

@@ -26,7 +26,7 @@ CGPUShaderProgram::CGPUShaderProgram(CShaderCodeRefList const & aCode, EShaderSo
     , mName(aName)
 {
     std::vector <char*> lCodeStrings;
-    lCodeStrings.push_back("#version 450\n");
+    lCodeStrings.push_back("#version 450\nprecision mediump float;\n");
     for (auto& lStr : aCode)
     {
         lCodeStrings.push_back(lStr->data());
@@ -49,6 +49,23 @@ CGPUShaderProgram::~CGPUShaderProgram()
 {
     glDeleteProgram(mShaderProgramHandler);
     mShaderProgramHandler = UINT32_MAX;
+}
+
+
+uint32_t CGPUShaderProgram::GetBlockIndex(const char* aBlockName) const
+{
+    return glGetProgramResourceIndex(mShaderProgramHandler, GL_SHADER_STORAGE_BLOCK, aBlockName);
+}
+
+void CGPUShaderProgram::StorageBlockBinding(const char* aBlockName, uint32_t aBlockBinding) const
+{
+    uint32_t lBlockIndex = GetBlockIndex(aBlockName);
+    StorageBlockBinding(lBlockIndex, aBlockBinding);
+}
+
+void CGPUShaderProgram::StorageBlockBinding(uint32_t aBlockIndex, uint32_t aBlockBinding) const
+{
+    glShaderStorageBlockBinding(mShaderProgramHandler, aBlockIndex, aBlockBinding);
 }
 
 CGPUShaderPipeline::CGPUShaderPipeline(std::vector<CGPUShaderProgramRef> const& aPrograms)
@@ -78,3 +95,5 @@ void CGPUShaderPipeline::Unbind() const
 {
 //    glBindProgramPipeline(0);
 }
+
+

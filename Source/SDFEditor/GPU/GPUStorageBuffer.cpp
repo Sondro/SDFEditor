@@ -3,8 +3,18 @@
 
 #include "ThirdParty/glad/glad.h"
 
-CGPUShaderStorageObject::CGPUShaderStorageObject()
+GLenum sGPUBufferBindTarget[] =
+{
+    GL_SHADER_STORAGE_BUFFER,
+    GL_ATOMIC_COUNTER_BUFFER,
+    GL_DISPATCH_INDIRECT_BUFFER,
+    GL_COPY_READ_BUFFER,
+    GL_COPY_WRITE_BUFFER,
+};
+
+CGPUShaderStorageObject::CGPUShaderStorageObject(EGPUBufferBindTarget::Type aTarget)
     : mStorageSize(0)
+    , mTarget(aTarget)
 {
     //glGenBuffers(1, &mBufferHandler);
     //glBindBuffer(GL_SHADER_STORAGE_BUFFER, mBufferHandler);
@@ -36,6 +46,11 @@ void CGPUShaderStorageObject::SetData(size_t aSize, void* aData, uint32_t aFlags
     mStorageSize = aSize;
 }
 
+void CGPUShaderStorageObject::UpdateSubData(intptr_t aOffset, size_t aSize, void* aData)
+{
+    glNamedBufferSubData(mBufferHandler, aOffset, aSize, aData);
+}
+
 void* CGPUShaderStorageObject::Map()
 {
     return glMapNamedBuffer(mBufferHandler, GL_WRITE_ONLY);
@@ -46,19 +61,12 @@ void CGPUShaderStorageObject::Unmap()
     glUnmapNamedBuffer(mBufferHandler);
 }
 
-void CGPUShaderStorageObject::UpdateSubData(intptr_t aOffset, size_t aSize, void* aData)
+void CGPUShaderStorageObject::BindShaderStorage(uint32_t aBindingIndex)
 {
-    glNamedBufferSubData(mBufferHandler, aOffset, aSize, aData);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, aBindingIndex, mBufferHandler);
 }
 
-void CGPUShaderStorageObject::BindToProgram(uint32_t aProgramHandler, uint32_t aBinding, const char* aLayoutName)
+void CGPUShaderStorageObject::BindTarget(EGPUBufferBindTarget::Type aBindTarget)
 {
-    uint32_t block_index = glGetProgramResourceIndex(aProgramHandler, GL_SHADER_STORAGE_BLOCK, aLayoutName);
-    glShaderStorageBlockBinding(aProgramHandler, block_index, aBinding);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, aBinding, mBufferHandler);
-}
-
-void CGPUShaderStorageObject::Unbind()
-{
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+    glBindBuffer(sGPUBufferBindTarget[aBindTarget], mBufferHandler);
 }

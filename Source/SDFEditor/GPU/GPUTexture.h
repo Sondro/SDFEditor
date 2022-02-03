@@ -2,6 +2,7 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
 
 namespace ETexTarget
 {
@@ -18,6 +19,7 @@ namespace ETexFormat
     {
         R8,
         RGBA8,
+        RGBA8UI,
         RGBA16F,
         RGBA32F,
     };
@@ -57,18 +59,20 @@ namespace EImgAccess
 
 struct TGPUTextureConfig
 {
-    ETexTarget::Type mTarget{ ETexTarget::TEXTURE_2D };
-    uint32_t mExtentX{ 256 };
-    uint32_t mExtentY{ 256 };
-    uint32_t mSlices{ 1 };
-    ETexFormat::Type mFormat{ ETexFormat::RGBA8 };
-    ETexFilter::Type mMinFilter{ ETexFilter::LINEAR };
-    ETexFilter::Type mMagFilter{ ETexFilter::LINEAR };
-    ETexWrap::Type mWrapS{ ETexWrap::REPEAT };
-    ETexWrap::Type mWrapT{ ETexWrap::REPEAT };
-    ETexWrap::Type mWrapR{ ETexWrap::REPEAT };
-    uint32_t mMips{ 1 };
+    ETexTarget::Type    mTarget{ ETexTarget::TEXTURE_2D };
+    uint32_t            mExtentX{ 256 };
+    uint32_t            mExtentY{ 256 };
+    uint32_t            mSlices{ 1 };
+    ETexFormat::Type    mFormat{ ETexFormat::RGBA8 };
+    ETexFilter::Type    mMinFilter{ ETexFilter::LINEAR };
+    ETexFilter::Type    mMagFilter{ ETexFilter::LINEAR };
+    ETexWrap::Type      mWrapS{ ETexWrap::REPEAT };
+    ETexWrap::Type      mWrapT{ ETexWrap::REPEAT };
+    ETexWrap::Type      mWrapR{ ETexWrap::REPEAT };
+    uint32_t            mMips{ 1 };
 };
+
+using CGPUTextureRef = std::shared_ptr<class CGPUTexture>;
 
 class CGPUTexture
 {

@@ -27,10 +27,8 @@ vec2 uvs[3] = vec2[](
     );
 
 layout(location = 0) out vec2 outFragUV;
-layout(location = 1) out vec3 outRayOrigin;
-layout(location = 2) out vec3 outRayDirection;
-layout(location = 4) out vec4 outNear;
-layout(location = 5) out vec4 outFar;
+layout(location = 1) out vec4 outNear;
+layout(location = 2) out vec4 outFar;
 
 layout(location = 0) uniform mat4 uViewMatrix;
 layout(location = 1) uniform mat4 uProjectionMatrix;
@@ -46,10 +44,7 @@ void main()
     //outFragUV = (positions[gl_VertexID].xy + 1.0) * 0.5;
 
     mat4 viewProj = uProjectionMatrix * uViewMatrix;
-    mat4 invViewProj = inverse(viewProj);
-    outRayOrigin = (invViewProj * vec4(clipPos, -1.0, 1.0) * near).xyz;
-    outRayDirection = (invViewProj * vec4(clipPos * (far - near), far + near, far - near)).xyz;
-    
+    mat4 invViewProj = inverse(viewProj);    
 
     //vec3 ray_origin_wc = (invViewProj * vec4(clipPos, -1.0, 1.0)).xyz;
     //vec3 eye_pos_wc = (inverse(uViewMatrix) * vec4(0, 0, 0, 1.0)).xyz;

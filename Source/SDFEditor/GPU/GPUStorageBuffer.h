@@ -17,24 +17,40 @@ namespace EGPUBufferFlags
     };
 };
 
+namespace EGPUBufferBindTarget
+{
+    enum Type
+    {
+        SHADER_BUFFER_STORAGE,
+        ATOMIC_COUNTER_BUFFER,
+        DISPATCH_INDIRECT_BUFFER,
+        COPY_READ_BUFFER,
+        COPY_WRITE_BUFFER,
+    };
+};
+
 class CGPUShaderStorageObject
 {
 public:
-    CGPUShaderStorageObject();
+    CGPUShaderStorageObject(EGPUBufferBindTarget::Type aTarget);
     ~CGPUShaderStorageObject();
 
     void SetData(size_t aSize, void* aData, uint32_t aFlags = EGPUBufferFlags::ALL);
+    void UpdateSubData(intptr_t aOffset, size_t aSize, void* aData);
 
     void* Map();
     void Unmap();
-    void UpdateSubData(intptr_t aOffset, size_t aSize, void* aData);
 
+    uint32_t GetHandler() const { return mBufferHandler; }
     size_t GetStorageSize() const { return mStorageSize; }
 
-    void BindToProgram(uint32_t aProgramHandler, uint32_t aBinding, const char* aLayoutName);
-    void Unbind();
+    void BindShaderStorage(uint32_t aBindingIndex);
+
+    void BindTarget(EGPUBufferBindTarget::Type aBindTarget);
 
 private:
     uint32_t mBufferHandler;
     size_t mStorageSize;
+
+    EGPUBufferBindTarget::Type mTarget;
 };

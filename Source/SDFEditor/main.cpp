@@ -62,9 +62,9 @@ int main(int, char**)
 #endif
 
     //Set bits
-    glfwWindowHint(GLFW_RED_BITS, 16);
-    glfwWindowHint(GLFW_GREEN_BITS, 16);
-    glfwWindowHint(GLFW_BLUE_BITS, 16);
+    //glfwWindowHint(GLFW_RED_BITS, 16);
+    //glfwWindowHint(GLFW_GREEN_BITS, 16);
+    //glfwWindowHint(GLFW_BLUE_BITS, 16);
 
     // Create window with graphics context
     GLFWwindow* window = glfwCreateWindow(1920, 1080, "SDFEditor", NULL, NULL);

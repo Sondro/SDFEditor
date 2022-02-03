@@ -13,6 +13,7 @@ GLenum sTexFormat[] =
 {
     GL_R8,
     GL_RGBA8,
+    GL_RGBA8UI,
     GL_RGBA16F,
     GL_RGBA32F,
 };

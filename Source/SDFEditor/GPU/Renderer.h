@@ -4,6 +4,7 @@
 #include <cstdint>
 #include "SDFEditor/GPU/GPUShader.h"
 #include "SDFEditor/GPU/GPUStorageBuffer.h"
+#include "SDFEditor/GPU/GPUTexture.h"
 
 #include <glm/glm.hpp>
 
@@ -24,10 +25,19 @@ private:
     int32_t mViewHeight;
 
     // Render data
+    uint32_t mDummyVAO;
     CGPUShaderProgramRef mFullscreenVertexProgram;
     CGPUShaderProgramRef mColorFragmentProgram;
     CGPUShaderPipelineRef mScreenQuadPipeline;
-    uint32_t mDummyVAO;
 
-    CGPUShaderStorageObjectRef mStrokesBuffer;    
+    CGPUShaderProgramRef mComputeLutProgram;
+    CGPUShaderPipelineRef mComputeLutPipeline;
+    CGPUShaderProgramRef mComputeAtlasProgram;
+    CGPUShaderPipelineRef mComputeAtlasPipeline;
+    CGPUTextureRef mSdfLut;
+    CGPUTextureRef mSdfAtlas;
+
+    CGPUShaderStorageObjectRef mStrokesBuffer;
+    CGPUShaderStorageObjectRef mSlotListBuffer;
+    CGPUShaderStorageObjectRef mSlotCounterBuffer;
 };

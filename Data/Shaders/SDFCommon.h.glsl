@@ -1,26 +1,31 @@
+
 struct stroke_t
 {
     vec4 posb;      // position.xyz, blend.a
     vec4 quat;      // rotation
-    vec4 param0;
-    vec4 param1;    // size.xyz, radius.x, round.w
+    vec4 param0;    // size.xyz, radius.x, round.w
+    vec4 param1;    // unused
     ivec4 id;       // shape.x, flags.y
 };
 
-layout(std430, binding = 0) buffer strokes_buffer
+
+layout(std430, binding = 0) readonly buffer strokes_buffer
 {
     stroke_t strokes[];
 };
 
-layout(location = 20) uniform uint uStrokesNum;
+layout(std430, binding = 1) buffer slot_list_buffer
+{
+    uint slot_list[];
+};
 
+layout(std430, binding = 2) buffer slot_count_buffer
+{
+    uint slot_count;
+    uint padding[2];
+};
 
-// polynomial smooth min
-//float sminCubic(float a, float b, float k)
-//{
-//    float h = max(k - abs(a - b), 0.0) / k;
-//    return min(a, b) - h * h * h * k * (1.0 / 6.0);
-//}
+layout(location = 20) uniform uint uStrokesCount;
 
 // - MATHS -------------------------------
 vec3 quatMultVec3(vec4 q, vec3 v)
@@ -55,7 +60,7 @@ float opSmoothIntersection(float d1, float d2, float k)
     //return mix( d2, d1, h ) + k*h*(1.0-h);
 }
 
-// - SDFS -------------------------
+// - SDF Primitives ---------------------
 float sdEllipsoid(vec3 p, vec3 r)
 {
     float k0 = length(p / r);
@@ -125,7 +130,7 @@ float distToScene(vec3 p)
     //d = sminCubic(d, length(p - vec3(0.0, 0.0, -1.0)) - 0.3, 0.2);
     //d = sminCubic(d, length(p - vec3(0.35, 0.0, -1.0)) - 0.3, 0.2);
 
-    for (uint i = 0; i < uStrokesNum; i++)
+    for (uint i = 0; i < uStrokesCount; i++)
     {
         float shape = evalStroke(p, strokes[i]);
 
