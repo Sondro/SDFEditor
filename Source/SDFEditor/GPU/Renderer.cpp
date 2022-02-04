@@ -170,8 +170,8 @@ void CRenderer::UpdateSceneData(CScene const& aScene)
 
         // Execute compute lut
         mComputeLutPipeline->Bind();
-        glDispatchCompute(128, 128, 128);
-
+        mSdfLut->BindImage(0, 0, EImgAccess::WRITE_ONLY);
+        glDispatchCompute(16, 16, 16);
     }
 
     //Update Matrix

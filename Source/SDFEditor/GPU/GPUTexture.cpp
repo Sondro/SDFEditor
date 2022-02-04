@@ -75,7 +75,7 @@ void CGPUTexture::BindTexture(uint32_t aUnit)
     glBindTexture(mTarget, mTextureHandler);
 }
 
-void CGPUTexture::BindImage(uint32_t aLocation, uint32_t aMip, EImgAccess::Type aAccess)
+void CGPUTexture::BindImage(uint32_t aBinding, uint32_t aMip, EImgAccess::Type aAccess)
 {
-    glBindImageTexture(0, mTextureHandler, aMip, GL_FALSE, 0, sImgAccess[aAccess], sTexFormat[mConfig.mFormat]);
+    glBindImageTexture(aBinding, mTextureHandler, aMip, GL_FALSE, 0, sImgAccess[aAccess], sTexFormat[mConfig.mFormat]);
 }

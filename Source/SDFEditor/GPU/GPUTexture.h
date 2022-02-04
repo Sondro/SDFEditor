@@ -80,7 +80,7 @@ public:
     CGPUTexture(TGPUTextureConfig const & aConfig);
     ~CGPUTexture();
     void BindTexture(uint32_t aUnit);
-    void BindImage(uint32_t aLocation, uint32_t aMip, EImgAccess::Type aAccess);
+    void BindImage(uint32_t aBinding, uint32_t aMip, EImgAccess::Type aAccess);
 private:
     TGPUTextureConfig mConfig;
 
