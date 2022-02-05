@@ -27,13 +27,15 @@ layout(std430, binding = 2) buffer slot_count_buffer
 
 layout(location = 20) uniform uint uStrokesCount;
 layout(location = 21) uniform uint uMaxSlotsCount;
-layout(location = 22) uniform vec4 uVoxelExtent;    // LutVoxelSide.x, LnvLutVoxelSide.y, AtlasVoxelSide.z InvAtlasVoxelSide.w
+layout(location = 22) uniform vec4 uVoxelSide;    // LutVoxelSide.x, InvLutVoxelSide.y, AtlasVoxelSide.z InvAtlasVoxelSide.w
+layout(location = 23) uniform vec4 uVolumeExtent;   // LutSize.x, InvLutSize.y, AtlasSize.z, InvAtlasSize.w
 
 layout(location = 30) uniform sampler3D uSdfLutTexture;
 layout(location = 31) uniform sampler3D uSdfAtlasTexture;
 
 // Debug
-layout(location = 40) uniform uint uPreviewSlice;
+layout(location = 40) uniform ivec4 uVoxelPreview;
+
 
 // - MATHS -------------------------------
 vec3 quatMultVec3(vec4 q, vec3 v)
@@ -180,6 +182,22 @@ float distToScene(vec3 p)
     return d;
 }
 
+float distToSceneLut(vec3 p)
+{
+    // convert world p to lut coords
+    // sample lut texture
+    // convert distance to -1, 1
+    // convert dist from normalized voxels to world
+
+    vec3 coord = p.xzy * 2.0 * uVoxelSide.y * uVolumeExtent.y;
+    coord = (coord + 1.0) * 0.5;
+    float dist = texture(uSdfLutTexture, vec3(coord)).a;
+    dist = (dist) * 2.0 - 1.0f;
+    dist = dist * uVolumeExtent.x * uVoxelSide.x;
+
+    return dist;
+}
+
 //Estimate normal based on distToScene function
 const float EPS = 0.001;
 vec3 estimateNormal(vec3 p)
@@ -195,3 +213,18 @@ vec3 estimateNormal(vec3 p)
     float zDiff = zPl - zMi;
     return normalize(vec3(xDiff, yDiff, zDiff));
 }
+vec3 estimateNormalLut(vec3 p)
+{
+    float offset = uVoxelSide.x;
+    float xPl = distToScene(vec3(p.x + offset, p.y, p.z));
+    float xMi = distToScene(vec3(p.x - offset, p.y, p.z));
+    float yPl = distToScene(vec3(p.x, p.y + offset, p.z));
+    float yMi = distToScene(vec3(p.x, p.y - offset, p.z));
+    float zPl = distToScene(vec3(p.x, p.y, p.z + offset));
+    float zMi = distToScene(vec3(p.x, p.y, p.z - offset));
+    float xDiff = xPl - xMi;
+    float yDiff = yPl - yMi;
+    float zDiff = zPl - zMi;
+    return normalize(vec3(xDiff, yDiff, zDiff));
+}
+

@@ -65,34 +65,16 @@ vec3 aces_tonemap(vec3 color) {
 
 // -----------------------
 
-void main()
+vec3 RaymarchStrokes(in ray_t camRay)
 {
-    //vec3 direction = normalize(inRayDirection);
-    //outColor = vec4(abs(direction.xyz), 1.0);
-
-    vec2 uv = inFragUV;
-    uv -= vec2(0.5);//offset, so center of screen is origin
-    uv *= 2.0;
-    //uv.x *= iResolution.x / iResolution.y;//scale, so there is no rectangular distortion
-
-
-    vec3 origin = inNear.xyz / inNear.w;  //ray's origin
-    vec3 far3 = inFar.xyz / inFar.w;
-    vec3 dir = far3 - origin;
-    dir = normalize(dir);        //ray's direction
-
-    ray_t camRay;
-    camRay.pos = origin; // inRayOrigin;
-    camRay.dir = dir; // normalize(inRayDirection);
-    
     float totalDist = 0.0;
     float finalDist = distToScene(camRay.pos);
     int iters = 0;
     int maxIters = 70;
 
-    vec3 color = vec3(0.0, 0.0, 0.0);
+    vec3 color = vec3(0.07, 0.08, 0.19) * 0.8;
 
-    for (iters = 0; iters < maxIters && finalDist>0.02; iters++) 
+    for (iters = 0; iters < maxIters && finalDist>0.02; iters++)
     {
         camRay.pos += finalDist * camRay.dir;
         totalDist += finalDist;
@@ -101,8 +83,6 @@ void main()
 
     if (finalDist < 0.02)
     {
-        color.r = 1.0;
-
         vec3 normal = estimateNormal(camRay.pos);
 
         vec3 lightDir = normalize(vec3(1.0, 1.0, 0.0));
@@ -111,20 +91,58 @@ void main()
         dotSN = (dotSN + 1.0) * 0.5;
         dotSN = mix(0.1, 1.2, dotSN);
 
-        //outColor = vec4(0.5 + 0.5 * normal, 1.0) * dotSN;
-        outColor = vec4(0.5 + 0.5 * normal, 1.0) * dotSN;
-
+        color = vec3(0.5 + 0.5 * normal) * dotSN;
     }
 
-    else
+    return color;
+}
+
+vec3 RaymarchLut(in ray_t camRay) // Debug only
+{
+    float totalDist = 0.0;
+    float finalDist = distToSceneLut(camRay.pos);
+    int iters = 0;
+    int maxIters = 70;
+
+    vec3 color = vec3(0.07, 0.08, 0.19) * 0.8;
+
+    for (iters = 0; iters < maxIters && finalDist>0.02; iters++)
     {
-        // Background color
-        vec3 bgColor = vec3(0.07, 0.08, 0.19) * 0.8;
-        //bgColor += (1.0 - distance(inFragUV, vec2(0.5, 0.5))) * vec3(0.0, 0.01, 0.01);
-        outColor = vec4(bgColor, 1.0);
+        camRay.pos += finalDist * camRay.dir;
+        totalDist += finalDist;
+        finalDist = distToSceneLut(camRay.pos);
     }
 
-    outColor.rgb = LinearToSRGB(outColor.rgb);
+    if (finalDist < 0.02)
+    {
+        vec3 normal = estimateNormalLut(camRay.pos);
+
+        vec3 lightDir = normalize(vec3(1.0, 1.0, 0.0));
+
+        float dotSN = dot(normal, lightDir);
+        dotSN = (dotSN + 1.0) * 0.5;
+        dotSN = mix(0.1, 1.2, dotSN);
+
+        color = vec3(0.5 + 0.5 * normal) * dotSN;
+    }
+
+    return color;
+}
+
+void main()
+{    
+    vec3 origin = inNear.xyz / inNear.w;  //ray's origin
+    vec3 far3 = inFar.xyz / inFar.w;
+    vec3 dir = far3 - origin;
+    dir = normalize(dir);        //ray's direction
+
+    ray_t camRay;
+    camRay.pos = origin;
+    camRay.dir = dir;
+    
+    vec3 finalColor = (uVoxelPreview.x == 1) ? RaymarchLut(camRay) : RaymarchStrokes(camRay);
+
+    finalColor = LinearToSRGB(finalColor.rgb);
     
     {
         // Vignette
@@ -133,10 +151,17 @@ void main()
         vig = pow(vig, 0.35); // change pow for modifying the extend of the  vignette
         vig = mix(0.35, 1.0, vig);
         vig = smoothstep(0.0, 0.75, vig);
-        outColor.rgb *= vig;
+        finalColor *= vig;
     }
 
+    outColor = vec4(finalColor, 1.0f);
+
     //outColor.rgb = abs(strokes[0].posb.xyz);
-    float sdf = abs(texture(uSdfLutTexture, vec3(inFragUV.x, float(uPreviewSlice) / 128.0f, inFragUV.y)).a);
-    outColor.rgb = vec3(step(sdf, 0.1));
+    if (uVoxelPreview.x == 1)
+    {
+        float sdf = abs(texture(uSdfLutTexture, vec3(inFragUV.x * 2.0 * (16.0f / 9.0f), float(uVoxelPreview.y) / 128.0f, inFragUV.y * 2.0)).a);
+        sdf = min(sdf, abs(texture(uSdfLutTexture, vec3(inFragUV.x * 2.0 * (16.0f / 9.0f), inFragUV.y * 2.0 - 1.0, float(uVoxelPreview.y) / 128.0f)).a));
+        sdf = (sdf - 0.5) * 2.0;
+        outColor.rgb = mix(finalColor, vec3(1.0, 1.0, 1.0), step(sdf, 1.0f / 128.0f));
+    }
 }

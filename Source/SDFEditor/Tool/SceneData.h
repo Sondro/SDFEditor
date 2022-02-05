@@ -122,11 +122,10 @@ public:
     CCamera mCamera;
 
     // Debug
-    int32_t mPreviewSlice{ 0 };
-
+    int32_t mPreviewSlice{ 64 };
+    bool    mUseVoxels{ true };
 private:
     bool mDirty;
     uint32_t mNextStrokeId;
-
 };
 

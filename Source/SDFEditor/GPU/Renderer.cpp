@@ -20,13 +20,14 @@ namespace EUniformLoc
         uProjectionMatrix = 1,
         uStrokesNum = 20,
         uMaxSlotsCount = 21,
-        uVoxelExtent = 22,
+        uVoxelSide = 22,
+        uVolumeExtent = 23,
 
         uSdfLutTexture = 30,
         uSdfAtlasTexture = 31,
 
         // Debug
-        uPreviewSlice = 40,
+        uVoxelPreview = 40,
     };
 };
 
@@ -79,8 +80,8 @@ void CRenderer::Init()
     lSdfLutConfig.mExtentY = 128;
     lSdfLutConfig.mSlices = 128;
     lSdfLutConfig.mFormat = ETexFormat::RGBA8;
-    lSdfLutConfig.mMinFilter = ETexFilter::NEAREST;
-    lSdfLutConfig.mMagFilter = ETexFilter::NEAREST;
+    lSdfLutConfig.mMinFilter = ETexFilter::LINEAR;
+    lSdfLutConfig.mMagFilter = ETexFilter::LINEAR;
     lSdfLutConfig.mWrapS = ETexWrap::CLAMP_TO_EDGE;
     lSdfLutConfig.mWrapT = ETexWrap::CLAMP_TO_EDGE;
     lSdfLutConfig.mWrapR = ETexWrap::CLAMP_TO_EDGE;
@@ -165,8 +166,10 @@ void CRenderer::ReloadShaders()
     for (uint32_t lHandler : lProgramHandlers)
     {
         glProgramUniform1ui(lHandler, EUniformLoc::uMaxSlotsCount, 491520);
-        float lVE = 0.025f;
-        glProgramUniform4f(lHandler, EUniformLoc::uVoxelExtent, lVE, 1.0f / lVE, lVE / 8.0f, 1.0f / (lVE / 8.0f));
+        float lVoxelExt = 0.025f;
+        float lLutSize = 128.0f;
+        glProgramUniform4f(lHandler, EUniformLoc::uVoxelSide, lVoxelExt, 1.0f / lVoxelExt, lVoxelExt / 8.0f, 1.0f / (lVoxelExt / 8.0f));
+        glProgramUniform4f(lHandler, EUniformLoc::uVolumeExtent, lLutSize, 1.0f / lLutSize, 0.0f, 0.0f);
         glProgramUniform1i(lHandler, EUniformLoc::uSdfLutTexture, ETexBinding::uSdfLut);
         glProgramUniform1i(lHandler, EUniformLoc::uSdfAtlasTexture, ETexBinding::uSdfAtlas);
     }
@@ -226,7 +229,7 @@ void CRenderer::UpdateSceneData(CScene const& aScene)
     //glProgramUniformMatrix4fv(mFullscreenVertexProgram->GetHandler(), 0, 1, false, glm::value_ptr(lInverseViewProjection));
     glProgramUniformMatrix4fv(mFullscreenVertexProgram->GetHandler(), EUniformLoc::uViewMatrix, 1, false, glm::value_ptr(lView));
     glProgramUniformMatrix4fv(mFullscreenVertexProgram->GetHandler(), EUniformLoc::uProjectionMatrix, 1, false, glm::value_ptr(lProjection));
-    glProgramUniform1ui(mColorFragmentProgram->GetHandler(), EUniformLoc::uPreviewSlice, aScene.mPreviewSlice);
+    glProgramUniform4i(mColorFragmentProgram->GetHandler(), EUniformLoc::uVoxelPreview, aScene.mUseVoxels ? 1 : 0, aScene.mPreviewSlice, 0, 0);
 }
 
 void CRenderer::RenderFrame()
