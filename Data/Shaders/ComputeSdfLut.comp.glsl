@@ -1,11 +1,10 @@
 
-layout(binding = 0, rgba8) uniform image3D uSdfLut;
-
+layout(binding = 0, rgba8) uniform image3D uSdfLutImage;
 
 layout(local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
 
-#define LUT_VOXEL_SIDE (0.05f)
-#define INV_LUT_VOXEL_SIDE (1.0f / LUT_VOXEL_SIDE)
+#define LUT_VOXEL_SIDE (uVoxelExtent.x)
+#define INV_LUT_VOXEL_SIDE (uVoxelExtent.y)
 
 void main()
 {
@@ -19,5 +18,5 @@ void main()
 
     float col = dist < invImgSize.x ? 1.0f : 0.0f;
     //vec3 color = vec3(gl_GlobalInvocationID.xzy) * invImgSize;
-    imageStore(uSdfLut, outPos.xzy, vec4(vec3(col), dist));
+    imageStore(uSdfLutImage, outPos.xzy, vec4(vec3(col), dist));
 }

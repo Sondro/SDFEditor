@@ -19,8 +19,25 @@ namespace EUniformLoc
         uViewMatrix = 0,
         uProjectionMatrix = 1,
         uStrokesNum = 20,
+        uMaxSlotsCount = 21,
+        uVoxelExtent = 22,
+
+        uSdfLutTexture = 30,
+        uSdfAtlasTexture = 31,
+
+        // Debug
+        uPreviewSlice = 40,
     };
 };
+
+namespace ETexBinding
+{
+    enum Type
+    {
+        uSdfLut = 1,
+        uSdfAtlas = 2
+    };
+}
 
 namespace EBlockBinding
 {
@@ -32,12 +49,7 @@ namespace EBlockBinding
     };
 };
 
-const char* sBlockNames[] =
-{
-    "strokes_buffer",
-    "slot_list_buffer",
-    "slot_count_buffer",
-};
+
 
 void CRenderer::Init()
 {
@@ -140,6 +152,24 @@ void CRenderer::ReloadShaders()
         std::vector<CGPUShaderProgramRef> lPrograms = { mFullscreenVertexProgram, mColorFragmentProgram };
         mScreenQuadPipeline = std::make_shared<CGPUShaderPipeline>(lPrograms);
     }
+
+
+    // Static uniforms
+    const std::vector<uint32_t> lProgramHandlers
+    {
+        mComputeLutProgram->GetHandler(),
+        mComputeAtlasProgram->GetHandler(),
+        mColorFragmentProgram->GetHandler()
+    };
+
+    for (uint32_t lHandler : lProgramHandlers)
+    {
+        glProgramUniform1ui(lHandler, EUniformLoc::uMaxSlotsCount, 491520);
+        float lVE = 0.025f;
+        glProgramUniform4f(lHandler, EUniformLoc::uVoxelExtent, lVE, 1.0f / lVE, lVE / 8.0f, 1.0f / (lVE / 8.0f));
+        glProgramUniform1i(lHandler, EUniformLoc::uSdfLutTexture, ETexBinding::uSdfLut);
+        glProgramUniform1i(lHandler, EUniformLoc::uSdfAtlasTexture, ETexBinding::uSdfAtlas);
+    }
 }
 
 void CRenderer::UpdateSceneData(CScene const& aScene)
@@ -164,9 +194,20 @@ void CRenderer::UpdateSceneData(CScene const& aScene)
         }
         //mStrokesBuffer->Unmap();
 
-        glProgramUniform1ui(mComputeLutProgram->GetHandler(), EUniformLoc::uStrokesNum, aScene.mStorkesArray.size() & 0xFFFFFFFF);
-        glProgramUniform1ui(mComputeAtlasProgram->GetHandler(), EUniformLoc::uStrokesNum, aScene.mStorkesArray.size() & 0xFFFFFFFF);
-        glProgramUniform1ui(mColorFragmentProgram->GetHandler(), EUniformLoc::uStrokesNum, aScene.mStorkesArray.size() & 0xFFFFFFFF);
+        const std::vector<uint32_t> lProgramHandlers
+        {
+            mComputeLutProgram->GetHandler(),
+            mComputeAtlasProgram->GetHandler(),
+            mColorFragmentProgram->GetHandler()
+        };
+
+        for (uint32_t lHandler : lProgramHandlers)
+        {
+            glProgramUniform1ui(lHandler, EUniformLoc::uStrokesNum, aScene.mStorkesArray.size() & 0xFFFFFFFF);
+            //glProgramUniform1ui(mComputeLutProgram->GetHandler(), EUniformLoc::uStrokesNum, aScene.mStorkesArray.size() & 0xFFFFFFFF);
+            //glProgramUniform1ui(mComputeAtlasProgram->GetHandler(), EUniformLoc::uStrokesNum, aScene.mStorkesArray.size() & 0xFFFFFFFF);
+            //glProgramUniform1ui(mColorFragmentProgram->GetHandler(), EUniformLoc::uStrokesNum, aScene.mStorkesArray.size() & 0xFFFFFFFF);
+        }
 
         // Execute compute lut
         mComputeLutPipeline->Bind();
@@ -185,6 +226,7 @@ void CRenderer::UpdateSceneData(CScene const& aScene)
     //glProgramUniformMatrix4fv(mFullscreenVertexProgram->GetHandler(), 0, 1, false, glm::value_ptr(lInverseViewProjection));
     glProgramUniformMatrix4fv(mFullscreenVertexProgram->GetHandler(), EUniformLoc::uViewMatrix, 1, false, glm::value_ptr(lView));
     glProgramUniformMatrix4fv(mFullscreenVertexProgram->GetHandler(), EUniformLoc::uProjectionMatrix, 1, false, glm::value_ptr(lProjection));
+    glProgramUniform1ui(mColorFragmentProgram->GetHandler(), EUniformLoc::uPreviewSlice, aScene.mPreviewSlice);
 }
 
 void CRenderer::RenderFrame()
@@ -198,6 +240,7 @@ void CRenderer::RenderFrame()
     //Draw full screen quad
     glBindVertexArray(mDummyVAO);
     mScreenQuadPipeline->Bind();
+    mSdfLut->BindTexture(ETexBinding::uSdfLut);
 
     glDrawArrays(GL_TRIANGLES, 0, 3);
     

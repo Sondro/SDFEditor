@@ -8,7 +8,6 @@ layout(location = 2) in vec4 inFar;
 
 layout(location = 0) out vec4 outColor;
 
-
 struct ray_t
 {
     vec3 pos;
@@ -138,4 +137,6 @@ void main()
     }
 
     //outColor.rgb = abs(strokes[0].posb.xyz);
+    float sdf = abs(texture(uSdfLutTexture, vec3(inFragUV.x, float(uPreviewSlice) / 128.0f, inFragUV.y)).a);
+    outColor.rgb = vec3(step(sdf, 0.1));
 }

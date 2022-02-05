@@ -26,6 +26,14 @@ layout(std430, binding = 2) buffer slot_count_buffer
 };
 
 layout(location = 20) uniform uint uStrokesCount;
+layout(location = 21) uniform uint uMaxSlotsCount;
+layout(location = 22) uniform vec4 uVoxelExtent;    // LutVoxelSide.x, LnvLutVoxelSide.y, AtlasVoxelSide.z InvAtlasVoxelSide.w
+
+layout(location = 30) uniform sampler3D uSdfLutTexture;
+layout(location = 31) uniform sampler3D uSdfAtlasTexture;
+
+// Debug
+layout(location = 40) uniform uint uPreviewSlice;
 
 // - MATHS -------------------------------
 vec3 quatMultVec3(vec4 q, vec3 v)

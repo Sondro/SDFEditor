@@ -189,12 +189,7 @@ int main(int, char**)
             ImGui::End();
         }*/
 
-        {
-
-            ImGui::Begin("Debug");
-            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-            ImGui::End();
-        }
+ 
 
         // 3. Show another simple window.
         /*if (show_another_window)

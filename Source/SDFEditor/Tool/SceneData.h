@@ -121,6 +121,9 @@ public:
     std::vector< TStrokeInfo > mStorkesArray;
     CCamera mCamera;
 
+    // Debug
+    int32_t mPreviewSlice{ 0 };
+
 private:
     bool mDirty;
     uint32_t mNextStrokeId;
