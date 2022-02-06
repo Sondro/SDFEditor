@@ -50,7 +50,8 @@ namespace EBlockBinding
     };
 };
 
-
+#define LUT_RES (128)
+//#define 
 
 void CRenderer::Init()
 {
@@ -76,12 +77,12 @@ void CRenderer::Init()
     // SDF Lut texture
     TGPUTextureConfig lSdfLutConfig;
     lSdfLutConfig.mTarget = ETexTarget::TEXTURE_3D;
-    lSdfLutConfig.mExtentX =  128;
-    lSdfLutConfig.mExtentY = 128;
-    lSdfLutConfig.mSlices = 128;
+    lSdfLutConfig.mExtentX = LUT_RES;
+    lSdfLutConfig.mExtentY = LUT_RES;
+    lSdfLutConfig.mSlices = LUT_RES;
     lSdfLutConfig.mFormat = ETexFormat::RGBA8;
-    lSdfLutConfig.mMinFilter = ETexFilter::LINEAR;
-    lSdfLutConfig.mMagFilter = ETexFilter::LINEAR;
+    lSdfLutConfig.mMinFilter = ETexFilter::NEAREST;
+    lSdfLutConfig.mMagFilter = ETexFilter::NEAREST;
     lSdfLutConfig.mWrapS = ETexWrap::CLAMP_TO_EDGE;
     lSdfLutConfig.mWrapT = ETexWrap::CLAMP_TO_EDGE;
     lSdfLutConfig.mWrapR = ETexWrap::CLAMP_TO_EDGE;
@@ -93,7 +94,7 @@ void CRenderer::Init()
     lSdfAtlasConfig.mTarget = ETexTarget::TEXTURE_3D;
     lSdfAtlasConfig.mExtentX = 1024;
     lSdfAtlasConfig.mExtentY = 1024;
-    lSdfAtlasConfig.mSlices = 256;
+    lSdfAtlasConfig.mSlices = 16;
     lSdfAtlasConfig.mFormat = ETexFormat::R8;
     lSdfAtlasConfig.mMinFilter = ETexFilter::LINEAR;
     lSdfAtlasConfig.mMagFilter = ETexFilter::LINEAR;
@@ -167,7 +168,7 @@ void CRenderer::ReloadShaders()
     {
         glProgramUniform1ui(lHandler, EUniformLoc::uMaxSlotsCount, 491520);
         float lVoxelExt = 0.025f;
-        float lLutSize = 128.0f;
+        float lLutSize = float(LUT_RES);
         glProgramUniform4f(lHandler, EUniformLoc::uVoxelSide, lVoxelExt, 1.0f / lVoxelExt, lVoxelExt / 8.0f, 1.0f / (lVoxelExt / 8.0f));
         glProgramUniform4f(lHandler, EUniformLoc::uVolumeExtent, lLutSize, 1.0f / lLutSize, 0.0f, 0.0f);
         glProgramUniform1i(lHandler, EUniformLoc::uSdfLutTexture, ETexBinding::uSdfLut);
@@ -212,10 +213,15 @@ void CRenderer::UpdateSceneData(CScene const& aScene)
             //glProgramUniform1ui(mColorFragmentProgram->GetHandler(), EUniformLoc::uStrokesNum, aScene.mStorkesArray.size() & 0xFFFFFFFF);
         }
 
+        // clear slot count
+        const static uint32_t sZero[] = { 0, 1, 1 };
+        mSlotCounterBuffer->UpdateSubData(0, sizeof(uint32_t) * 3, (void*)sZero);
+
         // Execute compute lut
         mComputeLutPipeline->Bind();
         mSdfLut->BindImage(0, 0, EImgAccess::WRITE_ONLY);
-        glDispatchCompute(16, 16, 16);
+        const uint32_t dispatchRes = LUT_RES / 8;
+        glDispatchCompute(dispatchRes, dispatchRes, dispatchRes);
     }
 
     //Update Matrix

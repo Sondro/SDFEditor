@@ -67,23 +67,26 @@ vec3 aces_tonemap(vec3 color) {
 
 vec3 RaymarchStrokes(in ray_t camRay)
 {
+    vec3 pos = camRay.pos;
     float totalDist = 0.0;
     float finalDist = distToScene(camRay.pos);
     int iters = 0;
     int maxIters = 70;
+    float limit = 0.02f;
 
     vec3 color = vec3(0.07, 0.08, 0.19) * 0.8;
 
-    for (iters = 0; iters < maxIters && finalDist>0.02; iters++)
+    for (iters = 0; iters < maxIters && finalDist > limit; iters++)
     {
-        camRay.pos += finalDist * camRay.dir;
+        pos += finalDist * camRay.dir;
         totalDist += finalDist;
-        finalDist = distToScene(camRay.pos);
+        finalDist = distToScene(pos);
     }
 
-    if (finalDist < 0.02)
+    if (finalDist <= limit)
     {
-        vec3 normal = estimateNormal(camRay.pos);
+        vec3 finalPos = camRay.pos + totalDist * camRay.dir;
+        vec3 normal = estimateNormal(finalPos);
 
         vec3 lightDir = normalize(vec3(1.0, 1.0, 0.0));
 
@@ -99,23 +102,25 @@ vec3 RaymarchStrokes(in ray_t camRay)
 
 vec3 RaymarchLut(in ray_t camRay) // Debug only
 {
+    vec3 pos = camRay.pos;
     float totalDist = 0.0;
-    float finalDist = distToSceneLut(camRay.pos);
+    float finalDist = distToSceneLut(pos);
     int iters = 0;
-    int maxIters = 70;
-
+    int maxIters = 150;
+    float limit = uVoxelSide.x * 0.5;
     vec3 color = vec3(0.07, 0.08, 0.19) * 0.8;
 
-    for (iters = 0; iters < maxIters && finalDist>0.02; iters++)
+    for (iters = 0; iters < maxIters && finalDist > limit; iters++)
     {
-        camRay.pos += finalDist * camRay.dir;
+        pos += finalDist * camRay.dir;
         totalDist += finalDist;
-        finalDist = distToSceneLut(camRay.pos);
+        finalDist = distToSceneLut(pos);
     }
 
-    if (finalDist < 0.02)
+    if (finalDist <= limit)
     {
-        vec3 normal = estimateNormalLut(camRay.pos);
+        vec3 finalPos = camRay.pos + totalDist * camRay.dir;
+        vec3 normal = estimateNormalLut(finalPos);
 
         vec3 lightDir = normalize(vec3(1.0, 1.0, 0.0));
 
@@ -123,7 +128,9 @@ vec3 RaymarchLut(in ray_t camRay) // Debug only
         dotSN = (dotSN + 1.0) * 0.5;
         dotSN = mix(0.1, 1.2, dotSN);
 
-        color = vec3(0.5 + 0.5 * normal) * dotSN;
+        //color = vec3(0.5 + 0.5 * normal) *dotSN;
+        ivec3 lutcoord = WorldToLutCoord(finalPos);
+        color = texelFetch(uSdfLutTexture, clamp(lutcoord, ivec3(0), ivec3(uVolumeExtent.x - 1)), 0).rgb;
     }
 
     return color;
@@ -159,9 +166,11 @@ void main()
     //outColor.rgb = abs(strokes[0].posb.xyz);
     if (uVoxelPreview.x == 1)
     {
-        float sdf = abs(texture(uSdfLutTexture, vec3(inFragUV.x * 2.0 * (16.0f / 9.0f), float(uVoxelPreview.y) / 128.0f, inFragUV.y * 2.0)).a);
-        sdf = min(sdf, abs(texture(uSdfLutTexture, vec3(inFragUV.x * 2.0 * (16.0f / 9.0f), inFragUV.y * 2.0 - 1.0, float(uVoxelPreview.y) / 128.0f)).a));
-        sdf = (sdf - 0.5) * 2.0;
-        outColor.rgb = mix(finalColor, vec3(1.0, 1.0, 1.0), step(sdf, 1.0f / 128.0f));
+        vec4 sdf = texelFetch(uSdfLutTexture, ivec3(inFragUV.x * 2.0 * (16.0f / 9.0f) * uVolumeExtent.x, float(uVoxelPreview.y), inFragUV.y * 2.0 * uVolumeExtent.x), 0).rgba;
+        //vec4 sdfTop = texture(uSdfLutTexture, vec3(inFragUV.x * 2.0 * (16.0f / 9.0f), inFragUV.y * 2.0 - 1.0, float(uVoxelPreview.y) / 128.0f)).rgba;
+        //sdf = mix(sdfTop, sdf, step(sdf.a, 1.0f / 128.0f));
+        sdf.a = (sdf.a * 2.0) - 1.0;
+        sdf.a = abs(sdf.a * uVolumeExtent.x * uVoxelSide.x);
+        outColor.rgb = mix(finalColor, sdf.rgb, sdf.a < uVoxelSide.x * 0.51f ? 1.0f : 0.0f);
     }
 }

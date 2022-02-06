@@ -8,7 +8,6 @@ struct stroke_t
     ivec4 id;       // shape.x, flags.y
 };
 
-
 layout(std430, binding = 0) readonly buffer strokes_buffer
 {
     stroke_t strokes[];
@@ -36,6 +35,41 @@ layout(location = 31) uniform sampler3D uSdfAtlasTexture;
 // Debug
 layout(location = 40) uniform ivec4 uVoxelPreview;
 
+// - Voxel space conversion --------------------
+uint CoordToIndex(ivec3 coord) 
+{
+    return coord.x | (coord.y << 8) | (coord.z << 16);
+}
+
+ivec3 IndexToCoord(uint idx) 
+{
+    return ivec3(int(idx), int(idx >> 8), int(idx >> 16)) & 0xff;
+}
+
+uint NormCoordToIndex(vec3 coord)
+{
+    return CoordToIndex(ivec3((coord * 255.0f) + 0.5f));
+}
+
+vec3 IndexToNormCoord(uint idx)
+{
+    return vec3(IndexToCoord(idx)) / 255.0f;
+}
+
+ivec3 WorldToLutCoord(vec3 pos)
+{
+    return ivec3(((pos.xzy * uVoxelSide.y) + (0.5 * uVolumeExtent.x)));
+}
+
+vec3 WorldToLutUVW(vec3 pos)
+{
+    return ((pos.xzy * uVoxelSide.y) + (0.5 * uVolumeExtent.x)) * uVolumeExtent.y;
+}
+
+vec3 LutCoordToWorld(ivec3 coord)
+{
+    return ((vec3(coord.xzy) + 0.5) - (0.5 * uVolumeExtent.x)) * uVoxelSide.x;
+}
 
 // - MATHS -------------------------------
 vec3 quatMultVec3(vec4 q, vec3 v)
@@ -187,11 +221,13 @@ float distToSceneLut(vec3 p)
     // convert world p to lut coords
     // sample lut texture
     // convert distance to -1, 1
-    // convert dist from normalized voxels to world
+    // convert dist from normalized voxels to worlda
 
-    vec3 coord = p.xzy * 2.0 * uVoxelSide.y * uVolumeExtent.y;
-    coord = (coord + 1.0) * 0.5;
-    float dist = texture(uSdfLutTexture, vec3(coord)).a;
+    //vec3 coord = p * 2.0 * uVoxelSide.y * uVolumeExtent.y;
+    //coord = (coord + 1.0) * 0.5;
+    //vec3 coord = vec3(WorldToLutCoord(p)) * uVolumeExtent.y;
+    vec3 uvw = WorldToLutUVW(p);
+    float dist = texture(uSdfLutTexture, uvw).a;
     dist = (dist) * 2.0 - 1.0f;
     dist = dist * uVolumeExtent.x * uVoxelSide.x;
 
@@ -227,4 +263,5 @@ vec3 estimateNormalLut(vec3 p)
     float zDiff = zPl - zMi;
     return normalize(vec3(xDiff, yDiff, zDiff));
 }
+
 
