@@ -252,12 +252,12 @@ vec3 estimateNormal(vec3 p)
 vec3 estimateNormalLut(vec3 p)
 {
     float offset = uVoxelSide.x;
-    float xPl = distToScene(vec3(p.x + offset, p.y, p.z));
-    float xMi = distToScene(vec3(p.x - offset, p.y, p.z));
-    float yPl = distToScene(vec3(p.x, p.y + offset, p.z));
-    float yMi = distToScene(vec3(p.x, p.y - offset, p.z));
-    float zPl = distToScene(vec3(p.x, p.y, p.z + offset));
-    float zMi = distToScene(vec3(p.x, p.y, p.z - offset));
+    float xPl = distToSceneLut(vec3(p.x + offset, p.y, p.z));
+    float xMi = distToSceneLut(vec3(p.x - offset, p.y, p.z));
+    float yPl = distToSceneLut(vec3(p.x, p.y + offset, p.z));
+    float yMi = distToSceneLut(vec3(p.x, p.y - offset, p.z));
+    float zPl = distToSceneLut(vec3(p.x, p.y, p.z + offset));
+    float zMi = distToSceneLut(vec3(p.x, p.y, p.z - offset));
     float xDiff = xPl - xMi;
     float yDiff = yPl - yMi;
     float zDiff = zPl - zMi;

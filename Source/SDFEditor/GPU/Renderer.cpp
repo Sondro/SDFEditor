@@ -81,8 +81,8 @@ void CRenderer::Init()
     lSdfLutConfig.mExtentY = LUT_RES;
     lSdfLutConfig.mSlices = LUT_RES;
     lSdfLutConfig.mFormat = ETexFormat::RGBA8;
-    lSdfLutConfig.mMinFilter = ETexFilter::NEAREST;
-    lSdfLutConfig.mMagFilter = ETexFilter::NEAREST;
+    lSdfLutConfig.mMinFilter = ETexFilter::LINEAR;
+    lSdfLutConfig.mMagFilter = ETexFilter::LINEAR;
     lSdfLutConfig.mWrapS = ETexWrap::CLAMP_TO_EDGE;
     lSdfLutConfig.mWrapT = ETexWrap::CLAMP_TO_EDGE;
     lSdfLutConfig.mWrapR = ETexWrap::CLAMP_TO_EDGE;

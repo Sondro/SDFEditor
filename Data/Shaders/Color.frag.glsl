@@ -107,7 +107,7 @@ vec3 RaymarchLut(in ray_t camRay) // Debug only
     float finalDist = distToSceneLut(pos);
     int iters = 0;
     int maxIters = 150;
-    float limit = uVoxelSide.x * 0.5;
+    float limit = sqrt(pow(uVoxelSide.x * 0.5, 2.0) * 2.0f);
     vec3 color = vec3(0.07, 0.08, 0.19) * 0.8;
 
     for (iters = 0; iters < maxIters && finalDist > limit; iters++)
@@ -128,7 +128,7 @@ vec3 RaymarchLut(in ray_t camRay) // Debug only
         dotSN = (dotSN + 1.0) * 0.5;
         dotSN = mix(0.1, 1.2, dotSN);
 
-        //color = vec3(0.5 + 0.5 * normal) *dotSN;
+        color = vec3(0.5 + 0.5 * normal) *dotSN;
         ivec3 lutcoord = WorldToLutCoord(finalPos);
         color = texelFetch(uSdfLutTexture, clamp(lutcoord, ivec3(0), ivec3(uVolumeExtent.x - 1)), 0).rgb;
     }
@@ -171,6 +171,7 @@ void main()
         //sdf = mix(sdfTop, sdf, step(sdf.a, 1.0f / 128.0f));
         sdf.a = (sdf.a * 2.0) - 1.0;
         sdf.a = abs(sdf.a * uVolumeExtent.x * uVoxelSide.x);
-        outColor.rgb = mix(finalColor, sdf.rgb, sdf.a < uVoxelSide.x * 0.51f ? 1.0f : 0.0f);
+        float debugLimit = sqrt(pow(uVoxelSide.x * 0.5, 2.0) * 2.0f) * 2.5f;
+        outColor.rgb = mix(finalColor, sdf.rgb, sdf.a < debugLimit ? 1.0f : 0.0f);
     }
 }

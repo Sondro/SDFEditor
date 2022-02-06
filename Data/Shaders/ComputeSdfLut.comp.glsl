@@ -41,7 +41,7 @@ void main()
 
     vec3 slotCoord = vec3(0.0);
 
-    if (abs(dist) < uVoxelSide.x * 1.5)
+    if (abs(dist) < sqrt(pow(uVoxelSide.x * 0.5, 2.0) * 2.0f) * 2.0f)
     {
         uint slot = atomicAdd(slot_count, 1);
         slot_list[slot] = CoordToIndex(outPos.xyz);

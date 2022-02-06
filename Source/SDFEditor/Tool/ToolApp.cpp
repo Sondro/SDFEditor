@@ -54,7 +54,11 @@
     
     - Offscreen render pipeline?
     - Half resolution? Checkerboard?
-    - Sparse voxel SDF
+    - [WIP] Sparse voxel SDF
+        > AABB box check to discard traces out of the voxe box
+        > adapt the size of the volume in the world depending on the farthest transformed bounding volume
+        > Fill atlas tiles with distance data
+        > Raymarch vs the atlas tiles
 
 
 
