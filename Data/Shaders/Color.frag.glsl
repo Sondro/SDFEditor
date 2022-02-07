@@ -65,9 +65,25 @@ vec3 aces_tonemap(vec3 color) {
 
 // -----------------------
 
+vec3 ApplyMaterial(vec3 pos, vec3 rayDir, vec3 normal)
+{
+    vec3 lightDir = normalize(vec3(1.0, 1.0, 0.0));
+
+    float dotSN = dot(normal, lightDir);
+    dotSN = (dotSN + 1.0) * 0.5;
+    dotSN = mix(0.1, 1.2, dotSN);
+
+    float dotCam = 1.0 - abs(dot(rayDir, normal));
+    dotCam = pow(dotCam, 2.0);
+
+    //vec3 color = vec3(0.5 + 0.5 * normal) * dotSN;
+    vec3 color = vec3(0.1, 0.01, 0.01);
+    color = mix(color, vec3(0.35, 0.1, 0.05), dotCam);
+    return color;
+}
+
 vec3 RaymarchStrokes(in ray_t camRay)
 {
-    vec3 pos = camRay.pos;
     float totalDist = 0.0;
     float finalDist = distToScene(camRay.pos);
     int iters = 0;
@@ -78,59 +94,47 @@ vec3 RaymarchStrokes(in ray_t camRay)
 
     for (iters = 0; iters < maxIters && finalDist > limit; iters++)
     {
-        pos += finalDist * camRay.dir;
+        camRay.pos += finalDist * camRay.dir;
         totalDist += finalDist;
-        finalDist = distToScene(pos);
+        finalDist = distToScene(camRay.pos);
     }
 
     if (finalDist <= limit)
     {
-        vec3 finalPos = camRay.pos + totalDist * camRay.dir;
-        vec3 normal = estimateNormal(finalPos);
+        vec3 normal = estimateNormal(camRay.pos);
 
-        vec3 lightDir = normalize(vec3(1.0, 1.0, 0.0));
-
-        float dotSN = dot(normal, lightDir);
-        dotSN = (dotSN + 1.0) * 0.5;
-        dotSN = mix(0.1, 1.2, dotSN);
-
-        color = vec3(0.5 + 0.5 * normal) * dotSN;
+        color = ApplyMaterial(camRay.pos, camRay.dir, normal);
     }
 
     return color;
 }
 
+
+
 vec3 RaymarchLut(in ray_t camRay) // Debug only
 {
-    vec3 pos = camRay.pos;
     float totalDist = 0.0;
-    float finalDist = distToSceneLut(pos);
+    float finalDist = distToSceneLut(camRay.pos);
     int iters = 0;
     int maxIters = 150;
     float limit = sqrt(pow(uVoxelSide.x * 0.5, 2.0) * 2.0f);
+    //float limit = uVoxelSide.x * 0.5;
     vec3 color = vec3(0.07, 0.08, 0.19) * 0.8;
 
     for (iters = 0; iters < maxIters && finalDist > limit; iters++)
     {
-        pos += finalDist * camRay.dir;
+        camRay.pos += finalDist * camRay.dir;
         totalDist += finalDist;
-        finalDist = distToSceneLut(pos);
+        finalDist = distToSceneLut(camRay.pos);
     }
 
     if (finalDist <= limit)
     {
-        vec3 finalPos = camRay.pos + totalDist * camRay.dir;
-        vec3 normal = estimateNormalLut(finalPos);
+        vec3 normal = estimateNormalLut(camRay.pos);
 
-        vec3 lightDir = normalize(vec3(1.0, 1.0, 0.0));
-
-        float dotSN = dot(normal, lightDir);
-        dotSN = (dotSN + 1.0) * 0.5;
-        dotSN = mix(0.1, 1.2, dotSN);
-
-        color = vec3(0.5 + 0.5 * normal) *dotSN;
-        ivec3 lutcoord = WorldToLutCoord(finalPos);
-        color = texelFetch(uSdfLutTexture, clamp(lutcoord, ivec3(0), ivec3(uVolumeExtent.x - 1)), 0).rgb;
+        color = ApplyMaterial(camRay.pos, camRay.dir, normal);
+        //ivec3 lutcoord = WorldToLutCoord(camRay.pos);
+        //color = texelFetch(uSdfLutTexture, clamp(lutcoord, ivec3(0), ivec3(uVolumeExtent.x - 1)), 0).rgb;
     }
 
     return color;

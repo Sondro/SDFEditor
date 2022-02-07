@@ -19,9 +19,9 @@ glm::vec3 rotate(const glm::vec3& vect, const glm::quat& quat)
 }
 
 CCamera::CCamera()
-    : mOrigin(0.0f, 1.5f, 4.5f)
-    , mLookAt(0.0f, 1.0f, 0.0f)
-    , mViewUp(0.0f, 1.0f, 0.0f)
+    : mOrigin(0.0f, -4.5f, 1.5f)
+    , mLookAt(0.0f, 0.0f, 1.0f)
+    , mViewUp(0.0f, 0.0f, 1.0f)
     , mFOV(45.0f)
     , mAspect(16.0f/9.0f)
 {
@@ -46,11 +46,11 @@ void CCamera::MoveFront(float lambda)
 
 void CCamera::MoveUp(float lambda)
 {
-    const glm::vec3 wup = glm::vec3(0, 1, 0);
+    const glm::vec3 wup = glm::vec3(0, 0, 1);
     glm::quat      quat = glm::angleAxis(glm::half_pi<float>(), wup);
 
     const glm::vec3 front3d = glm::normalize(mLookAt - mOrigin);
-    const glm::vec3 right2d = rotate(front3d * glm::vec3(1, 0, 1), glm::normalize(quat));
+    const glm::vec3 right2d = rotate(front3d * glm::vec3(1, 1, 0), glm::normalize(quat));
     const glm::vec3 up2d = glm::normalize(cross(front3d, right2d));
 
     mOrigin += up2d * lambda;
@@ -64,7 +64,7 @@ void CCamera::MoveRight(float lambda)
     const glm::vec3 wup = mViewUp;
     glm::quat       quat = glm::angleAxis(glm::half_pi<float>(), wup);
 
-    const glm::vec3 front2d = glm::normalize(glm::normalize(mLookAt - mOrigin) * glm::vec3(1, 0, 1));
+    const glm::vec3 front2d = glm::normalize(glm::normalize(mLookAt - mOrigin) * glm::vec3(1, 1, 0));
     const glm::vec3 right2d = rotate(front2d, glm::normalize(quat));
 
     mOrigin -= right2d * lambda;
@@ -108,10 +108,10 @@ void CCamera::Pan(float lambda_x, float lambda_y)
     const glm::vec3 lookdir = glm::normalize(mLookAt - mOrigin);
 
     glm::quat xrot, yrot;
-    xrot = glm::angleAxis(lambda_x * glm::half_pi<float>(), glm::vec3(0, 1, 0));
-    yrot = glm::angleAxis(lambda_y * glm::half_pi<float>(), glm::cross(glm::vec3(0, -1, 0), lookdir));
+    xrot = glm::angleAxis(lambda_x * glm::half_pi<float>(), glm::vec3(0, 0, 1));
+    yrot = glm::angleAxis(lambda_y * glm::half_pi<float>(), glm::cross(glm::vec3(0, 0, -1), lookdir));
 
-    float d = glm::dot(glm::vec3(0, 1, 0), lookdir);
+    float d = glm::dot(glm::vec3(0, 0, 1), lookdir);
     if ((lambda_y > 0.f) && (d > .98f)) yrot = glm::quat(); else
         if ((lambda_y < 0.f) && (d < -.98f)) yrot = glm::quat();
 
