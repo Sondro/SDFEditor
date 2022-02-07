@@ -65,20 +65,52 @@ vec3 aces_tonemap(vec3 color) {
 
 // -----------------------
 
-vec3 ApplyMaterial(vec3 pos, vec3 rayDir, vec3 normal)
+float CalcAO(in vec3 pos, in vec3 nor)
+{
+    float occ = 0.0;
+    float sca = 1.0, dd;
+    for (int i = 0; i < 5; i++)
+    {
+        float hr = 0.01 + 0.29 * float(i) / 4.0;
+        vec3 aopos = nor * hr + pos;
+        dd = distToScene(aopos);
+        occ += -(dd - hr) * sca;
+        sca *= 0.95;
+    }
+    return clamp(1.0 - 1.4 * occ, 0.0, 1.0);
+}
+
+
+float CalcAOLut(in vec3 pos, in vec3 nor)
+{
+    float occ = 0.0;
+    float sca = 1.0, dd;
+    for (int i = 0; i < 5; i++)
+    {
+        float hr = 0.01 + 0.39 * float(i) / 4.0;
+        vec3 aopos = nor * hr + pos;
+        dd = distToSceneLut(aopos);
+        occ += -(dd - hr) * sca;
+        sca *= 0.95;
+    }
+    return clamp(1.0 - 1.6 * occ, 0.0, 1.0);
+}
+
+vec3 ApplyMaterial(vec3 pos, vec3 rayDir, vec3 normal, float ao)
 {
     vec3 lightDir = normalize(vec3(1.0, 1.0, 0.0));
 
     float dotSN = dot(normal, lightDir);
     dotSN = (dotSN + 1.0) * 0.5;
-    dotSN = mix(0.1, 1.2, dotSN);
+    dotSN = mix(0.4, 1.0, dotSN);
 
     float dotCam = 1.0 - abs(dot(rayDir, normal));
     dotCam = pow(dotCam, 2.0);
 
     //vec3 color = vec3(0.5 + 0.5 * normal) * dotSN;
-    vec3 color = vec3(0.1, 0.01, 0.01);
-    color = mix(color, vec3(0.35, 0.1, 0.05), dotCam);
+    //float ao = CalcAO(pos, normal);
+    vec3 color = mix(vec3(0.06, 0.001, 0.001), vec3(vec3(0.15, 0.008, 0.008)), ao);// *dotSN;
+    color = mix(color, vec3(0.19, 0.08, 0.08 ), dotCam);
     return color;
 }
 
@@ -103,7 +135,7 @@ vec3 RaymarchStrokes(in ray_t camRay)
     {
         vec3 normal = estimateNormal(camRay.pos);
 
-        color = ApplyMaterial(camRay.pos, camRay.dir, normal);
+        color = ApplyMaterial(camRay.pos, camRay.dir, normal, CalcAO(camRay.pos, normal));
     }
 
     return color;
@@ -132,7 +164,7 @@ vec3 RaymarchLut(in ray_t camRay) // Debug only
     {
         vec3 normal = estimateNormalLut(camRay.pos);
 
-        color = ApplyMaterial(camRay.pos, camRay.dir, normal);
+        color = ApplyMaterial(camRay.pos, camRay.dir, normal, CalcAOLut(camRay.pos, normal));
         //ivec3 lutcoord = WorldToLutCoord(camRay.pos);
         //color = texelFetch(uSdfLutTexture, clamp(lutcoord, ivec3(0), ivec3(uVolumeExtent.x - 1)), 0).rgb;
     }
