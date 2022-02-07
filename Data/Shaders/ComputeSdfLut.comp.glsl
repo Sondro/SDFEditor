@@ -23,7 +23,7 @@ void main()
     // substract half othe image size (-63.5, 63.5)
     // multiply by voxel size in world 
     
-    //vec3 worldPos = ((vec3(outPos.xzy) + 0.5) - uVolumeExtent.x) * LUT_VOXEL_SIDE;
+    //vec3 worldPos = ((vec3(outPos.xyz/*xzy*/) + 0.5) - uVolumeExtent.x) * LUT_VOXEL_SIDE;
 
     vec3 worldPos = LutCoordToWorld(outPos);
 
@@ -41,7 +41,8 @@ void main()
 
     vec3 slotCoord = vec3(0.0);
 
-    if (abs(dist) < sqrt(pow(uVoxelSide.x * 0.5, 2.0) * 2.0f) * 2.0f)
+    if (abs(dist) < uVoxelSide.x * 2.0f)
+    //if (abs(dist * uVoxelSide.y) < 1.0)
     {
         uint slot = atomicAdd(slot_count, 1);
         slot_list[slot] = CoordToIndex(outPos.xyz);
@@ -49,7 +50,7 @@ void main()
         slotCoord = IndexToNormCoord(slot);
     }
 
-    //vec3 color = vec3(gl_GlobalInvocationID.xzy) * invImgSize;
+    //vec3 color = vec3(gl_GlobalInvocationID.xyz/*xzy*/) * invImgSize;
     imageStore(uSdfLutImage, outPos.xyz, vec4(slotCoord, normDist));
 
     

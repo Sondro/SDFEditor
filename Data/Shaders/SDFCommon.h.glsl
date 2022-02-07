@@ -36,6 +36,24 @@ layout(location = 31) uniform sampler3D uSdfAtlasTexture;
 layout(location = 40) uniform ivec4 uVoxelPreview;
 
 // - Voxel space conversion --------------------
+
+uint GetIndexFromCellCoord(ivec3 coord, ivec3 size)
+{
+    return uint(coord.z * size.x * size.y + coord.y * size.x + coord.x);
+}
+
+ivec3 GetCellCoordFromIndex(uint idx, ivec3 size)
+{
+    uvec3 result = uvec3(0);
+    uint a = (size.x * size.y);
+    result.z = idx / a;
+    uint b = idx - a * result.z;
+    result.y = b / size.x;
+    result.x = b % size.x;
+    return ivec3(result);
+}
+
+// - Store coord as index conversion
 uint CoordToIndex(ivec3 coord) 
 {
     return coord.x | (coord.y << 8) | (coord.z << 16);
@@ -58,17 +76,17 @@ vec3 IndexToNormCoord(uint idx)
 
 ivec3 WorldToLutCoord(vec3 pos)
 {
-    return ivec3(((pos.xzy * uVoxelSide.y) + (0.5 * uVolumeExtent.x)));
+    return ivec3(((pos.xyz /*xzy*/ * uVoxelSide.y) + (0.5 * uVolumeExtent.x)));
 }
 
 vec3 WorldToLutUVW(vec3 pos)
 {
-    return ((pos.xzy * uVoxelSide.y) + (0.5 * uVolumeExtent.x)) * uVolumeExtent.y;
+    return ((pos.xyz /*xzy*/ * uVoxelSide.y) + (0.5 * uVolumeExtent.x)) * uVolumeExtent.y;
 }
 
 vec3 LutCoordToWorld(ivec3 coord)
 {
-    return ((vec3(coord.xzy) + 0.5) - (0.5 * uVolumeExtent.x)) * uVoxelSide.x;
+    return ((vec3(coord.xyz /*xzy*/) + 0.5) - (0.5 * uVolumeExtent.x)) * uVoxelSide.x;
 }
 
 // - MATHS -------------------------------
@@ -226,10 +244,31 @@ float distToSceneLut(vec3 p)
     //vec3 coord = p * 2.0 * uVoxelSide.y * uVolumeExtent.y;
     //coord = (coord + 1.0) * 0.5;
     //vec3 coord = vec3(WorldToLutCoord(p)) * uVolumeExtent.y;
-    vec3 uvw = WorldToLutUVW(p);
-    float dist = texture(uSdfLutTexture, uvw).a;
+    vec3 lutUVW = WorldToLutUVW(p);
+    float dist = texture(uSdfLutTexture, lutUVW).a;
     dist = (dist) * 2.0 - 1.0f;
     dist = dist * uVolumeExtent.x * uVoxelSide.x;
+
+    return dist;
+}
+
+
+float distToSceneAtlas(vec3 p)
+{
+    // convert world p to lut coords
+    // sample lut texture
+    // convert distance to -1, 1
+    // convert dist from normalized voxels to worlda
+
+    //vec3 coord = p * 2.0 * uVoxelSide.y * uVolumeExtent.y;
+    //coord = (coord + 1.0) * 0.5;
+    //vec3 coord = vec3(WorldToLutCoord(p)) * uVolumeExtent.y;
+    vec3 lutUVW = WorldToLutUVW(p);
+    vec4 lutData = texture(uSdfLutTexture, lutUVW).rgba;
+    float dist = (lutData.a) * 2.0 - 1.0f;
+    dist = dist * uVolumeExtent.x * uVoxelSide.x;
+
+
 
     return dist;
 }

@@ -94,7 +94,7 @@ void CRenderer::Init()
     lSdfAtlasConfig.mTarget = ETexTarget::TEXTURE_3D;
     lSdfAtlasConfig.mExtentX = 1024;
     lSdfAtlasConfig.mExtentY = 1024;
-    lSdfAtlasConfig.mSlices = 16;
+    lSdfAtlasConfig.mSlices = 256;
     lSdfAtlasConfig.mFormat = ETexFormat::R8;
     lSdfAtlasConfig.mMinFilter = ETexFilter::LINEAR;
     lSdfAtlasConfig.mMagFilter = ETexFilter::LINEAR;
@@ -102,7 +102,7 @@ void CRenderer::Init()
     lSdfAtlasConfig.mWrapT = ETexWrap::CLAMP_TO_EDGE;
     lSdfAtlasConfig.mWrapR = ETexWrap::CLAMP_TO_EDGE;
     lSdfAtlasConfig.mMips = 1;
-    mSdfAtlas = std::make_shared<CGPUTexture>(lSdfLutConfig);
+    mSdfAtlas = std::make_shared<CGPUTexture>(lSdfAtlasConfig);
 
     // Slot list buffer
     mSlotListBuffer = std::make_shared<CGPUShaderStorageObject>(EGPUBufferBindTarget::SHADER_BUFFER_STORAGE);
@@ -138,11 +138,11 @@ void CRenderer::ReloadShaders()
         mComputeLutPipeline = std::make_shared<CGPUShaderPipeline>(std::vector<CGPUShaderProgramRef>{ mComputeLutProgram });
     }
 
-    // Compute lut shader program
+    // Compute atlas shader program
     {
         CShaderCodeRef lComputeAtlasCode = std::make_shared<std::vector<char>>(std::move(ReadFile("./Shaders/ComputeSdfAtlas.comp.glsl")));
-        mComputeAtlasProgram = std::make_shared<CGPUShaderProgram>(CShaderCodeRefList{ lSdfCommonCode, lComputeAtlasCode }, EShaderSourceType::COMPUTE_SHADER, "ComputeLut");
-        mComputeAtlasPipeline = std::make_shared<CGPUShaderPipeline>(std::vector<CGPUShaderProgramRef>{ mComputeLutProgram });
+        mComputeAtlasProgram = std::make_shared<CGPUShaderProgram>(CShaderCodeRefList{ lSdfCommonCode, lComputeAtlasCode }, EShaderSourceType::COMPUTE_SHADER, "ComputeAtlas");
+        mComputeAtlasPipeline = std::make_shared<CGPUShaderPipeline>(std::vector<CGPUShaderProgramRef>{ mComputeAtlasProgram });
     }
 
     // Draw on screen shader program
@@ -167,7 +167,7 @@ void CRenderer::ReloadShaders()
     for (uint32_t lHandler : lProgramHandlers)
     {
         glProgramUniform1ui(lHandler, EUniformLoc::uMaxSlotsCount, 491520);
-        float lVoxelExt = 0.025f;
+        float lVoxelExt = 0.05f;
         float lLutSize = float(LUT_RES);
         glProgramUniform4f(lHandler, EUniformLoc::uVoxelSide, lVoxelExt, 1.0f / lVoxelExt, lVoxelExt / 8.0f, 1.0f / (lVoxelExt / 8.0f));
         glProgramUniform4f(lHandler, EUniformLoc::uVolumeExtent, lLutSize, 1.0f / lLutSize, 0.0f, 0.0f);
@@ -222,6 +222,13 @@ void CRenderer::UpdateSceneData(CScene const& aScene)
         mSdfLut->BindImage(0, 0, EImgAccess::WRITE_ONLY);
         const uint32_t dispatchRes = LUT_RES / 8;
         glDispatchCompute(dispatchRes, dispatchRes, dispatchRes);
+        
+        // Execute compute atlas
+        mComputeAtlasPipeline->Bind();
+        mSlotCounterBuffer->BindTarget(EGPUBufferBindTarget::DISPATCH_INDIRECT_BUFFER);
+        mSdfAtlas->BindImage(0, 0, EImgAccess::WRITE_ONLY);
+        glDispatchComputeIndirect(0);
+        mSlotCounterBuffer->UnbindTarget(EGPUBufferBindTarget::DISPATCH_INDIRECT_BUFFER);
     }
 
     //Update Matrix

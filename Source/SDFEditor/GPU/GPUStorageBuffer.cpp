@@ -70,3 +70,8 @@ void CGPUShaderStorageObject::BindTarget(EGPUBufferBindTarget::Type aBindTarget)
 {
     glBindBuffer(sGPUBufferBindTarget[aBindTarget], mBufferHandler);
 }
+
+void CGPUShaderStorageObject::UnbindTarget(EGPUBufferBindTarget::Type aBindTarget)
+{
+    glBindBuffer(sGPUBufferBindTarget[aBindTarget], 0);
+}

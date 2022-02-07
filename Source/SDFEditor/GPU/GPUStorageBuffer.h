@@ -47,6 +47,7 @@ public:
     void BindShaderStorage(uint32_t aBindingIndex);
 
     void BindTarget(EGPUBufferBindTarget::Type aBindTarget);
+    void UnbindTarget(EGPUBufferBindTarget::Type aBindTarget);
 
 private:
     uint32_t mBufferHandler;
