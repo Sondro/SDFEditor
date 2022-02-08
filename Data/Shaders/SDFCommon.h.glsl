@@ -252,6 +252,34 @@ float distToSceneLut(vec3 p)
     return dist;
 }
 
+float distToSceneAtlas(vec3 p)
+{
+    // convert world p to lut coords
+    // sample lut texture
+    // convert distance to -1, 1
+    // convert dist from normalized voxels to worlda
+
+    //vec3 coord = p * 2.0 * uVoxelSide.y * uVolumeExtent.y;
+    //coord = (coord + 1.0) * 0.5;
+    //vec3 coord = vec3(WorldToLutCoord(p)) * uVolumeExtent.y;
+    vec3 lutUVW = WorldToLutUVW(p);
+    vec4 lutData = texture(uSdfLutTexture, lutUVW).rgba;
+    float dist = (lutData.a) * 2.0 - 1.0f;
+    dist = dist * uVolumeExtent.x * uVoxelSide.x;
+
+    //if (abs(dist) < uVoxelSide.x * 2.0f)
+    {
+        if (ivec3(lutData.rgb * 255.0f + 0.5f) != ivec3(255))
+        {
+            // calculate atlas coord
+            // sample atlas in that location
+            //vec3 atlasUVW
+        }
+    }
+
+    return dist;
+}
+
 //Estimate normal based on distToScene function
 const float EPS = 0.001;
 vec3 estimateNormal(vec3 p)

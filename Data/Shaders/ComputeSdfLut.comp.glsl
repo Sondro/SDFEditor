@@ -41,7 +41,7 @@ void main()
 
     vec3 slotCoord = vec3(1.0);
 
-    if (abs(dist) < uVoxelSide.x * 2.0f)
+    if (abs(dist) < uVoxelSide.x * 1.5f)
     //if (abs(dist * uVoxelSide.y) < 1.0)
     {
         uint slot = atomicAdd(slot_count, 1);

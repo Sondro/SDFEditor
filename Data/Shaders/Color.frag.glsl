@@ -113,7 +113,7 @@ vec3 ApplyMaterial(vec3 pos, vec3 rayDir, vec3 normal, float ao)
     
     vec3 color = vec3(0); 
     color = mix(vec3(0.09, 0.008, 0.00), vec3(0.14, 0.045, 0.025), dotCam);
-    color = mix(vec3(0.036, 0.008, 0.009), color, ao);// *dotSN;
+    color = mix(vec3(0.036, 0.008, 0.009), color, ao) * dotSN;// *dotSN;
     
     return color;
 }
@@ -151,8 +151,8 @@ vec3 RaymarchLut(in ray_t camRay) // Debug only
     float finalDist = 1000000.0f;
     int iters = 0;
     int maxIters = 150;
-    float limit = sqrt(pow(uVoxelSide.x * 0.5, 2.0) * 2.0f);
-    //float limit = uVoxelSide.x * 0.5;
+    //float limit = sqrt(pow(uVoxelSide.x * 0.5, 2.0) * 2.0f);
+    float limit = uVoxelSide.x * 0.5;
     vec3 color = vec3(0.07, 0.08, 0.19) * 0.8;
 
     vec3 testNormal = vec3(0, 0, 0);
@@ -177,11 +177,50 @@ vec3 RaymarchLut(in ray_t camRay) // Debug only
 
         if (finalDist <= limit && totalDist < testDistance.y)
         {
-            vec3 normal = estimateNormalLut(camRay.pos);
+            
+            vec3 tn = vec3(0, 0, 0);
+            vec2 td = vec2(0, 0);
+            vec3 bmin = (floor(camRay.pos * uVoxelSide.y)) * uVoxelSide.x;
+            vec3 bmax = bmin + uVoxelSide.x;
+            if (rayboxintersect(camRay.pos, camRay.dir, bmin, bmax, tn, td))
+            {
 
+                vec3 A = camRay.pos + td.x * camRay.dir;
+                vec3 B = camRay.pos;
+                vec3 C = camRay.pos + td.y * 0.5 * camRay.dir;
+                vec3 D = camRay.pos + td.y * camRay.dir;
+
+                // this should be done inside the raymarching loop
+                // fetch the atlas cell coords for camRay.pos
+                // convert the four points to voxel coords and ensure edge ones are at least + 0.5 of the border (clamp offset?)
+                // sample the four points in this atlas cell
+                // get the smallest distance of four
+                // **** limit calculation ?? ******
+                // if smalles distance is < threshold ( 0.02? ) is a hit
+                // if not, here comes the tricky part, advance to camRay.pos + td.y + threshold
+                // reset some values to avoid raymarch loop stop (or view if conditions should be changed)
+                // continue raymarching
+
+                //color = 0.5 + 0.5 * tn;
+                camRay.pos += (td.x - uVoxelSide.x * 0.01) * camRay.dir;
+                bmin = (floor(camRay.pos * uVoxelSide.y)) * uVoxelSide.x;
+                bmax = bmin + uVoxelSide.x;
+                if (rayboxintersect(camRay.pos - totalDist * camRay.dir, camRay.dir, bmin, bmax, tn, td))
+                {
+                    color = 0.5 + 0.5 * tn;
+                }
+            }
+
+            vec3 normal = mix(tn, estimateNormalLut(camRay.pos), 0.9);
             color = ApplyMaterial(camRay.pos, camRay.dir, normal, CalcAOLut(camRay.pos, normal));
+            
+            
+            
+
             //ivec3 lutcoord = WorldToLutCoord(camRay.pos);
             //color = texelFetch(uSdfLutTexture, clamp(lutcoord, ivec3(0), ivec3(uVolumeExtent.x - 1)), 0).rgb;
+
+
         }
 
         // Debug box
