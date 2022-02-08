@@ -71,13 +71,13 @@ float CalcAO(in vec3 pos, in vec3 nor)
     float sca = 1.0, dd;
     for (int i = 0; i < 5; i++)
     {
-        float hr = 0.01 + 0.29 * float(i) / 4.0;
+        float hr = 0.01 + 0.23   * float(i) / 4.0;
         vec3 aopos = nor * hr + pos;
         dd = distToScene(aopos);
         occ += -(dd - hr) * sca;
         sca *= 0.95;
     }
-    return clamp(1.0 - 1.4 * occ, 0.0, 1.0);
+    return clamp(1.0 - 1.6 * occ, 0.0, 1.0);
 }
 
 
@@ -87,7 +87,7 @@ float CalcAOLut(in vec3 pos, in vec3 nor)
     float sca = 1.0, dd;
     for (int i = 0; i < 5; i++)
     {
-        float hr = 0.01 + 0.39 * float(i) / 4.0;
+        float hr = 0.01 + 0.23   * float(i) / 4.0;
         vec3 aopos = nor * hr + pos;
         dd = distToSceneLut(aopos);
         occ += -(dd - hr) * sca;
@@ -111,8 +111,10 @@ vec3 ApplyMaterial(vec3 pos, vec3 rayDir, vec3 normal, float ao)
     //color = mix(color, vec3(0.5), dotCam);
     //float ao = CalcAO(pos, normal);
     
-    vec3 color = mix(vec3(0.02, 0.003, 0.002), vec3(vec3(0.08, 0.007, 0.00)), ao);// *dotSN;
-    color = mix(color, vec3(0.14, 0.04, 0.04 ), dotCam);
+    vec3 color = vec3(0); 
+    color = mix(vec3(0.09, 0.007, 0.00), vec3(0.14, 0.035, 0.025), dotCam);
+    color = mix(vec3(0.036, 0.008, 0.009), color, ao);// *dotSN;
+    
     return color;
 }
 
