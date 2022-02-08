@@ -145,32 +145,47 @@ vec3 RaymarchStrokes(in ray_t camRay)
     return color;
 }
 
-
-
 vec3 RaymarchLut(in ray_t camRay) // Debug only
 {
     float totalDist = 0.0;
-    float finalDist = distToSceneLut(camRay.pos);
+    float finalDist = 1000000.0f;
     int iters = 0;
     int maxIters = 150;
     float limit = sqrt(pow(uVoxelSide.x * 0.5, 2.0) * 2.0f);
     //float limit = uVoxelSide.x * 0.5;
     vec3 color = vec3(0.07, 0.08, 0.19) * 0.8;
 
-    for (iters = 0; iters < maxIters && finalDist > limit; iters++)
+    vec3 testNormal = vec3(0, 0, 0);
+    vec2 testDistance = vec2(0, 0);
+    bool intersectsBox = rayboxintersect(camRay.pos, camRay.dir, vec3(uVoxelSide.x * uVolumeExtent.x * -0.5), vec3(uVoxelSide.x * uVolumeExtent.x * 0.5), testNormal, testDistance);
+    float minZeroDist = clamp(testDistance.x, 0.0, abs(testDistance.x));
+    vec3 enterPoint = camRay.pos + camRay.dir * minZeroDist;
+
+    if (intersectsBox)
     {
-        camRay.pos += finalDist * camRay.dir;
-        totalDist += finalDist;
+        camRay.pos = enterPoint;
+        testDistance.y -= minZeroDist;
+        
         finalDist = distToSceneLut(camRay.pos);
-    }
 
-    if (finalDist <= limit)
-    {
-        vec3 normal = estimateNormalLut(camRay.pos);
+        for (iters = 0; iters < maxIters && (finalDist > limit && totalDist < testDistance.y); iters++)
+        {
+            camRay.pos += finalDist * camRay.dir;
+            totalDist += finalDist;
+            finalDist = distToSceneLut(camRay.pos);
+        }
 
-        color = ApplyMaterial(camRay.pos, camRay.dir, normal, CalcAOLut(camRay.pos, normal));
-        //ivec3 lutcoord = WorldToLutCoord(camRay.pos);
-        //color = texelFetch(uSdfLutTexture, clamp(lutcoord, ivec3(0), ivec3(uVolumeExtent.x - 1)), 0).rgb;
+        if (finalDist <= limit && totalDist < testDistance.y)
+        {
+            vec3 normal = estimateNormalLut(camRay.pos);
+
+            color = ApplyMaterial(camRay.pos, camRay.dir, normal, CalcAOLut(camRay.pos, normal));
+            //ivec3 lutcoord = WorldToLutCoord(camRay.pos);
+            //color = texelFetch(uSdfLutTexture, clamp(lutcoord, ivec3(0), ivec3(uVolumeExtent.x - 1)), 0).rgb;
+        }
+
+        // Debug box
+        //color = mix(color, vec3(0.0, 0.5, 0.0), 0.1);
     }
 
     return color;

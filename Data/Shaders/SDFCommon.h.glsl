@@ -252,27 +252,6 @@ float distToSceneLut(vec3 p)
     return dist;
 }
 
-
-float distToSceneAtlas(vec3 p)
-{
-    // convert world p to lut coords
-    // sample lut texture
-    // convert distance to -1, 1
-    // convert dist from normalized voxels to worlda
-
-    //vec3 coord = p * 2.0 * uVoxelSide.y * uVolumeExtent.y;
-    //coord = (coord + 1.0) * 0.5;
-    //vec3 coord = vec3(WorldToLutCoord(p)) * uVolumeExtent.y;
-    vec3 lutUVW = WorldToLutUVW(p);
-    vec4 lutData = texture(uSdfLutTexture, lutUVW).rgba;
-    float dist = (lutData.a) * 2.0 - 1.0f;
-    dist = dist * uVolumeExtent.x * uVoxelSide.x;
-
-
-
-    return dist;
-}
-
 //Estimate normal based on distToScene function
 const float EPS = 0.001;
 vec3 estimateNormal(vec3 p)
@@ -303,4 +282,53 @@ vec3 estimateNormalLut(vec3 p)
     return normalize(vec3(xDiff, yDiff, zDiff));
 }
 
+// return the normal of an AABB cube given a position relative to the cube center
+vec3 cubenormal(in vec3 v)
+{
+    vec3 s = sign(v);
+    vec3 a = abs(v);
 
+    //vec3 n = (a.z > a.y)
+    // ?
+    // (a.z > a.x) ? vec3(0.0, 0.0, s.z) : vec3(s.x, 0.0, 0.0)
+    // :
+    // (a.y > a.x) ? vec3(0.0, s.y, 0.0) : vec3(s.x, 0.0, 0.0);
+
+    vec3 n = mix(
+        mix(vec3(0.0, 0.0, s.z), vec3(s.x, 0.0, 0.0), step(a.z, a.x)),
+        mix(vec3(0.0, s.y, 0.0), vec3(s.x, 0.0, 0.0), step(a.y, a.x)),
+        step(a.z, a.y));
+
+    return n;
+}
+
+// Return true if they ray intersects the specified box
+// https://gamedev.stackexchange.com/questions/18436/most-efficient-aabb-vs-ray-collision-algorithms
+// https://www.shadertoy.com/view/Ns23RK
+bool rayboxintersect(in vec3 raypos, in vec3 raydir, in vec3 boxmin, in vec3 boxmax, out vec3 normal, out vec2 distances)
+{
+    float t1 = (boxmin.x - raypos.x) / raydir.x;
+    float t2 = (boxmax.x - raypos.x) / raydir.x;
+    float t3 = (boxmin.y - raypos.y) / raydir.y;
+    float t4 = (boxmax.y - raypos.y) / raydir.y;
+    float t5 = (boxmin.z - raypos.z) / raydir.z;
+    float t6 = (boxmax.z - raypos.z) / raydir.z;
+
+    float tmin = max(max(min(t1, t2), min(t3, t4)), min(t5, t6));
+    float tmax = min(min(max(t1, t2), max(t3, t4)), max(t5, t6));
+
+    distances = vec2(tmin, tmax);
+
+    if (tmax < 0.0) // box on ray but behind ray origin
+    {
+        return false;
+    }
+
+    if (tmin > tmax) // ray doesn't intersect box
+    {
+        return false;
+    }
+
+    normal = cubenormal(raypos + raydir * tmin - (boxmin + boxmax) / 2.0);
+    return true;
+}

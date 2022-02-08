@@ -39,7 +39,7 @@ void main()
                       outPos.y * imgSize.x +
                       outPos.x;*/
 
-    vec3 slotCoord = vec3(0.0);
+    vec3 slotCoord = vec3(1.0);
 
     if (abs(dist) < uVoxelSide.x * 2.0f)
     //if (abs(dist * uVoxelSide.y) < 1.0)
