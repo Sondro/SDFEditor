@@ -1,4 +1,7 @@
 
+#define ATLAS_SIZE (ivec3(1024, 1024, 256))
+#define ATLAS_SLOTS (ATLAS_SIZE / 8)
+
 struct stroke_t
 {
     vec4 posb;      // position.xyz, blend.a
@@ -27,7 +30,7 @@ layout(std430, binding = 2) buffer slot_count_buffer
 layout(location = 20) uniform uint uStrokesCount;
 layout(location = 21) uniform uint uMaxSlotsCount;
 layout(location = 22) uniform vec4 uVoxelSide;    // LutVoxelSide.x, InvLutVoxelSide.y, AtlasVoxelSide.z InvAtlasVoxelSide.w
-layout(location = 23) uniform vec4 uVolumeExtent;   // LutSize.x, InvLutSize.y, AtlasSize.z, InvAtlasSize.w
+layout(location = 23) uniform vec4 uVolumeExtent;   // LutSize.x, InvLutSize.y, AtlasXYSize.z, AtlasDepth.y
 
 layout(location = 30) uniform sampler3D uSdfLutTexture;
 layout(location = 31) uniform sampler3D uSdfAtlasTexture;
@@ -248,6 +251,24 @@ float distToSceneLut(vec3 p)
     float dist = texture(uSdfLutTexture, lutUVW).a;
     dist = (dist) * 2.0 - 1.0f;
     dist = dist * uVolumeExtent.x * uVoxelSide.x;
+
+    return dist;
+}
+
+float sampleAtlasDist(vec3 uvw)
+{
+    float dist = texture(uSdfAtlasTexture, uvw).r;
+    dist = dist * 2.0 - 1.0f;
+    dist = dist * uVoxelSide.x;
+
+    return dist;
+}
+
+float fetchAtlasDist(ivec3 coord)
+{
+    float dist = texelFetch(uSdfAtlasTexture, coord, 0).r;
+    dist = dist * 2.0 - 1.0f;
+    dist = dist * uVoxelSide.x;
 
     return dist;
 }

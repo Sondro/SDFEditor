@@ -257,6 +257,7 @@ void CRenderer::RenderFrame()
     glBindVertexArray(mDummyVAO);
     mScreenQuadPipeline->Bind();
     mSdfLut->BindTexture(ETexBinding::uSdfLut);
+    mSdfAtlas->BindTexture(ETexBinding::uSdfAtlas);
 
     glDrawArrays(GL_TRIANGLES, 0, 3);
     

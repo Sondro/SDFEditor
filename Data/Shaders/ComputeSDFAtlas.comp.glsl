@@ -1,10 +1,8 @@
 
-layout(binding = 0, r8) uniform image3D uSdfAtlasImage;
+layout(binding = 0, r8) uniform writeonly image3D uSdfAtlasImage;
 
 layout(local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
 
-#define ATLAS_SIZE (ivec3(1024, 1024, 256))
-#define ATLAS_SLOTS (ATLAS_SIZE / 8)
 
 void main()
 {
@@ -26,6 +24,7 @@ void main()
     ivec3 atlasVoxelCoord = (atlasSlotCoord * ivec3(gl_WorkGroupSize.xyz)) + ivec3(gl_LocalInvocationID.xyz);
     
     float dist = distToScene(worldPos) * uVoxelSide.y;
+    dist = (dist + 1.0) * 0.5;
     //float normDist = ((dist * uVoxelSide.y * uVolumeExtent.y) + 1.0) * 0.5;
 
     imageStore(uSdfAtlasImage, atlasVoxelCoord.xyz, vec4(abs(dist)));

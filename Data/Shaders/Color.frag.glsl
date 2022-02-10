@@ -185,42 +185,75 @@ vec3 RaymarchLut(in ray_t camRay) // Debug only
             if (rayboxintersect(camRay.pos, camRay.dir, bmin, bmax, tn, td))
             {
 
-                vec3 A = camRay.pos + td.x * camRay.dir;
-                vec3 B = camRay.pos;
-                vec3 C = camRay.pos + td.y * 0.5 * camRay.dir;
-                vec3 D = camRay.pos + td.y * camRay.dir;
+
 
                 // this should be done inside the raymarching loop
+                // when finalDist < limit ...
                 // fetch the atlas cell coords for camRay.pos
+                // do a box intersection to know the distance with edges and calculate 4 points along the ray inside the box
                 // convert the four points to voxel coords and ensure edge ones are at least + 0.5 of the border (clamp offset?)
                 // sample the four points in this atlas cell
                 // get the smallest distance of four
                 // **** limit calculation ?? ******
                 // if smalles distance is < threshold ( 0.02? ) is a hit
-                // if not, here comes the tricky part, advance to camRay.pos + td.y + threshold
-                // reset some values to avoid raymarch loop stop (or view if conditions should be changed)
+                // if not, here comes the tricky part, advance to camRay.pos + td.y + threshold to move to the next box and ...
+                // reset some values to avoid raymarch loop stop (maybe exit conditions should be changed)
                 // continue raymarching
 
                 //color = 0.5 + 0.5 * tn;
-                camRay.pos += (td.x - uVoxelSide.x * 0.01) * camRay.dir;
+
+                /*camRay.pos += (td.x - uVoxelSide.x * 0.01) * camRay.dir;
                 bmin = (floor(camRay.pos * uVoxelSide.y)) * uVoxelSide.x;
                 bmax = bmin + uVoxelSide.x;
                 if (rayboxintersect(camRay.pos - totalDist * camRay.dir, camRay.dir, bmin, bmax, tn, td))
                 {
                     color = 0.5 + 0.5 * tn;
+                }*/
+
+
+                vec3 Ap = camRay.pos + td.x * camRay.dir;
+                vec3 Bp = camRay.pos;
+                vec3 Cp = camRay.pos + td.y * 0.5 * camRay.dir;
+                vec3 Dp = camRay.pos + td.y * camRay.dir;
+
+                ivec3 lutcoord = WorldToLutCoord(camRay.pos);
+                vec3 fetchedIndex = texelFetch(uSdfLutTexture, clamp(lutcoord, ivec3(0), ivec3(uVolumeExtent.x - 1)), 0).rgb;
+                uint slot = NormCoordToIndex(fetchedIndex);
+                ivec3 cellCoord = GetCellCoordFromIndex(slot, ATLAS_SLOTS) * 8;
+
+                ivec3 offsetA = ivec3(fract(Ap * uVoxelSide.y) * 8);
+                ivec3 offsetB = ivec3(fract(Bp * uVoxelSide.y) * 8);
+                ivec3 offsetC = ivec3(fract(Cp * uVoxelSide.y) * 8);
+                ivec3 offsetD = ivec3(fract(Dp * uVoxelSide.y) * 8);
+
+                float A = sampleAtlasDist((cellCoord + offsetA + 0.5) / vec3(ATLAS_SIZE)).r;
+                float B = sampleAtlasDist((cellCoord + offsetB + 0.5) / vec3(ATLAS_SIZE)).r;
+                float C = sampleAtlasDist((cellCoord + offsetC + 0.5) / vec3(ATLAS_SIZE)).r;
+                float D = sampleAtlasDist((cellCoord + offsetD + 0.5) / vec3(ATLAS_SIZE)).r;
+                float minDist = min(min(A, B), min(C, D));
+
+                if (minDist < 0.02)
+                {
+                   //break;
+                    vec3 normal = estimateNormalLut(camRay.pos);
+                    color = ApplyMaterial(camRay.pos, camRay.dir, normal, CalcAOLut(camRay.pos, normal));
                 }
-            }
+                else
+                {
+                    color = vec3(0.0, 1.0, 0.0);
+                }
+                //color = vec3(minDist);
+                /*if (minDist < 0.05)
+                {
+                    //color = vec3(minDist * uVoxelSide.y);
+                    vec3 normal = estimateNormalLut(camRay.pos);
+                    color = ApplyMaterial(camRay.pos, camRay.dir, normal, CalcAOLut(camRay.pos, normal));
+                }*/
 
-            vec3 normal = mix(tn, estimateNormalLut(camRay.pos), 0.9);
-            color = ApplyMaterial(camRay.pos, camRay.dir, normal, CalcAOLut(camRay.pos, normal));
-            
-            
-            
+                //color = vec3(float(slot) / 50000.0f);
 
-            //ivec3 lutcoord = WorldToLutCoord(camRay.pos);
-            //color = texelFetch(uSdfLutTexture, clamp(lutcoord, ivec3(0), ivec3(uVolumeExtent.x - 1)), 0).rgb;
-
-
+                
+            }            
         }
 
         // Debug box
