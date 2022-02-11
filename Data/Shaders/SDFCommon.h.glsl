@@ -273,7 +273,7 @@ float fetchAtlasDist(ivec3 coord)
     return dist;
 }
 
-float distToSceneAtlas(vec3 p)
+float distToSceneAtlas(vec3 pos)
 {
     // convert world p to lut coords
     // sample lut texture
@@ -283,22 +283,24 @@ float distToSceneAtlas(vec3 p)
     //vec3 coord = p * 2.0 * uVoxelSide.y * uVolumeExtent.y;
     //coord = (coord + 1.0) * 0.5;
     //vec3 coord = vec3(WorldToLutCoord(p)) * uVolumeExtent.y;
-    vec3 lutUVW = WorldToLutUVW(p);
-    vec4 lutData = texture(uSdfLutTexture, lutUVW).rgba;
-    float dist = (lutData.a) * 2.0 - 1.0f;
-    dist = dist * uVolumeExtent.x * uVoxelSide.x;
+    ivec3 lutCoord = WorldToLutCoord(pos);
+    vec3 lutData = texelFetch(uSdfLutTexture, lutCoord, 0).rgb;
 
     //if (abs(dist) < uVoxelSide.x * 2.0f)
     {
-        if (ivec3(lutData.rgb * 255.0f + 0.5f) != ivec3(255))
+        if (ivec3(lutData.rgb + 0.5) != ivec3(1))
         {
-            // calculate atlas coord
-            // sample atlas in that location
-            //vec3 atlasUVW
+            uint slot = NormCoordToIndex(lutData.rgb);
+            vec3 cellCoord = GetCellCoordFromIndex(slot, ATLAS_SLOTS) * 8.0f;
+            vec3 offset = fract(pos * uVoxelSide.y) * 8.0f;
+            offset = clamp(offset, 0.5, 7.5);
+
+            vec3 atlasUVW = (cellCoord + offset) / vec3(ATLAS_SIZE);
+            return sampleAtlasDist(atlasUVW).r;
         }
     }
 
-    return dist;
+    return distToSceneLut(pos);
 }
 
 //Estimate normal based on distToScene function
@@ -316,15 +318,31 @@ vec3 estimateNormal(vec3 p)
     float zDiff = zPl - zMi;
     return normalize(vec3(xDiff, yDiff, zDiff));
 }
+
 vec3 estimateNormalLut(vec3 p)
 {
-    float offset = uVoxelSide.x;
+    float offset = uVoxelSide.x * 0.5;
     float xPl = distToSceneLut(vec3(p.x + offset, p.y, p.z));
     float xMi = distToSceneLut(vec3(p.x - offset, p.y, p.z));
     float yPl = distToSceneLut(vec3(p.x, p.y + offset, p.z));
     float yMi = distToSceneLut(vec3(p.x, p.y - offset, p.z));
     float zPl = distToSceneLut(vec3(p.x, p.y, p.z + offset));
     float zMi = distToSceneLut(vec3(p.x, p.y, p.z - offset));
+    float xDiff = xPl - xMi;
+    float yDiff = yPl - yMi;
+    float zDiff = zPl - zMi;
+    return normalize(vec3(xDiff, yDiff, zDiff));
+}
+
+vec3 estimateNormalAtlas(vec3 p)
+{
+    float offset = uVoxelSide.x / 8.0f;
+    float xPl = distToSceneAtlas(vec3(p.x + offset, p.y, p.z));
+    float xMi = distToSceneAtlas(vec3(p.x - offset, p.y, p.z));
+    float yPl = distToSceneAtlas(vec3(p.x, p.y + offset, p.z));
+    float yMi = distToSceneAtlas(vec3(p.x, p.y - offset, p.z));
+    float zPl = distToSceneAtlas(vec3(p.x, p.y, p.z + offset));
+    float zMi = distToSceneAtlas(vec3(p.x, p.y, p.z - offset));
     float xDiff = xPl - xMi;
     float yDiff = yPl - yMi;
     float zDiff = zPl - zMi;

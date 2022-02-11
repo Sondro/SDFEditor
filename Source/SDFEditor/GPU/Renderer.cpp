@@ -96,8 +96,8 @@ void CRenderer::Init()
     lSdfAtlasConfig.mExtentY = 1024;
     lSdfAtlasConfig.mSlices = 256;
     lSdfAtlasConfig.mFormat = ETexFormat::R8;
-    lSdfAtlasConfig.mMinFilter = ETexFilter::LINEAR;
-    lSdfAtlasConfig.mMagFilter = ETexFilter::LINEAR;
+    lSdfAtlasConfig.mMinFilter = ETexFilter::NEAREST;
+    lSdfAtlasConfig.mMagFilter = ETexFilter::NEAREST;
     lSdfAtlasConfig.mWrapS = ETexWrap::CLAMP_TO_EDGE;
     lSdfAtlasConfig.mWrapT = ETexWrap::CLAMP_TO_EDGE;
     lSdfAtlasConfig.mWrapR = ETexWrap::CLAMP_TO_EDGE;
