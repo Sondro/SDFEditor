@@ -127,7 +127,7 @@ vec3 ApplyMaterial(vec3 pos, vec3 rayDir, vec3 normal, float ao)
     
     //vec3 color = vec3(0); 
     color = mix(vec3(0.09, 0.008, 0.00), vec3(0.14, 0.045, 0.025), dotCam);
-    color = mix(vec3(0.036, 0.008, 0.009), color, ao) * dotSN;// *dotSN;
+    color = mix(vec3(0.036, 0.008, 0.009), color, ao) * dotSN * 2.0;// *dotSN;
     
     return color;
 }
@@ -151,17 +151,19 @@ vec3 RaymarchStrokes(in ray_t camRay)
 
     if (finalDist <= limit)
     {
-        vec3 normal = estimateNormal(camRay.pos);
+        vec3 normal = estimateNormalAtlas(camRay.pos);
         //vec3 normal = estimateNormalAtlas(camRay.pos);
         color = ApplyMaterial(camRay.pos, camRay.dir, normal, CalcAO(camRay.pos, normal));
+
+        //return vec3(0.5, 2.0, 0.5) * totalDist / 3.0;
     }
 
     return color;
 }
 
 vec2 opMinV2(in vec2 a, in vec2 b) { return (a.x < b.x) ? a : b; }
-vec2 opMinV2Positive(in vec2 a, in vec2 b) { return (a.x < b.x && a.x > 0.0f) ? a : b; }
-vec3 opMinV3(in vec3 a, in vec3 b) { return (a.z < b.z) ? a : b; }
+//vec2 opMinV2Positive(in vec2 a, in vec2 b) { return (a.x < b.x && a.x > 0.0f) ? a : b; }
+//vec3 opMinV3(in vec3 a, in vec3 b) { return (a.z < b.z) ? a : b; }
 
 vec3 RaymarchLut(in ray_t camRay) // Debug only
 {
@@ -179,7 +181,7 @@ vec3 RaymarchLut(in ray_t camRay) // Debug only
     bool intersectsBox = rayboxintersect(camRay.pos, camRay.dir, vec3(uVoxelSide.x * uVolumeExtent.x * -0.5), vec3(uVoxelSide.x * uVolumeExtent.x * 0.5), testNormal, testDistance);
     float minZeroDist = clamp(testDistance.x, 0.0, abs(testDistance.x));
     vec3 enterPoint = camRay.pos + camRay.dir * minZeroDist;
-
+    bool reenter = false;
     if (intersectsBox)
     {
         camRay.pos = enterPoint;
@@ -187,8 +189,9 @@ vec3 RaymarchLut(in ray_t camRay) // Debug only
         
         finalDist = distToSceneLut(camRay.pos);
 
-        for (iters = 0; iters < maxIters && (finalDist > limit && totalDist < testDistance.y); iters++)
+        for (iters = 0; iters < maxIters && ((finalDist > limit || reenter) && totalDist < testDistance.y); iters++)
         {
+            reenter = false;
             camRay.pos += finalDist * camRay.dir;
             totalDist = distance(camRay.pos, enterPoint);
             finalDist = distToSceneLut(camRay.pos);
@@ -227,10 +230,25 @@ vec3 RaymarchLut(in ray_t camRay) // Debug only
                         ivec3 cellCoord = GetCellCoordFromIndex(slot, ATLAS_SLOTS) * 8;
 
                         // TODO: calculate the exact offset to avoid filtering with adjadcent Atlas cubes
-                        float At = td.x + 0.0005;
-                        float Bt = 0.0f;
-                        float Ct = td.y * 0.5;
-                        float Dt = td.y - 0.0005;
+                        //float At = td.x + 0.0001;
+						//float Bt = 0.0f;
+                        //float Ct = td.y * 0.5;
+                        //float Dt = td.y - 0.0001;
+
+                        float At = 0.0001;
+                        float Bt = td.y * 0.1;
+                        float Ct = td.y * 0.2;
+                        float Dt = td.y * 0.5 - 0.0001;
+
+                        //float At = td.x + 0.0001;
+                        //float Bt = td.x * 0.5;
+                        //float Ct = td.y * 0.25;
+                        //float Dt = td.y * 0.5 - 0.0001;
+
+                        //float At = td.x + 0.0001;
+                        //float Bt = 0.0f;
+                        //float Ct = td.y * 0.1;
+                        //float Dt = td.y * 0.2;//     -0.0001;
 
                         vec3 Ap = camRay.pos + At * camRay.dir;
                         vec3 Bp = camRay.pos + Bt * camRay.dir;
@@ -268,23 +286,38 @@ vec3 RaymarchLut(in ray_t camRay) // Debug only
                         }
                         else
                         {
-                            //camRay.pos = camRay.pos + minDist.y * camRay.dir * 0.1f;
-                            camRay.pos = camRay.pos + camRay.dir * minDist.x * 0.5f;
+                            // minimum distance is too deep, just keep it in the initial position.
+                            finalDist = 0.0f;
+
+                            //camRay.pos = camRay.pos + minDist.y * camRay.dir;
+                            
+
+                            //camRay.pos = camRay.pos + camRay.dir * -minDist.y * 0.1;
+                            //camRay.pos = camRay.pos + camRay.dir * minDist.x * 0.5f;
 
                             //camRay.pos = camRay.pos + camRay.dir * -uVoxelSide.x / 8.0;
                             //finalDist = limit * 2.0;
-                            finalDist = minDist.x;
+                            //finalDist = minDist.x;
                             //finalDist = limit * 2.0;
 
-                            //return vec3(0.5, 1.0, 0.5) * totalDist / 3.0;
+                            //return vec3(0.05, 0.2, 0.05);// *totalDist / 3.0;
+                            
+                            // we are too inside, go back to the previous voxel
+                            //reenter = true;
+                            //finalDist = td.x - 0.001;
                         }
                     }
                     else
                     {
-                        finalDist = limit * 2.0;
-                        camRay.pos = camRay.pos + camRay.dir * -uVoxelSide.x; //(td.x - 0.001);
+                        //we are too far away, advance to the next voxel
+                        
+                        //return vec3(2.0, 0.5, 0.5) * totalDist / 3.0;
+                        reenter = true;
+                        finalDist = td.y + 0.0001;
+                        //camRay.pos = camRay.pos + camRay.dir * -uVoxelSide.x; //(td.x - 0.001);
+                        //camRay.pos = camRay.pos + camRay.dir * (td.x - 0.001);
 
-                        //return vec3(-0.5, -0.5, 2.0);
+                       //return vec3(2.0, 0.5, 0.5) * totalDist / 3.0;
                     }
                     //color = vec3(minDist);
                     /*if (minDist < 0.05)
@@ -313,6 +346,8 @@ vec3 RaymarchLut(in ray_t camRay) // Debug only
             //{
             //    color = vec3(0.0, 1.0, 0.0);
             //}
+
+            //return vec3(0.5, 2.0, 0.5) * totalDist / 3.0;
         }
         else
         {
@@ -422,7 +457,7 @@ void main()
     outColor = vec4(finalColor, 1.0f);
 
     //outColor.rgb = abs(strokes[0].posb.xyz);
-    if (uVoxelPreview.x == 1)
+    /*if (uVoxelPreview.x == 1)
     {
         vec4 sdf = texelFetch(uSdfLutTexture, ivec3(inFragUV.x * 1.0 * (16.0f / 9.0f) * uVolumeExtent.x, float(uVoxelPreview.y), inFragUV.y * 1.0 * uVolumeExtent.x), 0).rgba;
         //vec4 sdfTop = texture(uSdfLutTexture, vec3(inFragUV.x * 2.0 * (16.0f / 9.0f), inFragUV.y * 2.0 - 1.0, float(uVoxelPreview.y) / 128.0f)).rgba;
@@ -431,5 +466,5 @@ void main()
         sdf.a = abs(sdf.a * uVolumeExtent.x * uVoxelSide.x);
         float debugLimit = sqrt(pow(uVoxelSide.x * 0.5, 2.0) * 2.0f) * 2.5f;
         outColor.rgb = mix(finalColor, sdf.rgb, sdf.a < debugLimit ? 1.0f : 0.0f);
-    }
+    }*/
 }

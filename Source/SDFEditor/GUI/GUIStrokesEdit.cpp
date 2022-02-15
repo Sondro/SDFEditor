@@ -198,7 +198,7 @@ namespace GEditor
                     lDirty = true;
                 }
 
-                lDirty |= ImGui::DragFloat3("Size", (float*)&lStrokeInfo.param0.x, 0.01f);
+                lDirty |= ImGui::DragFloat3("Size", (float*)&lStrokeInfo.param0.x, 0.02f);
 
                 if ((ImGui::Button("Remove") || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Delete), false)) && aScene.mStorkesArray.size() > 0)
                 {
@@ -343,6 +343,7 @@ namespace GEditor
             ImGuizmo::RecomposeMatrixFromComponents(&lStrokeInfo.posb.x, &lStrokeInfo.mEulerAngles.x, &lStrokeInfo.param0.x, glm::value_ptr(lTransformationMatrix));
 
             static float bounds[] = { -1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f };
+            //static float snap[] = { 0.02f, 0.02f, 0.02f };
             if (ImGuizmo::Manipulate(glm::value_ptr(lView), 
                                      glm::value_ptr(lProjection), 
                                      gGUIState.mCurrentGizmoOperation, 
@@ -351,6 +352,7 @@ namespace GEditor
                                      NULL, NULL, gGUIState.mBoundsActive ? bounds : NULL, NULL))
             {
                 ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(lTransformationMatrix), &lStrokeInfo.posb.x, &lStrokeInfo.mEulerAngles.x, &lStrokeInfo.param0.x);
+                lStrokeInfo.param0 = glm::max(lStrokeInfo.param0, glm::vec4(0.02f));
                 lStrokeInfo.UpdateRotation();
                 aScene.SetDirty();
             }

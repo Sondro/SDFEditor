@@ -336,7 +336,7 @@ vec3 estimateNormalLut(vec3 p)
 
 vec3 estimateNormalAtlas(vec3 p)
 {
-    float offset = uVoxelSide.x / 8.0f;
+    float offset = 4.0f * uVoxelSide.x / 8.0f;
     float xPl = distToSceneAtlas(vec3(p.x + offset, p.y, p.z));
     float xMi = distToSceneAtlas(vec3(p.x - offset, p.y, p.z));
     float yPl = distToSceneAtlas(vec3(p.x, p.y + offset, p.z));
