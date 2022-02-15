@@ -124,6 +124,8 @@ public:
     // Debug
     int32_t mPreviewSlice{ 64 };
     bool    mUseVoxels{ true };
+    bool    mLutNearestFilter{ false };
+    bool    mAtlasNearestFilter{ false };
 private:
     bool mDirty;
     uint32_t mNextStrokeId;

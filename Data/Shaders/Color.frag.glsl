@@ -122,11 +122,10 @@ vec3 ApplyMaterial(vec3 pos, vec3 rayDir, vec3 normal, float ao)
     float dotCam = 1.0 - abs(dot(rayDir, normal));
     dotCam = pow(dotCam, 2.0);
 
-    //vec3 color = vec3(0.5 + 0.5 * normal) * dotSN * mix(0.5, 1.0, ao);
-    //color = mix(color, vec3(0.5), dotCam);
-    //float ao = CalcAO(pos, normal);
+    vec3 color = vec3(0.5 + 0.5 * normal);// *dotSN* mix(0.5, 1.0, ao);
+  //  color = mix(color, vec3(0.5), dotCam);
     
-    vec3 color = vec3(0); 
+    //vec3 color = vec3(0); 
     color = mix(vec3(0.09, 0.008, 0.00), vec3(0.14, 0.045, 0.025), dotCam);
     color = mix(vec3(0.036, 0.008, 0.009), color, ao) * dotSN;// *dotSN;
     
@@ -161,6 +160,8 @@ vec3 RaymarchStrokes(in ray_t camRay)
 }
 
 vec2 opMinV2(in vec2 a, in vec2 b) { return (a.x < b.x) ? a : b; }
+vec2 opMinV2Positive(in vec2 a, in vec2 b) { return (a.x < b.x && a.x > 0.0f) ? a : b; }
+vec3 opMinV3(in vec3 a, in vec3 b) { return (a.z < b.z) ? a : b; }
 
 vec3 RaymarchLut(in ray_t camRay) // Debug only
 {
@@ -169,7 +170,7 @@ vec3 RaymarchLut(in ray_t camRay) // Debug only
     int iters = 0;
     int maxIters = 150;
     //float limit = sqrt(pow(uVoxelSide.x * 0.5, 2.0) * 2.0f);
-    float limit = uVoxelSide.x * 0.5;
+    float limit = uVoxelSide.x * 1.0;
     float limitSubVoxel = 0.02;
     vec3 color = vec3(0.07, 0.08, 0.19) * 0.8;
 
@@ -189,13 +190,14 @@ vec3 RaymarchLut(in ray_t camRay) // Debug only
         for (iters = 0; iters < maxIters && (finalDist > limit && totalDist < testDistance.y); iters++)
         {
             camRay.pos += finalDist * camRay.dir;
-            totalDist += finalDist;
+            totalDist = distance(camRay.pos, enterPoint);
             finalDist = distToSceneLut(camRay.pos);
 
             if (finalDist <= limit && totalDist < testDistance.y)
             {
                 // this should be done inside the raymarching loop
                 // when finalDist < limit ...
+                // check we are not in negative value, go back if that's the case
                 // fetch the atlas cell coords for camRay.pos
                 // do a box intersection to know the distance with edges and calculate 4 points along the ray inside the box
                 // convert the four points to voxel coords and ensure edge ones are at least + 0.5 of the border (clamp offset?)
@@ -207,6 +209,7 @@ vec3 RaymarchLut(in ray_t camRay) // Debug only
                 // reset some values to avoid raymarch loop stop (maybe exit conditions should be changed)
                 // continue raymarching
 
+
                 vec3 tn = vec3(0, 0, 0);
                 vec2 td = vec2(0, 0);
                 vec3 bmin = (floor(camRay.pos * uVoxelSide.y)) * uVoxelSide.x;
@@ -214,30 +217,30 @@ vec3 RaymarchLut(in ray_t camRay) // Debug only
                 if (rayboxintersect(camRay.pos, camRay.dir, bmin, bmax, tn, td))
                 {
                     ivec3 lutcoord = WorldToLutCoord(camRay.pos);
-                    vec3 fetchedIndex = texelFetch(uSdfLutTexture, clamp(lutcoord, ivec3(0), ivec3(uVolumeExtent.x - 1)), 0).rgb;
-                   
+                    vec4 fetchedIndex = texelFetch(uSdfLutTexture, clamp(lutcoord, ivec3(0), ivec3(uVolumeExtent.x - 1)), 0).rgba;
+
                     vec2 minDist = vec2(1.0, 0.0);
 
-                    if (ivec3(fetchedIndex + 0.5) != ivec3(1))
+                    if (ivec3(fetchedIndex.rgb + 0.5) != ivec3(1))
                     {
-                        uint slot = NormCoordToIndex(fetchedIndex);
+                        uint slot = NormCoordToIndex(fetchedIndex.rgb);
                         ivec3 cellCoord = GetCellCoordFromIndex(slot, ATLAS_SLOTS) * 8;
 
                         // TODO: calculate the exact offset to avoid filtering with adjadcent Atlas cubes
-                        float At = td.x + 0.01;
+                        float At = td.x + 0.0005;
                         float Bt = 0.0f;
                         float Ct = td.y * 0.5;
-                        float Dt = td.y - 0.01;
+                        float Dt = td.y - 0.0005;
 
                         vec3 Ap = camRay.pos + At * camRay.dir;
                         vec3 Bp = camRay.pos + Bt * camRay.dir;
                         vec3 Cp = camRay.pos + Ct * camRay.dir;
                         vec3 Dp = camRay.pos + Dt * camRay.dir;
 
-                        vec3 offsetA = vec3(fract(Ap * uVoxelSide.y) * 8);
-                        vec3 offsetB = vec3(fract(Bp * uVoxelSide.y) * 8);
-                        vec3 offsetC = vec3(fract(Cp * uVoxelSide.y) * 8);
-                        vec3 offsetD = vec3(fract(Dp * uVoxelSide.y) * 8);
+                        vec3 offsetA = vec3(fract(Ap * uVoxelSide.y) * 8.0);
+                        vec3 offsetB = vec3(fract(Bp * uVoxelSide.y) * 8.0);
+                        vec3 offsetC = vec3(fract(Cp * uVoxelSide.y) * 8.0);
+                        vec3 offsetD = vec3(fract(Dp * uVoxelSide.y) * 8.0);
 
                         offsetA = clamp(offsetA, 0.5f, 7.5f);
                         offsetB = clamp(offsetB, 0.5f, 7.5f);
@@ -250,16 +253,38 @@ vec3 RaymarchLut(in ray_t camRay) // Debug only
                         vec2 D = vec2(sampleAtlasDist((cellCoord + offsetD) / vec3(ATLAS_SIZE)).r, Dt);
                         minDist = opMinV2(opMinV2(A, B), opMinV2(C, D));
                     }
+                    /*else
+                    {
+                         return vec3(0.5, 1.0, 0.5) * totalDist / 3.0;
+                    }*/
+
 
                     if (minDist.x < limitSubVoxel)
                     {
-                        finalDist = minDist.x;
-                        camRay.pos = camRay.pos + minDist.y * camRay.dir;
+                        if (minDist.x > -limitSubVoxel)
+                        {
+                            camRay.pos = camRay.pos + minDist.y * camRay.dir;
+                            finalDist = minDist.x;
+                        }
+                        else
+                        {
+                            //camRay.pos = camRay.pos + minDist.y * camRay.dir * 0.1f;
+                            camRay.pos = camRay.pos + camRay.dir * minDist.x * 0.5f;
+
+                            //camRay.pos = camRay.pos + camRay.dir * -uVoxelSide.x / 8.0;
+                            //finalDist = limit * 2.0;
+                            finalDist = minDist.x;
+                            //finalDist = limit * 2.0;
+
+                            //return vec3(0.5, 1.0, 0.5) * totalDist / 3.0;
+                        }
                     }
                     else
                     {
                         finalDist = limit * 2.0;
-                        camRay.pos = camRay.pos + camRay.dir * (td.y + 0.0001);                    
+                        camRay.pos = camRay.pos + camRay.dir * -uVoxelSide.x; //(td.x - 0.001);
+
+                        //return vec3(-0.5, -0.5, 2.0);
                     }
                     //color = vec3(minDist);
                     /*if (minDist < 0.05)
@@ -271,7 +296,7 @@ vec3 RaymarchLut(in ray_t camRay) // Debug only
 
                     //color = vec3(float(slot) / 50000.0f);
 
-
+                    totalDist = distance(camRay.pos, enterPoint);
                 }
             }
         }
@@ -281,6 +306,13 @@ vec3 RaymarchLut(in ray_t camRay) // Debug only
             //break;
             vec3 normal = estimateNormalAtlas(camRay.pos);
             color = ApplyMaterial(camRay.pos, camRay.dir, normal, CalcAOAtlas(camRay.pos, normal));
+            //color = normal * 0.5 + 0.5;
+            //color += vec3(totalDist / 3.0);
+            //uint lutCoordY = WorldToLutCoord(camRay.pos).y;
+            //if (uVoxelPreview.y == lutCoordY)
+            //{
+            //    color = vec3(0.0, 1.0, 0.0);
+            //}
         }
         else
         {
@@ -392,7 +424,7 @@ void main()
     //outColor.rgb = abs(strokes[0].posb.xyz);
     if (uVoxelPreview.x == 1)
     {
-        vec4 sdf = texelFetch(uSdfLutTexture, ivec3(inFragUV.x * 2.0 * (16.0f / 9.0f) * uVolumeExtent.x, float(uVoxelPreview.y), inFragUV.y * 2.0 * uVolumeExtent.x), 0).rgba;
+        vec4 sdf = texelFetch(uSdfLutTexture, ivec3(inFragUV.x * 1.0 * (16.0f / 9.0f) * uVolumeExtent.x, float(uVoxelPreview.y), inFragUV.y * 1.0 * uVolumeExtent.x), 0).rgba;
         //vec4 sdfTop = texture(uSdfLutTexture, vec3(inFragUV.x * 2.0 * (16.0f / 9.0f), inFragUV.y * 2.0 - 1.0, float(uVoxelPreview.y) / 128.0f)).rgba;
         //sdf = mix(sdfTop, sdf, step(sdf.a, 1.0f / 128.0f));
         sdf.a = (sdf.a * 2.0) - 1.0;

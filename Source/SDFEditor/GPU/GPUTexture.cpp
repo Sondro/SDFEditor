@@ -71,11 +71,28 @@ CGPUTexture::~CGPUTexture()
 
 void CGPUTexture::BindTexture(uint32_t aUnit)
 {
-    glActiveTexture(GL_TEXTURE0 + aUnit);
-    glBindTexture(mTarget, mTextureHandler);
+    //glActiveTexture(GL_TEXTURE0 + aUnit);
+    //glBindTexture(mTarget, mTextureHandler);
+    glBindTextureUnit(aUnit, mTextureHandler);
 }
 
 void CGPUTexture::BindImage(uint32_t aBinding, uint32_t aMip, EImgAccess::Type aAccess)
 {
     glBindImageTexture(aBinding, mTextureHandler, aMip, GL_FALSE, 0, sImgAccess[aAccess], sTexFormat[mConfig.mFormat]);
 }
+
+void CGPUTexture::SetFilters(ETexFilter::Type aMinFilters, ETexFilter::Type aMagFilter)
+{
+    if (mConfig.mMinFilter != aMinFilters)
+    {
+        mConfig.mMinFilter = aMinFilters;
+        glTextureParameteri(mTextureHandler, GL_TEXTURE_MIN_FILTER, sTexFilter[mConfig.mMinFilter]);
+    }
+
+    if (mConfig.mMagFilter != aMagFilter)
+    {
+        mConfig.mMagFilter = aMagFilter;
+        glTextureParameteri(mTextureHandler, GL_TEXTURE_MAG_FILTER, sTexFilter[mConfig.mMagFilter]);
+    }
+}
+

@@ -96,8 +96,8 @@ void CRenderer::Init()
     lSdfAtlasConfig.mExtentY = 1024;
     lSdfAtlasConfig.mSlices = 256;
     lSdfAtlasConfig.mFormat = ETexFormat::R8;
-    lSdfAtlasConfig.mMinFilter = ETexFilter::NEAREST;
-    lSdfAtlasConfig.mMagFilter = ETexFilter::NEAREST;
+    lSdfAtlasConfig.mMinFilter = ETexFilter::LINEAR;
+    lSdfAtlasConfig.mMagFilter = ETexFilter::LINEAR;
     lSdfAtlasConfig.mWrapS = ETexWrap::CLAMP_TO_EDGE;
     lSdfAtlasConfig.mWrapT = ETexWrap::CLAMP_TO_EDGE;
     lSdfAtlasConfig.mWrapR = ETexWrap::CLAMP_TO_EDGE;
@@ -243,6 +243,13 @@ void CRenderer::UpdateSceneData(CScene const& aScene)
     glProgramUniformMatrix4fv(mFullscreenVertexProgram->GetHandler(), EUniformLoc::uViewMatrix, 1, false, glm::value_ptr(lView));
     glProgramUniformMatrix4fv(mFullscreenVertexProgram->GetHandler(), EUniformLoc::uProjectionMatrix, 1, false, glm::value_ptr(lProjection));
     glProgramUniform4i(mColorFragmentProgram->GetHandler(), EUniformLoc::uVoxelPreview, aScene.mUseVoxels ? 1 : 0, aScene.mPreviewSlice, 0, 0);
+
+#if DEBUG
+    ETexFilter::Type lLutFilters = (aScene.mLutNearestFilter) ? ETexFilter::NEAREST : ETexFilter::LINEAR;
+    mSdfLut->SetFilters(lLutFilters, lLutFilters);
+    ETexFilter::Type lAtlasFilters = (aScene.mAtlasNearestFilter) ? ETexFilter::NEAREST : ETexFilter::LINEAR;
+    mSdfAtlas->SetFilters(lAtlasFilters, lAtlasFilters);
+#endif
 }
 
 void CRenderer::RenderFrame()
