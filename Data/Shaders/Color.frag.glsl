@@ -170,7 +170,7 @@ vec3 RaymarchLut(in ray_t camRay) // Debug only
     float totalDist = 0.0;
     float finalDist = 1000000.0f;
     int iters = 0;
-    int maxIters = 150;
+    int maxIters = 600;
     //float limit = sqrt(pow(uVoxelSide.x * 0.5, 2.0) * 2.0f);
     float limit = uVoxelSide.x * 1.0;
     float limitSubVoxel = 0.02;
@@ -200,18 +200,16 @@ vec3 RaymarchLut(in ray_t camRay) // Debug only
             {
                 // this should be done inside the raymarching loop
                 // when finalDist < limit ...
-                // check we are not in negative value, go back if that's the case
                 // fetch the atlas cell coords for camRay.pos
                 // do a box intersection to know the distance with edges and calculate 4 points along the ray inside the box
                 // convert the four points to voxel coords and ensure edge ones are at least + 0.5 of the border (clamp offset?)
                 // sample the four points in this atlas cell
                 // get the smallest distance of four
                 // **** limit calculation ?? ******
-                // if smalles distance is < threshold ( 0.02? ) is a hit
-                // if not, here comes the tricky part, advance to camRay.pos + td.y + threshold to move to the next box and ...
-                // reset some values to avoid raymarch loop stop (maybe exit conditions should be changed)
+                // if smalles distance is < threshold ( 0.02? ) is a hit, if is too negative < -threshold, is a it at the smallest t
+                // if not, move to the next box ...
+                // reset some values to avoid raymarch loop stop
                 // continue raymarching
-
 
                 vec3 tn = vec3(0, 0, 0);
                 vec2 td = vec2(0, 0);
@@ -224,31 +222,18 @@ vec3 RaymarchLut(in ray_t camRay) // Debug only
 
                     vec2 minDist = vec2(1.0, 0.0);
 
+                    float maxDist = td.y;
                     if (ivec3(fetchedIndex.rgb + 0.5) != ivec3(1))
                     {
                         uint slot = NormCoordToIndex(fetchedIndex.rgb);
                         ivec3 cellCoord = GetCellCoordFromIndex(slot, ATLAS_SLOTS) * 8;
 
                         // TODO: calculate the exact offset to avoid filtering with adjadcent Atlas cubes
-                        //float At = td.x + 0.0001;
-						//float Bt = 0.0f;
-                        //float Ct = td.y * 0.5;
-                        //float Dt = td.y - 0.0001;
-
-                        float At = 0.0001;
-                        float Bt = td.y * 0.1;
-                        float Ct = td.y * 0.2;
-                        float Dt = td.y * 0.5 - 0.0001;
-
-                        //float At = td.x + 0.0001;
-                        //float Bt = td.x * 0.5;
-                        //float Ct = td.y * 0.25;
-                        //float Dt = td.y * 0.5 - 0.0001;
-
-                        //float At = td.x + 0.0001;
-                        //float Bt = 0.0f;
-                        //float Ct = td.y * 0.1;
-                        //float Dt = td.y * 0.2;//     -0.0001;
+                        float At = td.x + 0.0001;
+                        float Bt = td.y * 0.0;
+                        float Ct = td.y * 0.1;
+                        float Dt = td.y * 0.2;
+                        maxDist = Dt;
 
                         vec3 Ap = camRay.pos + At * camRay.dir;
                         vec3 Bp = camRay.pos + Bt * camRay.dir;
@@ -270,66 +255,35 @@ vec3 RaymarchLut(in ray_t camRay) // Debug only
                         vec2 C = vec2(sampleAtlasDist((cellCoord + offsetC) / vec3(ATLAS_SIZE)).r, Ct);
                         vec2 D = vec2(sampleAtlasDist((cellCoord + offsetD) / vec3(ATLAS_SIZE)).r, Dt);
                         minDist = opMinV2(opMinV2(A, B), opMinV2(C, D));
-                    }
-                    /*else
-                    {
-                         return vec3(0.5, 1.0, 0.5) * totalDist / 3.0;
-                    }*/
 
-
-                    if (minDist.x < limitSubVoxel)
-                    {
-                        if (minDist.x > -limitSubVoxel)
+                        if (minDist.x < limitSubVoxel)
                         {
-                            camRay.pos = camRay.pos + minDist.y * camRay.dir;
-                            finalDist = minDist.x;
+                            if (minDist.x > -limitSubVoxel)
+                            {
+                                camRay.pos = camRay.pos + minDist.y * camRay.dir;
+                                finalDist = minDist.x;
+
+                                // recalculate totalDist
+                                totalDist = distance(camRay.pos, enterPoint);
+                            }
+                            else
+                            {
+                                // minimum distance is too deep, just keep it in the initial position.
+                                finalDist = 0.0f;
+                            }
                         }
                         else
                         {
-                            // minimum distance is too deep, just keep it in the initial position.
-                            finalDist = 0.0f;
-
-                            //camRay.pos = camRay.pos + minDist.y * camRay.dir;
-                            
-
-                            //camRay.pos = camRay.pos + camRay.dir * -minDist.y * 0.1;
-                            //camRay.pos = camRay.pos + camRay.dir * minDist.x * 0.5f;
-
-                            //camRay.pos = camRay.pos + camRay.dir * -uVoxelSide.x / 8.0;
-                            //finalDist = limit * 2.0;
-                            //finalDist = minDist.x;
-                            //finalDist = limit * 2.0;
-
-                            //return vec3(0.05, 0.2, 0.05);// *totalDist / 3.0;
-                            
-                            // we are too inside, go back to the previous voxel
-                            //reenter = true;
-                            //finalDist = td.x - 0.001;
+                            //we are too far away, advance to the next voxel and continue raymarching
+                            reenter = true;
+                            finalDist = maxDist + 0.0001; // td.y + 0.0001;
                         }
                     }
                     else
                     {
-                        //we are too far away, advance to the next voxel
-                        
-                        //return vec3(2.0, 0.5, 0.5) * totalDist / 3.0;
                         reenter = true;
-                        finalDist = td.y + 0.0001;
-                        //camRay.pos = camRay.pos + camRay.dir * -uVoxelSide.x; //(td.x - 0.001);
-                        //camRay.pos = camRay.pos + camRay.dir * (td.x - 0.001);
-
-                       //return vec3(2.0, 0.5, 0.5) * totalDist / 3.0;
+                        finalDist = maxDist + 0.0001; // td.y + 0.0001;
                     }
-                    //color = vec3(minDist);
-                    /*if (minDist < 0.05)
-                    {
-                        //color = vec3(minDist * uVoxelSide.y);
-                        vec3 normal = estimateNormalLut(camRay.pos);
-                        color = ApplyMaterial(camRay.pos, camRay.dir, normal, CalcAOLut(camRay.pos, normal));
-                    }*/
-
-                    //color = vec3(float(slot) / 50000.0f);
-
-                    totalDist = distance(camRay.pos, enterPoint);
                 }
             }
         }
