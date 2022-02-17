@@ -36,7 +36,7 @@
 
     - Adapt transform guizmos to primitive (GUI)
 
-    - Undo / Redo
+    - [WIP] Undo / Redo
 
     - Copy / Paste strokes
 
@@ -45,6 +45,8 @@
     - Handle group selection and transform
 
     - [DONE (basic)]Custom stroke list widget to replace ImGui::Selectable
+
+    - Scene export to json file
 
     // Bugs
 
@@ -55,16 +57,17 @@
     - Offscreen render pipeline?
     - Half resolution? Checkerboard?
     - [WIP] Sparse voxel SDF
-        > AABB box check to discard traces out of the voxe box
-        > adapt the size of the volume in the world depending on the farthest transformed bounding volume
-        > Fill atlas tiles with distance data
-        > Raymarch vs the atlas tiles
+        > [DONE] AABB box check to discard traces out of the voxe box
+        > [TODO, fixed size for now] adapt the size of the volume in the world depending on the farthest transformed bounding volume
+        > [DONE] Fill atlas tiles with distance data
+        > [EARLY VERSION, artifacts] Raymarch vs the atlas tiles
 
 
 
 */
 
 #include "ToolApp.h"
+#include "SceneStack.h"
 
 #include "imgui/imgui.h"
 #include "GLFW/glfw3.h"
@@ -106,7 +109,6 @@ void CToolApp::Update()
     if (!lCameraMoving && !io.WantCaptureMouse && ImGui::IsMouseClicked(0))
     {
         GEditor::RaycastSelectStroke(mScene);
-
     }
     
     ImGui::Begin("Debug");
@@ -228,6 +230,20 @@ bool CToolApp::HandleShortcuts()
         return true;
     }
 
+    if (io.KeyCtrl && !io.KeyShift && ImGui::IsKeyPressed('Z', false))
+    {
+        mScene.mStack->PopState();
+        mScene.SetDirty();
+        return true;
+    }
+
+    if (io.KeyCtrl && io.KeyShift && ImGui::IsKeyPressed('Z', false))
+    {
+        mScene.mStack->RestorePopedState();
+        mScene.SetDirty();
+        return true;
+    }
+
     return false;
 }
 
@@ -246,7 +262,7 @@ void CToolApp::SaveScene(const std::string&  aFilePath)
 
 void CToolApp::LoadScene(const std::string& aFilePath)
 {
-    GEditor::ResetSelection();
+    GEditor::ResetSelection(mScene);
 
     std::vector<char> lData = ReadFile(aFilePath);
 
@@ -257,8 +273,12 @@ void CToolApp::LoadScene(const std::string& aFilePath)
         ::memcpy(&lNumElements, lData.data(), sizeof(lNumElements));
 
         mScene.mStorkesArray.clear();
+        mScene.mSelectedItems.clear();
         mScene.mStorkesArray.resize(lNumElements);
         ::memcpy(mScene.mStorkesArray.data(), lData.data() + sizeof(lNumElements), lNumElements * sizeof(TStrokeInfo));
         mScene.SetDirty();
     }
+
+    mScene.mStack->Reset();
+    mScene.mStack->PushState(EPushStateFlags::EPE_ALL);
 }

@@ -116,10 +116,14 @@ public:
     void SetDirty() { mDirty = true; }
     void CleanDirtyFlag() { mDirty = false; }
 
-    uint32_t AddNewStorke(uint32_t aBaseStrokeIndex = UINT32_MAX);
+    uint32_t AddNewStroke(uint32_t aBaseStrokeIndex = UINT32_MAX);
 
+    // Scene data
     std::vector< TStrokeInfo > mStorkesArray;
+    std::vector<uint32_t> mSelectedItems;
     CCamera mCamera;
+
+    std::unique_ptr<class CSceneStack> mStack;
 
     // Debug
     int32_t mPreviewSlice{ 64 };

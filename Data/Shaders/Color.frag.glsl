@@ -256,8 +256,10 @@ vec3 RaymarchLut(in ray_t camRay) // Debug only
                         vec2 D = vec2(sampleAtlasDist((cellCoord + offsetD) / vec3(ATLAS_SIZE)).r, Dt);
                         minDist = opMinV2(opMinV2(A, B), opMinV2(C, D));
 
+                        // surface found along the ray samples
                         if (minDist.x < limitSubVoxel)
                         {
+                            // if it isn't too deep
                             if (minDist.x > -limitSubVoxel)
                             {
                                 camRay.pos = camRay.pos + minDist.y * camRay.dir;
@@ -274,7 +276,7 @@ vec3 RaymarchLut(in ray_t camRay) // Debug only
                         }
                         else
                         {
-                            //we are too far away, advance to the next voxel and continue raymarching
+                            //we are too far away, advance until the farthest distance and continue raymarching
                             reenter = true;
                             finalDist = maxDist + 0.0001; // td.y + 0.0001;
                         }

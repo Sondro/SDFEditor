@@ -3,6 +3,7 @@
 #include "GUIStrokesEdit.h"
 
 #include <SDFEditor/Tool/SceneData.h>
+#include <SDFEditor/Tool/SceneStack.h>
 #include <SDFEditor/Math/Box.h>
 
 #include <sbx/Core/Log.h>
@@ -25,25 +26,27 @@ namespace GEditor
 {
     struct TGUIState
     {
-        std::vector<uint32_t> mSelectedItems;
+        
         int32_t mVisibleItemsInList{ 10 };
 
         ImGuizmo::OPERATION mCurrentGizmoOperation{ ImGuizmo::TRANSLATE };
         ImGuizmo::MODE mCurrentGizmoMode{ ImGuizmo::MODE::LOCAL };
         bool mGridActive{ true };
         bool mBoundsActive{ true };
+        bool mPanelEditing{ false };
+        bool mGuizmoEditing{ false };
 
         bool ValidStrokeSelected(class CScene& aScene)
         {
-            return (mSelectedItems.size() == 1) && (mSelectedItems[0] < aScene.mStorkesArray.size());
+            return (aScene.mSelectedItems.size() == 1) && (aScene.mSelectedItems[0] < aScene.mStorkesArray.size());
         }
     };
 
     TGUIState gGUIState;
 
-    void ResetSelection()
+    void ResetSelection(class CScene& aScene)
     {
-        gGUIState.mSelectedItems.clear();
+        aScene.mSelectedItems.clear();
     }
 
     void DrawStrokesPanel(class CScene& aScene)
@@ -70,8 +73,8 @@ namespace GEditor
                     const ImVec2 lRegionOrigin = ImGui::GetCursorScreenPos() - ImVec2(2.0f, 0.0f);
                     const ImVec2 lRegionEnd = ImVec2(lRegionOrigin.x + ImGui::GetWindowWidth() + 2.0f, lRegionOrigin.y + item_height);
 
-                    auto lItemIt = std::find(gGUIState.mSelectedItems.begin(), gGUIState.mSelectedItems.end(), i);
-                    const bool lIsSelected = lItemIt != gGUIState.mSelectedItems.end();
+                    auto lItemIt = std::find(aScene.mSelectedItems.begin(), aScene.mSelectedItems.end(), i);
+                    const bool lIsSelected = lItemIt != aScene.mSelectedItems.end();
                     const bool lIsHovered = ImGui::IsMouseHoveringRect(lRegionOrigin, lRegionEnd);
                     
                     if (lIsSelected || lIsHovered)
@@ -85,18 +88,18 @@ namespace GEditor
                     {
                         if (!ImGui::GetIO().KeyCtrl)
                         {
-                            gGUIState.mSelectedItems.clear();
-                            gGUIState.mSelectedItems.push_back(i);
+                            aScene.mSelectedItems.clear();
+                            aScene.mSelectedItems.push_back(i);
                         }
                         else
                         {
                             if (lIsSelected)
                             {
-                                gGUIState.mSelectedItems.erase(lItemIt);
+                                aScene.mSelectedItems.erase(lItemIt);
                             }
                             else
                             {
-                                gGUIState.mSelectedItems.push_back(i);
+                                aScene.mSelectedItems.push_back(i);
                             }
                         }
                     }
@@ -109,25 +112,25 @@ namespace GEditor
 
             if (ImGui::Button("Add New"))
             {
-                uint32_t lCloneIndex = (gGUIState.mSelectedItems.size() == 1) ? gGUIState.mSelectedItems[0] : UINT32_MAX;
-                aScene.AddNewStorke(lCloneIndex);
-                gGUIState.mSelectedItems.clear();
-                gGUIState.mSelectedItems.push_back(int32_t(aScene.mStorkesArray.size() - 1));
+                uint32_t lCloneIndex = (aScene.mSelectedItems.size() == 1) ? aScene.mSelectedItems[0] : UINT32_MAX;
+                aScene.AddNewStroke(lCloneIndex);
+                aScene.mSelectedItems.clear();
+                aScene.mSelectedItems.push_back(int32_t(aScene.mStorkesArray.size() - 1));
                 lDirty = true;
             }
 
-            ImGui::BeginDisabled(gGUIState.mSelectedItems.size() == 0 || aScene.mStorkesArray.size() <= 1);
+            ImGui::BeginDisabled(aScene.mSelectedItems.size() == 0 || aScene.mStorkesArray.size() <= 1);
             ImGui::SameLine();
             if (ImGui::Button("Move Up"))
             {
-                std::sort(gGUIState.mSelectedItems.begin(), gGUIState.mSelectedItems.end());
-                for (int32_t i = 0; i < gGUIState.mSelectedItems.size(); i++)
+                std::sort(aScene.mSelectedItems.begin(), aScene.mSelectedItems.end());
+                for (int32_t i = 0; i < aScene.mSelectedItems.size(); i++)
                 {
-                    int32_t lSelectedIndex = gGUIState.mSelectedItems[i];
+                    int32_t lSelectedIndex = aScene.mSelectedItems[i];
                     if (lSelectedIndex > 0)
                     {
                         std::swap(aScene.mStorkesArray[lSelectedIndex], aScene.mStorkesArray[size_t(lSelectedIndex) - 1]);
-                        gGUIState.mSelectedItems[i] = lSelectedIndex - 1;
+                        aScene.mSelectedItems[i] = lSelectedIndex - 1;
                     }
                     else
                     {
@@ -139,14 +142,14 @@ namespace GEditor
             ImGui::SameLine();
             if (ImGui::Button("Move Down"))
             {
-                std::sort(gGUIState.mSelectedItems.begin(), gGUIState.mSelectedItems.end());
-                for (int32_t i = int32_t(gGUIState.mSelectedItems.size()) - 1; i >= 0; i--)
+                std::sort(aScene.mSelectedItems.begin(), aScene.mSelectedItems.end());
+                for (int32_t i = int32_t(aScene.mSelectedItems.size()) - 1; i >= 0; i--)
                 {
-                    int32_t lSelectedIndex = gGUIState.mSelectedItems[i];
+                    int32_t lSelectedIndex = aScene.mSelectedItems[i];
                     if (lSelectedIndex < aScene.mStorkesArray.size() - 1)
                     {
                         std::swap(aScene.mStorkesArray[lSelectedIndex], aScene.mStorkesArray[size_t(lSelectedIndex) + 1]);
-                        gGUIState.mSelectedItems[i] = lSelectedIndex + 1;
+                        aScene.mSelectedItems[i] = lSelectedIndex + 1;
                     }
                     else
                     {
@@ -159,7 +162,7 @@ namespace GEditor
 
             if (gGUIState.ValidStrokeSelected(aScene))
             {
-                int32_t lSelectedIndex = gGUIState.mSelectedItems[0];
+                int32_t lSelectedIndex = aScene.mSelectedItems[0];
                 TStrokeInfo& lStrokeInfo = aScene.mStorkesArray[lSelectedIndex];
                 ImGui::PushID(lSelectedIndex);
 
@@ -203,7 +206,7 @@ namespace GEditor
                 if ((ImGui::Button("Remove") || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Delete), false)) && aScene.mStorkesArray.size() > 0)
                 {
                     aScene.mStorkesArray.erase(aScene.mStorkesArray.begin() + lSelectedIndex);
-                    gGUIState.mSelectedItems.clear();
+                    aScene.mSelectedItems.clear();
                     lDirty = true;
                 }
                 ImGui::Separator();
@@ -214,7 +217,13 @@ namespace GEditor
         ImGui::End();
         if (lDirty)
         {
+            gGUIState.mPanelEditing = true;
             aScene.SetDirty();
+        }
+        else if(gGUIState.mPanelEditing && !ImGui::IsMouseDown(ImGuiMouseButton_Left))
+        {
+            gGUIState.mPanelEditing = false;
+            aScene.mStack->PushState(EPushStateFlags::EPE_ALL);
         }
     }
 
@@ -329,7 +338,7 @@ namespace GEditor
         // draw gizmos over selected stroke
         if (gGUIState.ValidStrokeSelected(aScene))
         {
-            int32_t lSelectedIndex = gGUIState.mSelectedItems[0];
+            int32_t lSelectedIndex = aScene.mSelectedItems[0];
             TStrokeInfo& lStrokeInfo = aScene.mStorkesArray[lSelectedIndex];
 
             if (io.KeysDown['T'])
@@ -351,10 +360,16 @@ namespace GEditor
                                      glm::value_ptr(lTransformationMatrix), 
                                      NULL, NULL, gGUIState.mBoundsActive ? bounds : NULL, NULL))
             {
+                gGUIState.mGuizmoEditing = true;
                 ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(lTransformationMatrix), &lStrokeInfo.posb.x, &lStrokeInfo.mEulerAngles.x, &lStrokeInfo.param0.x);
                 lStrokeInfo.param0 = glm::max(lStrokeInfo.param0, glm::vec4(0.02f));
                 lStrokeInfo.UpdateRotation();
                 aScene.SetDirty();
+            }
+            else if (gGUIState.mGuizmoEditing && !ImGui::IsMouseDown(ImGuiMouseButton_Left))
+            {
+                gGUIState.mGuizmoEditing = false;
+                aScene.mStack->PushState(EPushStateFlags::EPE_ALL);
             }
         }
     }
@@ -388,7 +403,7 @@ namespace GEditor
 
     void RaycastSelectStroke(CScene& aScene)
     {
-        gGUIState.mSelectedItems.clear();
+        aScene.mSelectedItems.clear();
 
         glm::vec3 lRayOrigin = glm::vec3(1.0);
         glm::vec3 lRayDirection = glm::vec3(1.0);
@@ -422,12 +437,14 @@ namespace GEditor
         if (lIntersectedIndex != UINT32_MAX)
         {
             //SBX_LOG("Clicked Stroke %s", aScene.mStorkesArray[lIntersectedIndex].mName);
-            gGUIState.mSelectedItems.push_back(lIntersectedIndex);
+            aScene.mSelectedItems.push_back(lIntersectedIndex);
         }
         else
         {
             //SBX_LOG("Clicked Nothing");
         }
+
+        aScene.mStack->PushState(EPushStateFlags::EPE_SELECTION);
     }
 
 }

@@ -2,6 +2,7 @@
 #pragma once
 
 #include "SceneData.h"
+#include "SceneStack.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
@@ -17,10 +18,12 @@ void TStrokeInfo::UpdateRotation()
 }
 
 CScene::CScene()
-    : mDirty(true)
+    : mStack(std::make_unique<CSceneStack>(*this))
+    , mDirty(true)
     , mNextStrokeId(0)
 {
-    AddNewStorke();
+    AddNewStroke();
+    mStack->PushState(EPushStateFlags::EPE_ALL);
 
     /*mStorkesArray.push_back({
         {-0.4f, 0.0f, -1.0f, 0.4f},
@@ -45,7 +48,7 @@ CScene::~CScene()
 {
 }
 
-uint32_t CScene::AddNewStorke(uint32_t aBaseStrokeIndex)
+uint32_t CScene::AddNewStroke(uint32_t aBaseStrokeIndex)
 {
     if (aBaseStrokeIndex < mStorkesArray.size())
     {
