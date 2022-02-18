@@ -232,15 +232,19 @@ bool CToolApp::HandleShortcuts()
 
     if (io.KeyCtrl && !io.KeyShift && ImGui::IsKeyPressed('Z', false))
     {
-        mScene.mStack->PopState();
-        mScene.SetDirty();
+        if (mScene.mStack->PopState())
+        {
+            mScene.SetDirty();
+        }
         return true;
     }
 
     if (io.KeyCtrl && io.KeyShift && ImGui::IsKeyPressed('Z', false))
     {
-        mScene.mStack->RestorePopedState();
-        mScene.SetDirty();
+        if (mScene.mStack->RestorePopedState())
+        {
+            mScene.SetDirty();
+        }
         return true;
     }
 
@@ -280,5 +284,4 @@ void CToolApp::LoadScene(const std::string& aFilePath)
     }
 
     mScene.mStack->Reset();
-    mScene.mStack->PushState(EPushStateFlags::EPE_ALL);
 }

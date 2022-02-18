@@ -15,7 +15,7 @@ namespace EPushStateFlags
     {
         EPE_STROKES = 1 << 0,
         EPE_SELECTION = 1 << 1,
-        EPE_ALL = EPE_STROKES | EPE_STROKES,
+        EPE_ALL = EPE_STROKES | EPE_SELECTION,
     };
 };
 
@@ -41,8 +41,8 @@ public:
     // Undo/Redo functionality
     void Reset();
     void PushState(TPushStateFlags aFlags);
-    void PopState();
-    void RestorePopedState();
+    bool PopState();
+    bool RestorePopedState();
     bool HavePushedStates() const { return mPushedStates.size() > 1; }
     bool HavePopedStates() const { return mPopedStates.size() > 0; }
 

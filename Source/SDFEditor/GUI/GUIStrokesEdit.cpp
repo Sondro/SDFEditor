@@ -443,8 +443,6 @@ namespace GEditor
         {
             //SBX_LOG("Clicked Nothing");
         }
-
-        aScene.mStack->PushState(EPushStateFlags::EPE_SELECTION);
     }
 
 }

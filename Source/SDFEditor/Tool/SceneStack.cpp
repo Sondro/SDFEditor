@@ -60,7 +60,7 @@ void CSceneStack::PushState(TPushStateFlags aFlags)
     }
 }
 
-void CSceneStack::PopState()
+bool CSceneStack::PopState()
 {
     if(mPushedStates.size() > 1)
     {
@@ -68,10 +68,14 @@ void CSceneStack::PopState()
         mPushedStates.pop_back();
 
         ApplySceneState();
+
+        return true;
     }
+
+    return false;
 }
 
-void CSceneStack::RestorePopedState()
+bool CSceneStack::RestorePopedState()
 {
     if (mPopedStates.size() > 0)
     {
@@ -79,7 +83,11 @@ void CSceneStack::RestorePopedState()
         mPopedStates.pop_back();
 
         ApplySceneState();
+
+        return true;
     }
+
+    return false;
 }
 
 void CSceneStack::ApplySceneState()
