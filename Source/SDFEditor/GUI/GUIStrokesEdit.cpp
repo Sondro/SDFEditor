@@ -56,8 +56,10 @@ namespace GEditor
             {
                 // Visible List Items
                 ImGui::PushItemWidth(40);
-                ImGui::DragInt("Visible List Items", &gGUIState.mVisibleItemsInList, 1, 5, 20);
+                ImGui::DragInt(" Visible list Items", &gGUIState.mVisibleItemsInList, 1, 5, 20);
                 ImGui::PopItemWidth();
+                ImGui::SameLine();
+                ImGui::Text("(%d total)", aScene.mStorkesArray.size() & 0xFFFFFFFF);
                 gGUIState.mVisibleItemsInList = glm::clamp(gGUIState.mVisibleItemsInList, 5, 20);
             }
             

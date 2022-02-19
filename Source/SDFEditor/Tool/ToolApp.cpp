@@ -38,17 +38,17 @@
 
     - [DONE] Undo / Redo
 
-    - Copy / Paste strokes
+    - [DONE] Copy / Paste strokes
 
     - [DONE] Delete key input to remove strokes
 
     - Scene export to json file
 
-    - Handle group selection and transform
-
     - [DONE (basic)]Custom stroke list widget to replace ImGui::Selectable
 
     - Add extra strokes operations like mirror, pivot, etc.
+
+    - Handle group selection and transform
 
     // Bugs
 

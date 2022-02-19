@@ -43,7 +43,7 @@ bool CSceneClipboard::AddCopiedItems()
         size_t lLastIndex = mScene.mStorkesArray.size() - 1;
         for (size_t i = 0, l = mCopiedElements.size(); i < l; ++i)
         {
-            mScene.mSelectedItems.push_back((lLastIndex - i) & 0xFFFFFFF);
+            mScene.mSelectedItems.push_back((lLastIndex - i) & 0xFFFFFFFF);
         }
 
         return true;
