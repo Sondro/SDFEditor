@@ -73,7 +73,7 @@ int main(int, char**)
     if (window == NULL)
         return 1;
     glfwMakeContextCurrent(window);
-    glfwSwapInterval(0); // Enable vsync
+    glfwSwapInterval(1); // Enable vsync
 
     //HWND hwnd = glfwGetWin32Window(window);
     //SetWindowDisplayAffinity(hwnd, WDA_MONITOR);

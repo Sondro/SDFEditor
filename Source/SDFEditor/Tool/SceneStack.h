@@ -3,11 +3,13 @@
 
 #pragma once
 
-#include <SDFEditor/Tool/SceneData.h>
 #include <deque>
+#include <vector>
+#include <memory>
+
+#include <SDFEditor/Tool/StrokeInfo.h>
 
 class CScene;
-struct TStrokeInfo;
 
 namespace EPushStateFlags
 {
@@ -47,7 +49,7 @@ public:
     bool HavePopedStates() const { return mPopedStates.size() > 0; }
 
 private:
-    void ApplySceneState();
+    void ApplySceneState(bool aPopedSelection);
 
 private:
     CScene& mScene;

@@ -1,5 +1,6 @@
 
 #include "SceneStack.h"
+#include "SceneData.h"
 
 constexpr size_t kMaxStackElements = 20;
 
@@ -67,7 +68,7 @@ bool CSceneStack::PopState()
         mPopedStates.push_back(mPushedStates.back());
         mPushedStates.pop_back();
 
-        ApplySceneState();
+        ApplySceneState(true);
 
         return true;
     }
@@ -82,7 +83,7 @@ bool CSceneStack::RestorePopedState()
         mPushedStates.push_back(mPopedStates.back());
         mPopedStates.pop_back();
 
-        ApplySceneState();
+        ApplySceneState(false);
 
         return true;
     }
@@ -90,16 +91,26 @@ bool CSceneStack::RestorePopedState()
     return false;
 }
 
-void CSceneStack::ApplySceneState()
+void CSceneStack::ApplySceneState(bool aPopedSelection)
 {
     //appply scene changes
-    if (mPushedStates.back()->mStorkesArray)
+    if (mPushedStates.size() > 0 && mPushedStates.back()->mStorkesArray)
     {
         mScene.mStorkesArray = *mPushedStates.back()->mStorkesArray;
     }
 
-    if (mPushedStates.back()->mSelectedItems)
+    if(aPopedSelection)
     {
-        mScene.mSelectedItems = *mPushedStates.back()->mSelectedItems;
+        if (mPopedStates.size() > 0 && mPopedStates.back()->mSelectedItems)
+        {
+            mScene.mSelectedItems = *mPopedStates.back()->mSelectedItems;
+        }
+    }
+    else
+    {
+        if (mPushedStates.size() > 0 && mPushedStates.back()->mSelectedItems)
+        {
+            mScene.mSelectedItems = *mPushedStates.back()->mSelectedItems;
+        }
     }
 }

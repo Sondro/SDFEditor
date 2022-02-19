@@ -126,8 +126,8 @@ vec3 ApplyMaterial(vec3 pos, vec3 rayDir, vec3 normal, float ao)
   //  color = mix(color, vec3(0.5), dotCam);
     
     //vec3 color = vec3(0); 
-    color = mix(vec3(0.09, 0.008, 0.00), vec3(0.14, 0.045, 0.025), dotCam);
-    color = mix(vec3(0.036, 0.008, 0.009), color, ao) * dotSN * 2.0;// *dotSN;
+    color = mix(vec3(0.18, 0.032, 0.00), vec3(0.30, 0.090, 0.050), dotCam);
+    color = mix(vec3(0.07, 0.016, 0.018), color, ao) * dotSN;// *dotSN;
     
     return color;
 }

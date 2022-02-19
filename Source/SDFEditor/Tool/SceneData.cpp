@@ -2,7 +2,6 @@
 #pragma once
 
 #include "SceneData.h"
-#include "SceneStack.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
@@ -10,15 +9,11 @@
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-void TStrokeInfo::UpdateRotation()
-{
-    glm::quat q = glm::conjugate(glm::quat(glm::radians(mEulerAngles)));
-    //glm::quat q = glm::conjugate(glm::toQuat(glm::orientate3(glm::radians(mEulerAngles))));
-    quat = glm::vec4(q.x, q.y, q.z, q.w);
-}
+
 
 CScene::CScene()
     : mStack(std::make_unique<CSceneStack>(*this))
+    , mClipboard(std::make_unique<CSceneClipboard>(*this))
     , mDirty(true)
     , mNextStrokeId(0)
 {

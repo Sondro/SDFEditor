@@ -36,17 +36,19 @@
 
     - Adapt transform guizmos to primitive (GUI)
 
-    - [WIP] Undo / Redo
+    - [DONE] Undo / Redo
 
     - Copy / Paste strokes
 
     - [DONE] Delete key input to remove strokes
 
+    - Scene export to json file
+
     - Handle group selection and transform
 
     - [DONE (basic)]Custom stroke list widget to replace ImGui::Selectable
 
-    - Scene export to json file
+    - Add extra strokes operations like mirror, pivot, etc.
 
     // Bugs
 
@@ -67,7 +69,6 @@
 */
 
 #include "ToolApp.h"
-#include "SceneStack.h"
 
 #include "imgui/imgui.h"
 #include "GLFW/glfw3.h"
@@ -230,6 +231,7 @@ bool CToolApp::HandleShortcuts()
         return true;
     }
 
+    // Ctrl + Z Undo (no Shift)
     if (io.KeyCtrl && !io.KeyShift && ImGui::IsKeyPressed('Z', false))
     {
         if (mScene.mStack->PopState())
@@ -239,10 +241,29 @@ bool CToolApp::HandleShortcuts()
         return true;
     }
 
+    // Ctrl + Shift + Z Redo
     if (io.KeyCtrl && io.KeyShift && ImGui::IsKeyPressed('Z', false))
     {
         if (mScene.mStack->RestorePopedState())
         {
+            mScene.SetDirty();
+        }
+        return true;
+    }
+
+    // Ctrl + C Copy
+    if (io.KeyCtrl && ImGui::IsKeyPressed('C', false))
+    {
+        mScene.mClipboard->CopySelectedItems();
+        return true;
+    }
+
+    // Ctrl + V Paste
+    if (io.KeyCtrl && ImGui::IsKeyPressed('V', false))
+    {
+        if (mScene.mClipboard->AddCopiedItems())
+        {
+            mScene.mStack->PushState(EPushStateFlags::EPE_ALL);
             mScene.SetDirty();
         }
         return true;
