@@ -43,6 +43,20 @@ CScene::~CScene()
 {
 }
 
+void CScene::Reset(bool aAddDefault)
+{
+    mStorkesArray.clear();
+    mSelectedItems.clear();
+    mStack->Reset();
+    if (aAddDefault)
+    {
+        AddNewStroke();
+        mStack->PushState(EPushStateFlags::EPE_ALL);
+    }
+    SetDirty();
+    mNextStrokeId = 0;
+}
+
 uint32_t CScene::AddNewStroke(uint32_t aBaseStrokeIndex)
 {
     if (aBaseStrokeIndex < mStorkesArray.size())

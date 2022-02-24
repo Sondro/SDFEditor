@@ -10,7 +10,7 @@ namespace EStrokeOp
     enum Type
     {
         OpAdd = 0,
-        OpSubstract = 1,
+        OpSubtract = 1,
         OpIntersect = 2,
         OpReplace = 3,
 

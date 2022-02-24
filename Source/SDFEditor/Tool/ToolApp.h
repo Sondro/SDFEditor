@@ -23,11 +23,14 @@ public:
     void Update();
     void Render();
 
+    void ResetScene();
+    void SaveScene(const std::string& aFilePath);
+    void LoadScene(const std::string& aFilePath);
+
 private:
     void UpdateCamera(bool& aCameraMoving);
     bool HandleShortcuts();
-    void SaveScene(const std::string& aFilePath);
-    void LoadScene(const std::string& aFilePath);
+   
 
 private:
 

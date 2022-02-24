@@ -13,7 +13,7 @@
 	
 	- [DONE]  Move up, Move Down in the list options (GUI)
 
-    - [DONE] Substract operation (GUI + Data + Shader)
+    - [DONE] Subtract operation (GUI + Data + Shader)
         > [DONE] bitfield for operations
         > [DONE] operation checks in gui
 
@@ -75,6 +75,7 @@
 #include "sbx/Core/Log.h"
 
 #include "SDFEditor/GUI/GUIStrokesEdit.h"
+#include "SDFEditor/GUI/GUIButtonBar.h"
 #include "SDFEditor/Utils/FileIO.h"
 
 CToolApp::CToolApp()
@@ -99,6 +100,9 @@ void CToolApp::Update()
 {
     bool lCameraMoving = false;
     UpdateCamera(lCameraMoving);
+
+
+    GEditor::DrawTopBar(*this);
 
     // TODO: Update scene with ui
     GEditor::DrawStrokesPanel(mScene);
@@ -272,6 +276,11 @@ bool CToolApp::HandleShortcuts()
     return false;
 }
 
+void CToolApp::ResetScene()
+{
+    mScene.Reset(true);
+}
+
 void CToolApp::SaveScene(const std::string&  aFilePath)
 {
     size_t lStrokesBytesSize = mScene.mStorkesArray.size() * sizeof(TStrokeInfo);
@@ -299,10 +308,13 @@ void CToolApp::LoadScene(const std::string& aFilePath)
 
         mScene.mStorkesArray.clear();
         mScene.mSelectedItems.clear();
+        mScene.mStack->Reset();
         mScene.mStorkesArray.resize(lNumElements);
+        //TODO: json
         ::memcpy(mScene.mStorkesArray.data(), lData.data() + sizeof(lNumElements), lNumElements * sizeof(TStrokeInfo));
         mScene.SetDirty();
+        mScene.mStack->PushState(EPushStateFlags::EPE_ALL);
     }
 
-    mScene.mStack->Reset();
+   
 }

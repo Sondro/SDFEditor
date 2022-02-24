@@ -18,7 +18,7 @@ struct SShape
     vec4  attr1; //xyz: scale, w: 
     vec4  attr2; //x: blend, y: hole, z: round, w: 
     vec4  quat;  //rotation quaternion
-    ivec4 id;    //x: primitive, y: material, z: flags (SUBSTRACTIVE | MASK | MIRRORX | MIRRORY | MIRRORZ | REPEAT_CIRCLE), w: repeats
+    ivec4 id;    //x: primitive, y: material, z: flags (SUBTRACTIVE | MASK | MIRRORX | MIRRORY | MIRRORZ | REPEAT_CIRCLE), w: repeats
 };
 */
 
@@ -28,6 +28,8 @@ public:
     CScene();
     ~CScene();
     
+    void Reset(bool aAddDefault);
+
     bool IsDirty() const { return mDirty; }
     void SetDirty() { mDirty = true; }
     void CleanDirtyFlag() { mDirty = false; }

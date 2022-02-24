@@ -175,7 +175,7 @@ namespace GEditor
                 lDirty |= ImGui::Combo("Primitive", &lStrokeInfo.id.x, lPrimitiveList);
 
                 // OPERATION
-                static const char* lStrokeOpList = "Add\0Substract\0Intersect\0"; //Replace\0";
+                static const char* lStrokeOpList = "Add\0Subtract\0Intersect\0"; //Replace\0";
                 int32_t lOpIndex = lStrokeInfo.id.y & EStrokeOp::OpsMaskAll;
                 lDirty |= ImGui::Combo("Operation", &lOpIndex, lStrokeOpList);
                 lStrokeInfo.id.y &= ~EStrokeOp::OpsMaskAll;
@@ -317,11 +317,6 @@ namespace GEditor
             GuizmoButtonToggle(ICON_BOUNDS, &gGUIState.mBoundsActive);
             ImGui::PopStyleColor(2);
             ImGui::PopStyleVar(3);
-
-            ImGuizmo::OPERATION mCurrentGizmoOperation{ ImGuizmo::TRANSLATE };
-            ImGuizmo::MODE mCurrentGizmoMode{ ImGuizmo::MODE::LOCAL };
-            bool mGridActive{ true };
-            bool mBoundsActive{ true };
 
             //font scale test helper
             //static float font_scale = 1.0f;

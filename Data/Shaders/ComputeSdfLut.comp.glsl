@@ -20,7 +20,7 @@ void main()
     //vec3 worldPos = (((vec3(outPos) + 0.5) * invImgSize) - 0.5f) * imgSize * LUT_VOXEL_SIDE;
 
     // add 0.5 to move to the center voxel (0.5, 127.5)
-    // substract half othe image size (-63.5, 63.5)
+    // subtract half othe image size (-63.5, 63.5)
     // multiply by voxel size in world 
     
     //vec3 worldPos = ((vec3(outPos.xyz/*xzy*/) + 0.5) - uVolumeExtent.x) * LUT_VOXEL_SIDE;
