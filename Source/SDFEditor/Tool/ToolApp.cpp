@@ -32,17 +32,21 @@
         > Bounds on/off
         > Grid on/off
 
-    - Display properties layout per primitivie (GUI)
-
-    - Adapt transform guizmos to primitive (GUI)
-
     - [DONE] Undo / Redo
 
     - [DONE] Copy / Paste strokes
 
     - [DONE] Delete key input to remove strokes
 
-    - Scene export to json file
+    - [DONE] Open/Save dialog 
+
+    - Scene export/serialization to json file (instead of binary)
+
+    - Customize open dialog icons
+
+    - Display properties layout per primitivie (GUI)
+
+    - Adapt transform guizmos to primitive (GUI)
 
     - [DONE (basic)]Custom stroke list widget to replace ImGui::Selectable
 
@@ -52,7 +56,7 @@
 
     // Bugs
 
-    - [LOW] Fix Camera Moving overalpping ImGuizmo (GUI + Camera)
+    - [LOW] Fix Camera Rotate mouse overalpping ImGuizmo (GUI + Camera)
 
     // Future
     
@@ -62,7 +66,7 @@
         > [DONE] AABB box check to discard traces out of the voxe box
         > [TODO, fixed size for now] adapt the size of the volume in the world depending on the farthest transformed bounding volume
         > [DONE] Fill atlas tiles with distance data
-        > [EARLY VERSION, artifacts] Raymarch vs the atlas tiles
+        > [EARLY VERSION, artifacts, unoptimized] Raymarch vs the atlas tiles
 
 
 
@@ -75,7 +79,7 @@
 #include "sbx/Core/Log.h"
 
 #include "SDFEditor/GUI/GUIStrokesEdit.h"
-#include "SDFEditor/GUI/GUIButtonBar.h"
+#include "SDFEditor/GUI/GUIDocument.h"
 #include "SDFEditor/Utils/FileIO.h"
 
 CToolApp::CToolApp()
@@ -88,6 +92,8 @@ CToolApp::~CToolApp()
 
 void CToolApp::Init()
 {
+    GEditor::ConfigureFileDialgosIcons();
+
     mRenderer.Init();
     mRenderer.ReloadShaders();
 }
@@ -98,11 +104,12 @@ void CToolApp::Shutdown()
 
 void CToolApp::Update()
 {
+    GEditor::DrawFileDialogs(*this);
+
     bool lCameraMoving = false;
     UpdateCamera(lCameraMoving);
 
-
-    GEditor::DrawTopBar(*this);
+    GEditor::DrawDocOptionsBar(*this);
 
     // TODO: Update scene with ui
     GEditor::DrawStrokesPanel(mScene);

@@ -13,7 +13,7 @@
 #define ICON_PASTE u8"\ue809"
 #define ICON_UNDO  u8"\ue80a"
 #define ICON_REDO u8"\ue80b"
-#define ICON_FOLDER_INV u8"\ue80c"
+#define ICON_OPEN_FOLDER_INV u8"\ue80c"
 #define ICON_PLUS u8"\ue80d"
 #define ICON_MINUS u8"\ue80e"
 #define ICON_LOCK u8"\ue80f"
@@ -25,7 +25,7 @@
 #define ICON_ARROW_UP_OPEN u8"\ue815"
 #define ICON_BOXES u8"\ue816"
 #define ICON_WARNING_INV u8"\ue817"
-#define ICON_FOLDER u8"\ue818"
+#define ICON_OPEN_FOLDER u8"\ue818"
 #define ICON_GEAR u8"\ue819"
 #define ICON_GEARS u8"\ue81A"
 #define ICON_BLOCKED u8"\ue81B"
@@ -49,7 +49,10 @@
 #define ICON_ARROW_UP_LIGHT u8"\ue82d"
 #define ICON_ARROW_DOWN_LIGHT u8"\ue82e"
 #define ICON_TRASH u8"\ue82f"
-#define ICON_OBJECT_GROUP u8"\ue830"
+#define ICON_FOLDER_INV u8"\ue830"
+#define ICON_FOLDER u8"\ue831"
+#define ICON_FOLDER_ALT_INV u8"\ue832"
+#define ICON_DOC_IMAGE u8"\ue833"
 
 
 

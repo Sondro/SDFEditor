@@ -1,5 +1,5 @@
 
-#include "GUIButtonBar.h"
+#include "GUIDocument.h"
 
 #include <imgui/imgui.h>
 #ifndef IMGUI_DEFINE_MATH_OPERATORS
@@ -11,16 +11,26 @@
 
 #include "GUIIconGlyphs.h"
 #include <SDFEditor/Tool/ToolApp.h>
+#include "GUIIconGlyphs.h"
 
 namespace GEditor
 {
-    bool TopBarButton(const char* aIconStr)
+    void ConfigureFileDialgosIcons()
+    {
+        // define style for all directories
+        ImGuiFileDialog::Instance()->SetFileStyle(IGFD_FileStyleByExtention, ".strks", ImVec4(0.8f, 1.0f, 0.3f, 0.9f), ICON_DOC_TEXT);
+        ImGuiFileDialog::Instance()->SetFileStyle(IGFD_FileStyleByTypeDir, "", ImVec4(0.8f, 0.8f, 0.8f, 0.9f), ICON_FOLDER);
+        ImGuiFileDialog::Instance()->SetFileStyle(IGFD_FileStyleByTypeFile, "", ImVec4(1.0f, 1.0f, 1.0f, 0.3f), ICON_DOC);
+        ImGuiFileDialog::Instance()->SetFileStyle(IGFD_FileStyleByTypeLink, "", ImVec4(1.0f, 1.0f, 1.0f, 0.3f), ICON_DOC);
+    }
+
+    static bool TopBarButton(const char* aIconStr)
     {
         const static ImVec2 kGuizmoButtonSize = ImVec2(40.0f, 40.0f);
         return ImGui::Button(aIconStr, kGuizmoButtonSize);
     }
 
-    void DrawTopBar(CToolApp& aToolApp)
+    void DrawDocOptionsBar(CToolApp& aToolApp)
     {
         const ImVec2 lViewPos = ImGui::GetMainViewport()->Pos;
         const ImVec2 lViewSize = ImGui::GetMainViewport()->Size;
@@ -55,16 +65,16 @@ namespace GEditor
             ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(8.0f, 8.0f));
             ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_WindowBg));
             ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.1f, 0.10f, 0.12f, 0.70f));
-            if (TopBarButton(ICON_FOLDER_INV))
+            if (TopBarButton(ICON_OPEN_FOLDER_INV))
             {
                 uint32_t lFlags = ImGuiFileDialogFlags_DisableCreateDirectoryButton | ImGuiFileDialogFlags_ReadOnlyFileNameField;
-                ImGuiFileDialog::Instance()->OpenModal("OpenStrokesFile", "Open Strokes File", ".strks", ".", 1, nullptr, lFlags);
+                ImGuiFileDialog::Instance()->OpenModal("OpenStrokesFile", "Open Strokes File", "Strokes{.strks}", ".", 1, nullptr, lFlags);
             }
             ImGui::SameLine(0.0f, 10.0f);
             if (TopBarButton(ICON_SAVE_INV))
             {
                 uint32_t lFlags = ImGuiFileDialogFlags_ConfirmOverwrite;
-                ImGuiFileDialog::Instance()->OpenModal("SaveStrokesFile", "Save Strokes File", ".strks", ".", 1, nullptr, lFlags);
+                ImGuiFileDialog::Instance()->OpenModal("SaveStrokesFile", "Save Strokes File", "Strokes{.strks}", ".", 1, nullptr, lFlags);
             }
             ImGui::SameLine(0.0f, 10.0f);
             if (TopBarButton(ICON_DOC_INV))
@@ -82,10 +92,16 @@ namespace GEditor
             //ImGui::SetWindowFontScale(font_scale);
         }
         ImGui::End();
-        
+    }
 
+    void DrawFileDialogs(CToolApp& aToolApp)
+    {
         // File Dialogs
-        if (ImGuiFileDialog::Instance()->Display("OpenStrokesFile", 32, ImVec2(800, 600)))
+        
+        ImGuiWindowFlags lDialogsFlags = ImGuiWindowFlags_NoCollapse | 
+                                         ImGuiWindowFlags_NoSavedSettings |
+                                         ImGuiWindowFlags_NoDocking;
+        if (ImGuiFileDialog::Instance()->Display("OpenStrokesFile", lDialogsFlags, ImVec2(800, 600)))
         {
             // action if OK
             if (ImGuiFileDialog::Instance()->IsOk())
@@ -101,7 +117,7 @@ namespace GEditor
             ImGuiFileDialog::Instance()->Close();
         }
 
-        if (ImGuiFileDialog::Instance()->Display("SaveStrokesFile", 32, ImVec2(800, 600)))
+        if (ImGuiFileDialog::Instance()->Display("SaveStrokesFile", lDialogsFlags, ImVec2(800, 600)))
         {
             // action if OK
             if (ImGuiFileDialog::Instance()->IsOk())
