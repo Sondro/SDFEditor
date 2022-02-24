@@ -42,7 +42,7 @@
 
     - Scene export/serialization to json file (instead of binary)
 
-    - Customize open dialog icons
+    - [DONE] Customize open dialog icons
 
     - Display properties layout per primitivie (GUI)
 
