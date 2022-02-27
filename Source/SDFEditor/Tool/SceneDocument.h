@@ -6,6 +6,8 @@
 
 class CScene;
 
+using TDocStateChangeCallback = std::function<void(bool)>;
+
 class CSceneDocument
 {
 public:
@@ -16,7 +18,9 @@ public:
     void SetFilePath(const std::string& aFilePath) { mFilePath = aFilePath; };
     
     bool HasPendingChanges() const { return mPendingChanges; }
-    void SetPendingChanges(bool aPendingChanges);
+    void SetPendingChanges(bool aPendingChanges, bool aForceCallback);
+
+    void SetDocStateChangeCallback(TDocStateChangeCallback aCallback) { mDocStateChangeCallback = aCallback; }
 
     void Save();
     void Load();
@@ -27,5 +31,5 @@ private:
     std::string mFilePath;
     bool mPendingChanges{ false };
 
-    std::function<void(bool)> mPendingChangesCallback;
+    TDocStateChangeCallback mDocStateChangeCallback;
 };

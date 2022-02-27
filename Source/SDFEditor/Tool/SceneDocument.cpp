@@ -11,12 +11,15 @@ CSceneDocument::CSceneDocument(CScene& aScene)
 {
 }
 
-void CSceneDocument::SetPendingChanges(bool aPendingChanges)
+void CSceneDocument::SetPendingChanges(bool aPendingChanges, bool aForceCallback)
 { 
-    mPendingChanges = aPendingChanges; 
-    if (mPendingChangesCallback)
+    if (mPendingChanges != aPendingChanges || aForceCallback)
     {
-        mPendingChangesCallback(aPendingChanges);
+        mPendingChanges = aPendingChanges;
+        if (mDocStateChangeCallback)
+        {
+            mDocStateChangeCallback(aPendingChanges);
+        }
     }
 }
 
@@ -31,9 +34,9 @@ void CSceneDocument::Save()
 
         ::memcpy(lData.data(), &lNumElements, sizeof(lNumElements));
         ::memcpy(lData.data() + sizeof(lNumElements), mScene.mStorkesArray.data(), lStrokesBytesSize);
-
+        //TODO: json
         WriteFile(mFilePath, lData);
-        mPendingChanges = false;
+        SetPendingChanges(false, true);
     }
 }
 
@@ -50,13 +53,12 @@ void CSceneDocument::Load()
 
             mScene.mStorkesArray.clear();
             mScene.mSelectedItems.clear();
-            mScene.mStack->Reset();
             mScene.mStorkesArray.resize(lNumElements);
             //TODO: json
             ::memcpy(mScene.mStorkesArray.data(), lData.data() + sizeof(lNumElements), lNumElements * sizeof(TStrokeInfo));
             mScene.SetDirty();
-            mScene.mStack->PushState(EPushStateFlags::EPE_ALL);
-            mPendingChanges = false;
+            mScene.mStack->Reset();
+            SetPendingChanges(false, true);
         }
     }
 }

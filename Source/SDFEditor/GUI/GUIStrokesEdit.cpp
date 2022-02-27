@@ -50,7 +50,11 @@ namespace GUI
 
     void DrawStrokesPanel(class CScene& aScene)
     {
+        const ImVec2 kViewPos = ImGui::GetMainViewport()->Pos;
+
         bool lDirty = false;
+        ImGui::SetNextWindowSize(ImVec2(325, 750), ImGuiCond_Once);
+        ImGui::SetNextWindowPos(kViewPos + ImVec2(40, 125), ImGuiCond_Once);
         if (ImGui::Begin("Strokes Panel"))
         {
             {

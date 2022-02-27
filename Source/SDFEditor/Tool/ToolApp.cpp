@@ -97,8 +97,14 @@ void CToolApp::Init()
 {
     GUI::ConfigureFileDialogsIcons();
 
+    mScene.mDocument->SetDocStateChangeCallback([&](bool aPendingChanges) {
+        UpdateTitleBar();
+    });
+
     mRenderer.Init();
     mRenderer.ReloadShaders();
+
+    UpdateTitleBar();
 }
 
 void CToolApp::Shutdown()
@@ -128,6 +134,7 @@ void CToolApp::Update()
         GUI::RaycastSelectStroke(mScene);
     }
     
+#ifdef DEBUG
     ImGui::Begin("Debug");
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
     ImGui::Checkbox("Use Voxels", &mScene.mUseVoxels);
@@ -135,6 +142,7 @@ void CToolApp::Update()
     ImGui::Checkbox("Atlas Nearest Filter", &mScene.mAtlasNearestFilter);
     ImGui::DragInt("Preview Slice", &mScene.mPreviewSlice, 1, 0, 127);
     ImGui::End(); 
+#endif
 
     mRenderer.UpdateSceneData(mScene);
 
@@ -340,4 +348,25 @@ void CToolApp::WantClose()
 void CToolApp::Terminate()
 {
     mRunning = false;
+}
+
+void CToolApp::UpdateTitleBar()
+{
+    mTitle = "SDFEditor - ";
+
+    if (mScene.mDocument->HasPendingChanges())
+    {
+        mTitle += "[*] ";
+    }
+
+    if (mScene.mDocument->HasFilePath())
+    {
+        mTitle += mScene.mDocument->GetFilePath();
+    }
+    else
+    {
+        mTitle += "New Scene";
+    }
+
+    glfwSetWindowTitle(glfwGetCurrentContext(), mTitle.c_str());
 }

@@ -16,8 +16,7 @@ CScene::CScene()
     , mDirty(true)
     , mNextStrokeId(0)
 {
-    AddNewStroke();
-    mStack->PushState(EPushStateFlags::EPE_ALL);
+    Reset(true);
 
     /*mStorkesArray.push_back({
         {-0.4f, 0.0f, -1.0f, 0.4f},
@@ -47,21 +46,20 @@ void CScene::Reset(bool aAddDefault)
     mNextStrokeId = 0;
     mStorkesArray.clear();
     mSelectedItems.clear();
-    mStack->Reset();
     if (aAddDefault)
     {
         AddNewStroke();
-        mStack->PushState(EPushStateFlags::EPE_ALL);
     }
+    mStack->Reset();
     SetDirty();
     mDocument->SetFilePath("");
-    mDocument->SetPendingChanges(false);
+    mDocument->SetPendingChanges(false, true);
 }
 
 void CScene::SetDirty() 
 {
     mDirty = true; 
-    mDocument->SetPendingChanges(true); 
+    mDocument->SetPendingChanges(true, false); 
 }
 
 uint32_t CScene::AddNewStroke(uint32_t aBaseStrokeIndex)

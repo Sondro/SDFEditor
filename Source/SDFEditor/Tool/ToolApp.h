@@ -33,6 +33,8 @@ public:
     void Terminate();
     bool IsRunning() const { return mRunning; }
 
+    void UpdateTitleBar();
+
     CScene& GetScene() { return mScene; }
 
 private:
@@ -46,5 +48,6 @@ private:
 
     CRenderer mRenderer;
     CScene mScene;
+    std::string mTitle;
     bool mRunning{ true };
 };
