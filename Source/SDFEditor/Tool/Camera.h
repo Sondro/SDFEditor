@@ -10,6 +10,9 @@ public:
     CCamera();
     ~CCamera();
 
+    CCamera(const CCamera&) = delete;
+    CCamera(const CCamera&&) = delete;
+
     void MoveFront(float aLambda);
     void MoveUp(float aLambda);
     void MoveRight(float aLambda);

@@ -21,7 +21,7 @@
 
 #include "GUIIconGlyphs.h"
 
-namespace GEditor
+namespace GUI
 {
     struct TGUIState
     {

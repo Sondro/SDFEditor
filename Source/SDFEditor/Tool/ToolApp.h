@@ -24,8 +24,16 @@ public:
     void Render();
 
     void ResetScene();
+    
+    void SaveScene();
     void SaveScene(const std::string& aFilePath);
     void LoadScene(const std::string& aFilePath);
+
+    void WantClose();
+    void Terminate();
+    bool IsRunning() const { return mRunning; }
+
+    CScene& GetScene() { return mScene; }
 
 private:
     void UpdateCamera(bool& aCameraMoving);
@@ -38,4 +46,5 @@ private:
 
     CRenderer mRenderer;
     CScene mScene;
+    bool mRunning{ true };
 };

@@ -3,7 +3,7 @@
 
 class CScene;
 
-namespace GEditor
+namespace GUI
 {
     void ResetSelection(CScene& aScene);
 

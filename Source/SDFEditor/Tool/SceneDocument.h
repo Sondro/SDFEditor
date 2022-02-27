@@ -2,27 +2,30 @@
 #pragma once
 
 #include <string>
+#include <functional>
 
-class CSceneData;
+class CScene;
 
 class CSceneDocument
 {
 public:
-    CSceneDocument(CSceneData& aScene);
+    CSceneDocument(CScene& aScene);
 
     bool HasFilePath() const { return mFilePath.length() > 0; }
     std::string GetFilePath() const { return mFilePath; }
     void SetFilePath(const std::string& aFilePath) { mFilePath = aFilePath; };
     
     bool HasPendingChanges() const { return mPendingChanges; }
-    bool SetPendingChanges() { mPendingChanges = true; }
+    void SetPendingChanges(bool aPendingChanges);
 
-    void SavePendingChanges();
+    void Save();
     void Load();
 private:
 
-    CSceneData& mScene;
+    CScene& mScene;
 
     std::string mFilePath;
     bool mPendingChanges{ false };
+
+    std::function<void(bool)> mPendingChangesCallback;
 };

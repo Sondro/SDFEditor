@@ -9,11 +9,10 @@
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-
-
 CScene::CScene()
     : mStack(std::make_unique<CSceneStack>(*this))
     , mClipboard(std::make_unique<CSceneClipboard>(*this))
+    , mDocument(std::make_unique<CSceneDocument>(*this))
     , mDirty(true)
     , mNextStrokeId(0)
 {
@@ -45,6 +44,7 @@ CScene::~CScene()
 
 void CScene::Reset(bool aAddDefault)
 {
+    mNextStrokeId = 0;
     mStorkesArray.clear();
     mSelectedItems.clear();
     mStack->Reset();
@@ -54,7 +54,14 @@ void CScene::Reset(bool aAddDefault)
         mStack->PushState(EPushStateFlags::EPE_ALL);
     }
     SetDirty();
-    mNextStrokeId = 0;
+    mDocument->SetFilePath("");
+    mDocument->SetPendingChanges(false);
+}
+
+void CScene::SetDirty() 
+{
+    mDirty = true; 
+    mDocument->SetPendingChanges(true); 
 }
 
 uint32_t CScene::AddNewStroke(uint32_t aBaseStrokeIndex)

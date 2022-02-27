@@ -48,11 +48,13 @@
 
     - Adapt transform guizmos to primitive (GUI)
 
-    - [DONE (basic)]Custom stroke list widget to replace ImGui::Selectable
+    - [DONE (basic)]Custom stroke list widget to replace ImGui::Selectable (avoid problems with repeated names)
 
-    - Add extra strokes operations like mirror, pivot, etc.
+    - Add extra strokes operations like mirror, pivot, circle repeat, etc.
 
     - Handle group selection and transform
+
+    - Scene hirearchy (stack based transformations, json format update)
 
     // Bugs
 
@@ -84,6 +86,7 @@
 
 CToolApp::CToolApp()
 {
+    mScene.Reset(true);
 }
 
 CToolApp::~CToolApp()
@@ -92,7 +95,7 @@ CToolApp::~CToolApp()
 
 void CToolApp::Init()
 {
-    GEditor::ConfigureFileDialgosIcons();
+    GUI::ConfigureFileDialogsIcons();
 
     mRenderer.Init();
     mRenderer.ReloadShaders();
@@ -104,23 +107,25 @@ void CToolApp::Shutdown()
 
 void CToolApp::Update()
 {
-    GEditor::DrawFileDialogs(*this);
+    GUI::DrawFileDialogs(*this);
 
     bool lCameraMoving = false;
-    UpdateCamera(lCameraMoving);
+    if (!HandleShortcuts())
+    {
+        UpdateCamera(lCameraMoving);
+    }
 
-    GEditor::DrawDocOptionsBar(*this);
+    GUI::DrawDocOptionsBar(*this);
 
     // TODO: Update scene with ui
-    GEditor::DrawStrokesPanel(mScene);
-    GEditor::DrawStrokesGuizmos(mScene);
+    GUI::DrawStrokesPanel(mScene);
+    GUI::DrawStrokesGuizmos(mScene);
 
-    HandleShortcuts();
 
     ImGuiIO& io = ImGui::GetIO();
     if (!lCameraMoving && !io.WantCaptureMouse && ImGui::IsMouseClicked(0))
     {
-        GEditor::RaycastSelectStroke(mScene);
+        GUI::RaycastSelectStroke(mScene);
     }
     
     ImGui::Begin("Debug");
@@ -229,16 +234,37 @@ bool CToolApp::HandleShortcuts()
     }
 
     // F3 Load Scene
-    if (ImGui::IsKeyPressed(292, false))
+    /*if (ImGui::IsKeyPressed(292, false))
     {
         LoadScene("test.dfs");
         return true;
-    }
+    }*/
 
     // Ctrl + S Save Scene
-    if (io.KeyCtrl && ImGui::IsKeyPressed('S', false))
+    if (io.KeyCtrl && !io.KeyShift && ImGui::IsKeyPressed('S', false))
     {
-        SaveScene("test.dfs");
+        GUI::RequestSaveFile(*this);
+        return true;
+    }
+
+    if (io.KeyCtrl && io.KeyShift && ImGui::IsKeyPressed('S', false))
+    {
+        //Save As, force the save dialog
+        GUI::LaunchSaveFileDialog(*this);
+        return true;
+    }
+
+    if (io.KeyCtrl && ImGui::IsKeyPressed('O', false))
+    {
+        //SaveScene("test.dfs");
+        GUI::RequestOpenFile(*this);
+        return true;
+    }
+
+    if (io.KeyCtrl && ImGui::IsKeyPressed('N', false))
+    {
+        //SaveScene("test.dfs");
+        GUI::RequestNewFile(*this);
         return true;
     }
 
@@ -288,40 +314,30 @@ void CToolApp::ResetScene()
     mScene.Reset(true);
 }
 
-void CToolApp::SaveScene(const std::string&  aFilePath)
+void CToolApp::SaveScene()
 {
-    size_t lStrokesBytesSize = mScene.mStorkesArray.size() * sizeof(TStrokeInfo);
-    uint32_t lNumElements = mScene.mStorkesArray.size() & 0xFFFFFFFF;
+    mScene.mDocument->Save();
+}
 
-    std::vector<char> lData(lStrokesBytesSize + sizeof(lNumElements));
-
-    ::memcpy(lData.data(), &lNumElements, sizeof(lNumElements));
-    ::memcpy(lData.data() + sizeof(lNumElements), mScene.mStorkesArray.data(), lStrokesBytesSize);
-
-    WriteFile(aFilePath, lData);
+void CToolApp::SaveScene(const std::string& aFilePath)
+{
+    mScene.mDocument->SetFilePath(aFilePath);
+    mScene.mDocument->Save();
 }
 
 void CToolApp::LoadScene(const std::string& aFilePath)
 {
-    GEditor::ResetSelection(mScene);
+    GUI::ResetSelection(mScene);
+    mScene.mDocument->SetFilePath(aFilePath);
+    mScene.mDocument->Load();
+}
 
-    std::vector<char> lData = ReadFile(aFilePath);
+void CToolApp::WantClose()
+{
+    GUI::WantCloseDocument(*this);
+}
 
-    if (lData.size() > 0)
-    {
-
-        uint32_t lNumElements = 0;
-        ::memcpy(&lNumElements, lData.data(), sizeof(lNumElements));
-
-        mScene.mStorkesArray.clear();
-        mScene.mSelectedItems.clear();
-        mScene.mStack->Reset();
-        mScene.mStorkesArray.resize(lNumElements);
-        //TODO: json
-        ::memcpy(mScene.mStorkesArray.data(), lData.data() + sizeof(lNumElements), lNumElements * sizeof(TStrokeInfo));
-        mScene.SetDirty();
-        mScene.mStack->PushState(EPushStateFlags::EPE_ALL);
-    }
-
-   
+void CToolApp::Terminate()
+{
+    mRunning = false;
 }

@@ -9,6 +9,8 @@
 #include <SDFEditor/Tool/StrokeInfo.h>
 #include <SDFEditor/Tool/SceneStack.h>
 #include <SDFEditor/Tool/SceneClipboard.h>
+#include <SDFEditor/Tool/SceneDocument.h>
+
 #include <SDFEditor/Tool/Camera.h>
 
 /*
@@ -27,11 +29,14 @@ class CScene
 public:
     CScene();
     ~CScene();
+
+    CScene(const CScene&) = delete;
+    CScene(const CScene&&) = delete;
     
     void Reset(bool aAddDefault);
 
     bool IsDirty() const { return mDirty; }
-    void SetDirty() { mDirty = true; }
+    void SetDirty();
     void CleanDirtyFlag() { mDirty = false; }
 
 
@@ -46,6 +51,7 @@ public:
     // Components
     std::unique_ptr<CSceneStack> mStack;
     std::unique_ptr<CSceneClipboard> mClipboard;
+    std::unique_ptr<CSceneDocument> mDocument;
 
     // Debug
     int32_t mPreviewSlice{ 64 };
