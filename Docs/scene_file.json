@@ -7,6 +7,7 @@
             "position" : [0.0, 0.0, 0.0],
             "rotation" : [0.0, 0.0, 0.0],
             "scale" : [0.0, 0.0, 0.0],
+            "blend" : 0.0,
             "primitive_id" : "box|ellipsoid|torus|capsule",
             "operation" : "add|subtract|intersect",
             "mirrorX" : true,

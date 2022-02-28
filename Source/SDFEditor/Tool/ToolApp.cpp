@@ -40,9 +40,14 @@
 
     - [DONE] Open/Save dialog 
 
-    - Scene export/serialization to json file (instead of binary)
-
     - [DONE] Customize open dialog icons
+
+    - [DONE] Open/Save/New Flow 
+        > title bar update
+        > request discard changes modal
+        > Shortcuts
+
+    - Scene export/serialization to json file (instead of binary)
 
     - Display properties layout per primitivie (GUI)
 
