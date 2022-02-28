@@ -172,7 +172,12 @@ namespace GUI
                 ImGui::PushID(lSelectedIndex);
 
                 // NAME
-                ImGui::InputText("Name", lStrokeInfo.mName, TStrokeInfo::MAX_NAME_SIZE);
+                lDirty |= ImGui::InputText("Name", lStrokeInfo.mName, TStrokeInfo::MAX_NAME_SIZE);
+
+                if (lStrokeInfo.mName[0] == 0)
+                {
+                    ::strcpy(lStrokeInfo.mName, "Unnamed");
+                }
 
                 // PRIMITIVE
                 static const char* lPrimitiveList = "Ellipsoid\0Box\0Torus\0Capsule\0";
@@ -196,7 +201,8 @@ namespace GUI
                     lDirty |= ImGui::DragFloat("Round", (float*)&lStrokeInfo.param0.w, 0.01f, 0.0f, 1.0f);
                     lStrokeInfo.param0.w = glm::clamp(lStrokeInfo.param0.w, 0.0f, 1.0f);
                 }
-                lDirty |= ImGui::DragFloat4("param1", (float*)&lStrokeInfo.param1.x, 0.01f);
+                
+                //lDirty |= ImGui::DragFloat4("param1", (float*)&lStrokeInfo.param1.x, 0.01f);
 
                 lDirty |= ImGui::DragFloat3("Position", (float*)&lStrokeInfo.posb.x, 0.01f);
 
@@ -225,7 +231,7 @@ namespace GUI
             gGUIState.mPanelEditing = true;
             aScene.SetDirty();
         }
-        else if(gGUIState.mPanelEditing && !ImGui::IsMouseDown(ImGuiMouseButton_Left))
+        else if(gGUIState.mPanelEditing && !ImGui::IsMouseDown(ImGuiMouseButton_Left) && !ImGui::GetIO().WantCaptureKeyboard)
         {
             gGUIState.mPanelEditing = false;
             aScene.mStack->PushState(EPushStateFlags::EPE_ALL);

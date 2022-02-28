@@ -36,11 +36,11 @@ namespace EPrimitive
 // Base stroke data to be send to the gpu
 struct stroke_t
 {
-    glm::vec4 posb;     // position.xyz, blend.w
-    glm::vec4 quat;     // rotation quaternion
-    glm::vec4 param0;   // scale.xzy, unused.w
-    glm::vec4 param1;   // unused.xyz
-    glm::ivec4 id;      // primitive.x, operation_bitfield.y, unused.zw
+    glm::vec4 posb{ 0, 0, 0, 0 };     // position.xyz, blend.w
+    glm::vec4 quat{ 0, 0, 0, 0 };     // rotation quaternion
+    glm::vec4 param0{ 0.35f, 0.35f, 0.35f, 0 };   // scale.xzy, unused.w
+    glm::vec4 param1{ 0, 0, 0, 0 };   // unused.xyz
+    glm::ivec4 id{ 0, 0, 0, 0 };      // primitive.x, operation_bitfield.y, unused.zw
 };
 
 // Extra stroke data to be used by the client
@@ -51,7 +51,9 @@ struct TStrokeInfo : public stroke_t
         MAX_NAME_SIZE = 250,
     };
 
-    TStrokeInfo() { ; }
+    TStrokeInfo() { 
+        ::strcpy(mName, "Unnamed");
+    }
 
     TStrokeInfo(const TStrokeInfo& aOther)
         : stroke_t(aOther)

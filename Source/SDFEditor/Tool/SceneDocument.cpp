@@ -6,8 +6,11 @@
 
 #include <fstream>
 #include <iomanip>
+#include <iostream>
 
 #include <ThirdParty/nlohmann/json.hpp>
+#include <sbx/Core/ErrorHandling.h>
+
 
 namespace
 {
@@ -109,26 +112,27 @@ void CSceneDocument::Save()
 
         using namespace nlohmann;
 
-        json lDoc;
+        ordered_json lDoc;
         lDoc["version"] = 0.1;
         //lDoc["strokes"] = json::object();
-        json& lDocStrokes = lDoc["strokes"];
+        ordered_json& lDocStrokes = lDoc["strokes"];
 
         for (auto& lStroke : mScene.mStorkesArray)
         {
             lDocStrokes.emplace_back();
-            json& lDocStroke = lDocStrokes.back();
+            ordered_json& lDocStroke = lDocStrokes.back();
 
             lDocStroke["type"] = "stroke";
             lDocStroke["name"] = lStroke.mName;
-            lDocStroke["position"] = json::array({lStroke.posb.x, lStroke.posb.y, lStroke.posb.z});
-            lDocStroke["rotation"] = json::array({ lStroke.mEulerAngles.x, lStroke.mEulerAngles.y, lStroke.mEulerAngles.z });
-            lDocStroke["scale"] = json::array({ lStroke.param0.x, lStroke.param0.y, lStroke.param0.z });
+            lDocStroke["position"] = ordered_json::array({lStroke.posb.x, lStroke.posb.y, lStroke.posb.z});
+            lDocStroke["rotation"] = ordered_json::array({ lStroke.mEulerAngles.x, lStroke.mEulerAngles.y, lStroke.mEulerAngles.z });
+            lDocStroke["scale"] = ordered_json::array({ lStroke.param0.x, lStroke.param0.y, lStroke.param0.z });
             lDocStroke["blend"] = lStroke.posb.w;
-            lDocStroke["primitive_id"] = GetPrimitiveNameByCode(lStroke.id.x); //"box|ellipsoid|torus|capsule";
+            lDocStroke["round"] = lStroke.param0.w;
+            lDocStroke["primitive_id"] = GetPrimitiveNameByCode(lStroke.id.x);
             lDocStroke["operation"] = GetOperationNameByCode(lStroke.id.y & EStrokeOp::OpsMaskAll);
-            lDocStroke["mirrorX"] = false;
-            lDocStroke["mirrorY"] = false;
+            //lDocStroke["mirrorX"] = false;
+            //lDocStroke["mirrorY"] = false;
         }
 
         //save json
@@ -143,18 +147,58 @@ void CSceneDocument::Load()
 {
     if (HasFilePath())
     {
-        std::vector<char> lData = ReadFile(mFilePath);
+        using namespace nlohmann;
 
-        if (lData.size() > 0)
+        // read a JSON file
+        std::ifstream lInputFile(mFilePath);
+        json lJsonData;
+
+        try
         {
-            uint32_t lNumElements = 0;
-            ::memcpy(&lNumElements, lData.data(), sizeof(lNumElements));
+            lInputFile >> lJsonData;
+        }
+        catch (detail::exception e)
+        {
+            SBX_ERROR("Error reading file [%s]: %s", mFilePath.c_str(), e.what());
+        }
+
+        //std::vector<char> lData = ReadFile(mFilePath);
+        auto lStrokesIt = lJsonData.find("strokes");
+        if (lStrokesIt != lJsonData.end() && lStrokesIt->is_array())
+        {
+            //uint32_t lNumElements = 0;
+            //::memcpy(&lNumElements, lData.data(), sizeof(lNumElements));
+
+            // json deserialization
+            const json& lJsonStrokes = *lStrokesIt;
 
             mScene.mStorkesArray.clear();
             mScene.mSelectedItems.clear();
-            mScene.mStorkesArray.resize(lNumElements);
-            //TODO: json
-            ::memcpy(mScene.mStorkesArray.data(), lData.data() + sizeof(lNumElements), lNumElements * sizeof(TStrokeInfo));
+            mScene.mStorkesArray.reserve(lJsonStrokes.size());
+            // json
+            //::memcpy(mScene.mStorkesArray.data(), lData.data() + sizeof(lNumElements), lNumElements * sizeof(TStrokeInfo));
+            
+            for (size_t i = 0, l = lJsonStrokes.size(); i < l; i++ )
+            {
+                const json& lJsonStroke = lJsonStrokes[i];
+
+                TStrokeInfo lStroke;
+
+#               define JSON_CHECK(_field, _exp) try{ if(lJsonStroke.find(_field) != lJsonStroke.end()){ _exp; } } catch(detail::exception e){ SBX_ERROR("Error reading entry [%u], field [%s]: %s", i, _field, e.what()); }
+
+                JSON_CHECK("name", ::strncpy(lStroke.mName, (lJsonStroke["name"].get<std::string>().length() > 0) ? lJsonStroke["name"].get<std::string>().c_str() : "EmptyName", TStrokeInfo::MAX_NAME_SIZE));
+                JSON_CHECK("position", ::memcpy(&lStroke.posb, lJsonStroke["position"].get<std::array<float, 3>>().data(), sizeof(float) * 3));
+                JSON_CHECK("rotation", ::memcpy(&lStroke.mEulerAngles, lJsonStroke["rotation"].get<std::array<float, 3>>().data(), sizeof(float) * 3));
+                JSON_CHECK("scale", ::memcpy(&lStroke.param0, lJsonStroke["scale"].get<std::array<float, 3>>().data(), sizeof(float) * 3));
+                JSON_CHECK("blend", lStroke.posb.w = lJsonStroke["blend"].get<float>());
+                JSON_CHECK("round", lStroke.param0.w = lJsonStroke["round"].get<float>());
+                JSON_CHECK("primitive_id", lStroke.id.x = GetPrimitiveCodeByName(lJsonStroke["primitive_id"].get<std::string>()));
+                lStroke.id.y = 0;
+                JSON_CHECK("operation", lStroke.id.y |= GetOperationCodeByName(lJsonStroke["operation"].get<std::string>()));
+
+                mScene.mStorkesArray.emplace_back(lStroke);
+            }
+
             mScene.SetDirty();
             mScene.mStack->Reset();
             SetPendingChanges(false, true);

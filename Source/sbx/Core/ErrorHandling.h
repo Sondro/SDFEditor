@@ -17,16 +17,20 @@
 #endif
 
 #if SBX_ERRORS_ENABLED
-#   if SBX_COMPILER_MSVC
-#       include <intrin.h>
-#       define SBX_DEBUG_BREAK()        __debugbreak() //__asm{ int 3 }
-#   elif SBX_COMPILER_GCC
-#       if SBX_OS_MACOSX || SBX_OS_IOS
-#           define SBX_DEBUG_BREAK()    __builtin_trap()
-#       else
-#           define SBX_DEBUG_BREAK()    abort()
-#       endif
-#   endif
+#   ifdef DEBUG
+#       if SBX_COMPILER_MSVC
+#           include <intrin.h>
+#           define SBX_DEBUG_BREAK()        __debugbreak() //__asm{ int 3 }
+#       elif SBX_COMPILER_GCC
+#           if SBX_OS_MACOSX || SBX_OS_IOS
+#               define SBX_DEBUG_BREAK()    __builtin_trap()
+#           else
+#               define SBX_DEBUG_BREAK()    abort()
+#           endif
+#       endif   // COMPILER
+#   else
+#       define SBX_DEBUG_BREAK()
+#   endif // DEBUG
 
 namespace __sbx_assert
 {
