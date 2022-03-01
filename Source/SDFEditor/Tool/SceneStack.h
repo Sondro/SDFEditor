@@ -1,5 +1,5 @@
-
-// @Brief holds the state changes of the scene to do Undo/Redo
+// Copyright (c) 2022 David Gallardo and SDFEditor Project
+// Holds the state changes of the scene to do Undo/Redo
 
 #pragma once
 

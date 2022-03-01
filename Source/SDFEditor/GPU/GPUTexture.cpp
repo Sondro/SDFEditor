@@ -1,3 +1,4 @@
+// Copyright (c) 2022 David Gallardo and SDFEditor Project
 
 #include "GPUTexture.h"
 #include "ThirdParty/glad/glad.h"

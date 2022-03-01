@@ -1,4 +1,4 @@
-//#version 450
+// Copyright (c) 2022 David Gallardo and SDFEditor Project
 
 out gl_PerVertex
 {
@@ -41,30 +41,14 @@ void main()
     
     gl_Position = vec4(clipPos, 0.0, 1.0);
     outFragUV = uvs[gl_VertexID].xy;
-    //outFragUV = (positions[gl_VertexID].xy + 1.0) * 0.5;
 
     mat4 viewProj = uProjectionMatrix * uViewMatrix;
     mat4 invViewProj = inverse(viewProj);    
-
-    //vec3 ray_origin_wc = (invViewProj * vec4(clipPos, -1.0, 1.0)).xyz;
-    //vec3 eye_pos_wc = (inverse(uViewMatrix) * vec4(0, 0, 0, 1.0)).xyz;
-    //vec3 ray_dir_wc = ray_origin_wc - eye_pos_wc;
-    //outRayOrigin = ray_origin_wc;
-    //outRayDirection = ray_dir_wc;
 
     outNear = invViewProj * vec4(clipPos, 0, 1);
     //nearPos /= nearPos.w;
     outFar = invViewProj * vec4(clipPos, 1, 1);
     //farPos /= farPos.w;
-
-    //outRayOrigin = uCameraPos.xyz;
-    //outRayDirection = farPos.xyz - nearPos.xyz;
-
-    //outRayDirection = (uInvViewProjMatrix * vec4(clipPos, -1.0, 1.0)).xyz;
-    //outRayOrigin = vec3(outRayDirection.xy, 0.0);
-
-    // equivalent calculation:
-    // ray = (invprojview * (vec4(pos, 1.0, 1.0) * far - vec4(pos, -1.0, 1.0) * near)).xyz
 }
 
 

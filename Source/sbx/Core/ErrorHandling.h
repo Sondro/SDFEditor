@@ -1,7 +1,4 @@
-/*
- * @file    ErrorHandling.h
- * @author  David Gallardo Moreno
- */
+// Copyright (c) 2022 David Gallardo and SDFEditor Project
 
 #ifndef __SBX_ERROR_HANDLING_H__
 #define __SBX_ERROR_HANDLING_H__

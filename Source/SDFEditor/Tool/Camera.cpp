@@ -1,3 +1,5 @@
+// Copyright (c) 2022 David Gallardo and SDFEditor Project
+
 #include "Camera.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
@@ -40,8 +42,6 @@ void CCamera::MoveFront(float lambda)
     const glm::vec3 front3d = glm::normalize(mLookAt - mOrigin);
     mOrigin += front3d * lambda;
     mLookAt += front3d * lambda;
-
-    Update();
 }
 
 void CCamera::MoveUp(float lambda)
@@ -55,8 +55,6 @@ void CCamera::MoveUp(float lambda)
 
     mOrigin += up2d * lambda;
     mLookAt += up2d * lambda;
-
-    Update();
 }
 
 void CCamera::MoveRight(float lambda)
@@ -69,42 +67,10 @@ void CCamera::MoveRight(float lambda)
 
     mOrigin -= right2d * lambda;
     mLookAt -= right2d * lambda;
-
-    Update();
 }
 
-/*
 void CCamera::Pan(float lambda_x, float lambda_y)
 {
-    //vec3_t *a = &mOrigin;
-    //vec3_t *b = &mLookAt;
-    const glm::vec3 lookdir = glm::normalize(mLookAt - mOrigin);
-
-    glm::quat xrot = glm::angleAxis(glm::half_pi<float>(), glm::vec3(0, 1, 0));
-    glm::quat yrot = glm::angleAxis(lambda_y * glm::half_pi<float>(), glm::cross(glm::vec3(0, -1, 0), lookdir));
-
-
-    float d = glm::dot(glm::vec3(0, 1, 0), lookdir);
-    if ((lambda_y > 0.f) && (d > .98f))
-    {
-        yrot = glm::quat_identity<float, glm::highp >();
-    }
-    else if ((lambda_y < 0.f) && (d < -.98f))
-    {
-        yrot = glm::quat_identity<float, glm::highp >();
-    }
-
-    const glm::vec3 prev = glm::normalize(mLookAt - mOrigin);
-    const glm::vec3 ldir = rotate(prev, glm::normalize(yrot * xrot));
-    mLookAt = mOrigin + ldir * length(mLookAt - mOrigin);
-
-    Update();
-}*/
-
-void CCamera::Pan(float lambda_x, float lambda_y)
-{
-    //vec3_t *a = &mOrigin;
-    //vec3_t *b = &mLookAt;
     const glm::vec3 lookdir = glm::normalize(mLookAt - mOrigin);
 
     glm::quat xrot, yrot;
@@ -118,8 +84,6 @@ void CCamera::Pan(float lambda_x, float lambda_y)
     const  glm::vec3 prev = glm::normalize(mLookAt - mOrigin);
     const  glm::vec3 ldir = rotate(prev, glm::normalize(yrot * xrot));
     mLookAt = mOrigin + ldir * length(mLookAt - mOrigin);
-
-    Update();
 }
 
 void CCamera::UpdateAspect(float aViewWidth, float aViewHeight)
@@ -140,20 +104,4 @@ glm::mat4 CCamera::GetProjectionMatrix() const
 glm::mat4 CCamera::GetViewMatrix() const
 {
     return glm::lookAt(mOrigin, mLookAt, mViewUp);
-}
-
-void CCamera::Update()
-{
-    /*float lTheta = mFOV * float(M_PI) / 180.f;
-    float lHalfHeight = tanf(lTheta * 0.5f);
-    float lHalfWidth = mAspect * lHalfHeight;
-    mLensRadius = mAperture * 0.5f;
-    mVecW = normalized(mOrigin - mLookAt);
-    mVecU = normalized(cross(mViewUp, mVecW));
-    mVecV = cross(mVecW, mVecU);
-    mLowerLeftCorner = mOrigin - (lHalfWidth * mFocusDist * mVecU) - (lHalfHeight * mFocusDist * mVecV) - (mFocusDist * mVecW);
-    mHorizontal = 2.0f * lHalfWidth * mFocusDist * mVecU;
-    mVertical = 2.0f * lHalfHeight * mFocusDist * mVecV;
-
-    mUpdated = true;*/
 }

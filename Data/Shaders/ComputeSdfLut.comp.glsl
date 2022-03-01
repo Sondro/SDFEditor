@@ -1,3 +1,4 @@
+// Copyright (c) 2022 David Gallardo and SDFEditor Project
 
 layout(binding = 0, rgba8) uniform writeonly image3D uSdfLutImage;
 
@@ -35,23 +36,15 @@ void main()
 
     float normDist = ((dist * INV_LUT_VOXEL_SIDE * invImgSize.x) + 1.0) * 0.5;
 
-    /*uint32 globalId = outPos.z * imgSize.x * imgSize.y +
-                      outPos.y * imgSize.x +
-                      outPos.x;*/
-
     vec3 slotCoord = vec3(1.0);
 
-    if (abs(dist) < uVoxelSide.x * 1.5f)
     //if (abs(dist * uVoxelSide.y) < 1.0)
+    if (abs(dist) < uVoxelSide.x * 1.5f)
     {
         uint slot = atomicAdd(slot_count, 1);
         slot_list[slot] = CoordToIndex(outPos.xyz);
-        //slotCoord = vec3(SlotToCoord(slot, imgSize)) * invImgSize;
         slotCoord = IndexToNormCoord(slot);
     }
 
-    //vec3 color = vec3(gl_GlobalInvocationID.xyz/*xzy*/) * invImgSize;
     imageStore(uSdfLutImage, outPos.xyz, vec4(slotCoord, normDist));
-
-    
 }

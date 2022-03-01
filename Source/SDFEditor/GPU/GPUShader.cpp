@@ -1,5 +1,6 @@
+// Copyright (c) 2022 David Gallardo and SDFEditor Project
 
-#include "sbx/Common.h"
+#include "sbx/Core/ErrorHandling.h"
 
 #include "GPUShader.h"
 

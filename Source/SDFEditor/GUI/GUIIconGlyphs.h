@@ -1,3 +1,5 @@
+// Copyright (c) 2022 David Gallardo and SDFEditor Project
+
 #pragma once
 
 // Icon glyphs

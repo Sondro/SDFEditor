@@ -1,6 +1,4 @@
-//#version 450
-
-//#extension GL_ARB_shader_storage_buffer_object : require
+// Copyright (c) 2022 David Gallardo and SDFEditor Project
 
 layout(location = 0) in vec2 inFragUV;
 layout(location = 1) in vec4 inNear;

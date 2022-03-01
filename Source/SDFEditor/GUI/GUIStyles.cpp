@@ -1,3 +1,4 @@
+// Copyright (c) 2022 David Gallardo and SDFEditor Project
 
 #include "GUIStyles.h"
 #include "ThirdParty/imgui/imgui.h"

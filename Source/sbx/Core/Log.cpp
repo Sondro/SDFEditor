@@ -1,3 +1,4 @@
+// Copyright (c) 2022 David Gallardo and SDFEditor Project
 
 #include <sbx/Core/Log.h>
 #include <sbx/Core/Platform.h>
@@ -29,6 +30,7 @@ void _sbx_write_log_va_list(const char* aFormat, va_list aArgsList)
 
 #if SBX_OS_WINDOWS
     OutputDebugString(lMessageBuffer);
+    ::printf("%s", lMessageBuffer);
 #elif SBX_OS_MACOSX
     NSLog(@"%s", lMessageBuffer);
 #else

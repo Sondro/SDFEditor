@@ -1,7 +1,4 @@
-/*
- * @file    ErrorHandling.cpp
- * @author  David Gallardo Moreno
- */
+// Copyright (c) 2022 David Gallardo and SDFEditor Project
 
 #include <sbx/Core/ErrorHandling.h>
 

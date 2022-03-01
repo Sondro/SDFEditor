@@ -1,7 +1,4 @@
-/*
- * @file    Platform.h
- * @author  David Gallardo Moreno
- */
+// Copyright (c) 2022 David Gallardo and SDFEditor Project
 
 #ifndef __SBX_PLATFORM_H__
 #define __SBX_PLATFORM_H__

@@ -1,3 +1,4 @@
+// Copyright (c) 2022 David Gallardo and SDFEditor Project
 
 #include "GPUStorageBuffer.h"
 
@@ -16,16 +17,7 @@ CGPUShaderStorageObject::CGPUShaderStorageObject(EGPUBufferBindTarget::Type aTar
     : mStorageSize(0)
     , mTarget(aTarget)
 {
-    //glGenBuffers(1, &mBufferHandler);
-    //glBindBuffer(GL_SHADER_STORAGE_BUFFER, mBufferHandler);
-    //glBufferData(GL_SHADER_STORAGE_BUFFER, 0, 0, GL_DYNAMIC_COPY);
-    //glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-
-    //glBindBuffer(GL_SHADER_STORAGE_BUFFER, mBufferHandler);
-    //glBufferData(GL_SHADER_STORAGE_BUFFER, aSize, nullptr, GL_DYNAMIC_COPY);
-
     glCreateBuffers(1, &mBufferHandler);
-    
 }
 
 CGPUShaderStorageObject::~CGPUShaderStorageObject()
@@ -40,9 +32,6 @@ void CGPUShaderStorageObject::SetData(size_t aSize, void* aData, uint32_t aFlags
     lFlags |= (aFlags & EGPUBufferFlags::MAP_READ_BIT) ? GL_MAP_READ_BIT : 0;
     lFlags |= (aFlags & EGPUBufferFlags::MAP_WRITE_BIT) ? GL_MAP_WRITE_BIT : 0;
     glNamedBufferStorage(mBufferHandler, aSize, aData, lFlags);
-
-    //glBindBuffer(GL_SHADER_STORAGE_BUFFER, mBufferHandler);
-    //glBufferData(GL_SHADER_STORAGE_BUFFER, aSize, aData, GL_DYNAMIC_COPY);
     mStorageSize = aSize;
 }
 

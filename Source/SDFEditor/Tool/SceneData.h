@@ -1,3 +1,4 @@
+// Copyright (c) 2022 David Gallardo and SDFEditor Project
 
 #pragma once
 
@@ -13,17 +14,6 @@
 
 #include <SDFEditor/Tool/Camera.h>
 
-/*
-struct SShape
-{
-    vec4  attr0; //xyz: pos, w: 
-    vec4  attr1; //xyz: scale, w: 
-    vec4  attr2; //x: blend, y: hole, z: round, w: 
-    vec4  quat;  //rotation quaternion
-    ivec4 id;    //x: primitive, y: material, z: flags (SUBTRACTIVE | MASK | MIRRORX | MIRRORY | MIRRORZ | REPEAT_CIRCLE), w: repeats
-};
-*/
-
 class CScene
 {
 public:
@@ -38,8 +28,6 @@ public:
     bool IsDirty() const { return mDirty; }
     void SetDirty();
     void CleanDirtyFlag() { mDirty = false; }
-
-
 
     uint32_t AddNewStroke(uint32_t aBaseStrokeIndex = UINT32_MAX);
 

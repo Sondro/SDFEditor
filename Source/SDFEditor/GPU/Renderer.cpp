@@ -1,3 +1,4 @@
+// Copyright (c) 2022 David Gallardo and SDFEditor Project
 
 #include "Renderer.h"
 #include <ThirdParty/glad/glad.h>
@@ -186,7 +187,6 @@ void CRenderer::UpdateSceneData(CScene const& aScene)
         {
             mStrokesBuffer = std::make_shared<CGPUShaderStorageObject>(EGPUBufferBindTarget::SHADER_BUFFER_STORAGE);
             mStrokesBuffer->SetData(lSizeBytes + (16 * sizeof(stroke_t)), nullptr, EGPUBufferFlags::DYNAMIC_STORAGE);
-            //mStrokesBuffer->BindToProgram(mColorFragmentProgram->GetHandler(), 0, "strokes_buffer");
             mStrokesBuffer->BindShaderStorage(EBlockBinding::strokes_buffer);
         }
 
@@ -208,9 +208,6 @@ void CRenderer::UpdateSceneData(CScene const& aScene)
         for (uint32_t lHandler : lProgramHandlers)
         {
             glProgramUniform1ui(lHandler, EUniformLoc::uStrokesNum, aScene.mStorkesArray.size() & 0xFFFFFFFF);
-            //glProgramUniform1ui(mComputeLutProgram->GetHandler(), EUniformLoc::uStrokesNum, aScene.mStorkesArray.size() & 0xFFFFFFFF);
-            //glProgramUniform1ui(mComputeAtlasProgram->GetHandler(), EUniformLoc::uStrokesNum, aScene.mStorkesArray.size() & 0xFFFFFFFF);
-            //glProgramUniform1ui(mColorFragmentProgram->GetHandler(), EUniformLoc::uStrokesNum, aScene.mStorkesArray.size() & 0xFFFFFFFF);
         }
 
         // clear slot count

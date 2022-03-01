@@ -1,3 +1,4 @@
+// Copyright (c) 2022 David Gallardo and SDFEditor Project
 
 #define ATLAS_SIZE (ivec3(1024, 1024, 256))
 #define ATLAS_SLOTS (ATLAS_SIZE / 8)
@@ -156,7 +157,7 @@ float evalStroke(vec3 p, in stroke_t stroke)
 {
     float shape = 1000000.0;
 
-    // mirror goes here
+    // TODO: mirror goes here
     vec3 position = p - stroke.posb.xyz;
     position = quatMultVec3(stroke.quat, position);
 
@@ -187,23 +188,13 @@ float evalStroke(vec3 p, in stroke_t stroke)
 //Distance to scene at point
 float distToScene(vec3 p)
 {
-    //float a = length(p - vec3(0.0, 0.0, -1.0)) - 0.3;
-    //float b = length(p - vec3(0.35, 0.0, -1.0)) - 0.3;
-    //float d = evalStroke(p, strokes[0]);
     float d = 100000.0;
-
-    //d = sminCubic(d, length(p - vec3(0.0, 0.0, -1.0)) - 0.3, 0.2);
-    //d = sminCubic(d, length(p - vec3(0.35, 0.0, -1.0)) - 0.3, 0.2);
 
     for (uint i = 0; i < uStrokesCount; i++)
     {
         float shape = evalStroke(p, strokes[i]);
 
         float clampedBlend = max(0.0001, strokes[i].posb.w);
-
-        //float m1 = ((stroke.id.y & 1) == 1) || ((stroke.id.y & 2) == 2) ? -1.0 : 1.0;
-        //float m2 = ((stroke.id.y & 1) == 1) && ((stroke.id.y & 2) == 0) ? -1.0 : 1.0;
-        //d = (index == 0) ? min(shape, d) : opSmoothAll(shape, d, max(0.0001, stroke.posb.w), m1, m2);
 
         // SMOOTH OPERATIONS
 
@@ -219,19 +210,6 @@ float distToScene(vec3 p)
         {
             d = opSmoothIntersection(shape, d, clampedBlend);
         }
-
-        /*if ((strokes[i].id.y & 3) == 0)
-        {
-            d = sminCubic(d, shape, clampedBlend);
-        }
-        else if ((strokes[i].id.y & 1) == 1)
-        {
-            d = max(-shape, d);
-        }
-        else if ((strokes[i].id.y & 2) == 2)
-        {
-            d = max(shape, d);
-        }*/
     }
 
     return d;
@@ -244,9 +222,6 @@ float distToSceneLut(vec3 p)
     // convert distance to -1, 1
     // convert dist from normalized voxels to worlda
 
-    //vec3 coord = p * 2.0 * uVoxelSide.y * uVolumeExtent.y;
-    //coord = (coord + 1.0) * 0.5;
-    //vec3 coord = vec3(WorldToLutCoord(p)) * uVolumeExtent.y;
     vec3 lutUVW = WorldToLutUVW(p);
     float dist = texture(uSdfLutTexture, lutUVW).a;
     dist = (dist) * 2.0 - 1.0f;
@@ -280,9 +255,6 @@ float distToSceneAtlas(vec3 pos)
     // convert distance to -1, 1
     // convert dist from normalized voxels to worlda
 
-    //vec3 coord = p * 2.0 * uVoxelSide.y * uVolumeExtent.y;
-    //coord = (coord + 1.0) * 0.5;
-    //vec3 coord = vec3(WorldToLutCoord(p)) * uVolumeExtent.y;
     ivec3 lutCoord = WorldToLutCoord(pos);
     vec3 lutData = texelFetch(uSdfLutTexture, lutCoord, 0).rgb;
 

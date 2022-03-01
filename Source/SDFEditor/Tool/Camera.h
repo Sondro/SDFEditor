@@ -1,3 +1,4 @@
+// Copyright (c) 2022 David Gallardo and SDFEditor Project
 
 #pragma once 
 
@@ -30,6 +31,4 @@ public:
 
     float mViewWidth;
     float mViewHeight;
-
-    void Update();
 };
