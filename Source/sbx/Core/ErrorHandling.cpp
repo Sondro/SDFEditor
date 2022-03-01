@@ -3,18 +3,14 @@
  * @author  David Gallardo Moreno
  */
 
-#include <sbx/Common.h>
+#include <sbx/Core/ErrorHandling.h>
 
 #if SBX_ERRORS_ENABLED
 #include <stdarg.h>
+#include <stdio.h>
 
 namespace __sbx_assert
 {
-    /*void EvalAssert(bool const & aTest, char* aTestStr)
-    {
-        EvalAssert(aTest, aTestStr, "");
-    }*/
-
     bool EvalAssert(bool const & aTest, char* aTestStr, char* aFile, int32_t aLine, char* aFormat, ...)
     {
         if(!aTest)
@@ -25,7 +21,7 @@ namespace __sbx_assert
             va_end(lArgsList);
             SBX_LOG("[Assert in %s:%d] (%s) - %s", aFile, aLine, aTestStr, __sbx_assert::GetAssertBuff<1024>()); 
 
-            return true;//TODO: modal to ask if stop, no stop, ignore rest
+            return true; //TODO: os modal to ask if stop, no stop, ignore rest
         }
 
         return false;

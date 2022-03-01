@@ -177,12 +177,6 @@ namespace GUI
             ImGui::PopStyleColor(2);
             ImGui::PopStyleVar(3);
 
-            //font scale test helper
-            //static float font_scale = 1.0f;
-            //ImGui::DragFloat("scale", &font_scale, 0.001f, 0.5f, 2.0f);
-            //font_scale = glm::clamp(font_scale, 0.5f, 2.0f);
-            //ImGui::SetWindowFontScale(font_scale);
-
             if (gWantCloseDocument)
             {
                 ImGui::OpenPopup("DiscardChangesCloseApp");

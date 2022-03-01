@@ -327,12 +327,6 @@ namespace GUI
             GuizmoButtonToggle(ICON_BOUNDS, &gGUIState.mBoundsActive);
             ImGui::PopStyleColor(2);
             ImGui::PopStyleVar(3);
-
-            //font scale test helper
-            //static float font_scale = 1.0f;
-            //ImGui::DragFloat("scale", &font_scale, 0.001f, 0.5f, 2.0f);
-            //font_scale = glm::clamp(font_scale, 0.5f, 2.0f);
-            //ImGui::SetWindowFontScale(font_scale);
         }
         ImGui::End();
         
@@ -378,6 +372,25 @@ namespace GUI
                 aScene.mStack->PushState(EPushStateFlags::EPE_ALL);
             }
         }
+
+#if 0
+        if (gGUIState.mBoundsActive)
+        {
+            for (TStrokeInfo& lStrokeInfo : aScene.mStorkesArray)
+            {
+                //TODO: Show box reference if needed
+                if (false)
+                {
+                    glm::mat4 lTransformationMatrix;
+                    ImGuizmo::RecomposeMatrixFromComponents(&lStrokeInfo.posb.x, &lStrokeInfo.mEulerAngles.x, &lStrokeInfo.param0.x, glm::value_ptr(lTransformationMatrix));
+
+                    ImGuizmo::DrawCubes(glm::value_ptr(lView),
+                        glm::value_ptr(lProjection),
+                        glm::value_ptr(lTransformationMatrix), 1);
+                }
+            }
+        }
+#endif
     }
 
     void CreateCameraRay(CScene const & aScene, glm::vec3& aRayOrigin, glm::vec3& aRayDirection)
@@ -432,7 +445,7 @@ namespace GUI
 
 
             float lDistance = 1000000000.0f;
-            bool lIntersects = SBox(lScale, lTransformationMatrix).CheckRayIntersection2(lRayOrigin, lRayDirection, &lDistance);
+            bool lIntersects = SBox(lScale, lTransformationMatrix).CheckRayIntersection(lRayOrigin, lRayDirection, &lDistance);
             if (lDistance < lPrevDistance)
             {
                 lPrevDistance = lDistance;

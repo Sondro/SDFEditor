@@ -101,20 +101,10 @@ void CSceneDocument::Save()
 {
     if (HasFilePath())
     {
-        /*size_t lStrokesBytesSize = mScene.mStorkesArray.size() * sizeof(TStrokeInfo);
-        uint32_t lNumElements = mScene.mStorkesArray.size() & 0xFFFFFFFF;
-
-        std::vector<char> lData(lStrokesBytesSize + sizeof(lNumElements));
-
-        ::memcpy(lData.data(), &lNumElements, sizeof(lNumElements));
-        ::memcpy(lData.data() + sizeof(lNumElements), mScene.mStorkesArray.data(), lStrokesBytesSize);
-        */
-
         using namespace nlohmann;
 
         ordered_json lDoc;
         lDoc["version"] = 0.1;
-        //lDoc["strokes"] = json::object();
         ordered_json& lDocStrokes = lDoc["strokes"];
 
         for (auto& lStroke : mScene.mStorkesArray)
@@ -138,7 +128,6 @@ void CSceneDocument::Save()
         //save json
         std::ofstream lOutputFile(mFilePath);
         lOutputFile << std::setw(4) << lDoc << std::endl;
-        //WriteFile(mFilePath, lData);
         SetPendingChanges(false, true);
     }
 }
@@ -162,22 +151,16 @@ void CSceneDocument::Load()
             SBX_ERROR("Error reading file [%s]: %s", mFilePath.c_str(), e.what());
         }
 
-        //std::vector<char> lData = ReadFile(mFilePath);
         auto lStrokesIt = lJsonData.find("strokes");
         if (lStrokesIt != lJsonData.end() && lStrokesIt->is_array())
         {
-            //uint32_t lNumElements = 0;
-            //::memcpy(&lNumElements, lData.data(), sizeof(lNumElements));
-
             // json deserialization
             const json& lJsonStrokes = *lStrokesIt;
 
             mScene.mStorkesArray.clear();
             mScene.mSelectedItems.clear();
             mScene.mStorkesArray.reserve(lJsonStrokes.size());
-            // json
-            //::memcpy(mScene.mStorkesArray.data(), lData.data() + sizeof(lNumElements), lNumElements * sizeof(TStrokeInfo));
-            
+
             for (size_t i = 0, l = lJsonStrokes.size(); i < l; i++ )
             {
                 const json& lJsonStroke = lJsonStrokes[i];

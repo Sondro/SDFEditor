@@ -47,7 +47,7 @@
         > request discard changes modal
         > Shortcuts
 
-    - Scene export/serialization to json file (instead of binary)
+    - [DONE] Scene export/serialization to json file (instead of binary)
 
     - Display properties layout per primitivie (GUI)
 
@@ -59,7 +59,13 @@
 
     - Handle group selection and transform
 
-    - Scene hirearchy (stack based transformations, json format update)
+    - Code clenaup
+        > add file copyright header
+        > remove commented blocks of code
+        > add explanation comments
+        > remove sbx
+        > remove unused code
+        
 
     // Bugs
 
@@ -73,8 +79,11 @@
         > [DONE] AABB box check to discard traces out of the voxe box
         > [TODO, fixed size for now] adapt the size of the volume in the world depending on the farthest transformed bounding volume
         > [DONE] Fill atlas tiles with distance data
-        > [EARLY VERSION, artifacts, unoptimized] Raymarch vs the atlas tiles
-
+        > [EARLY VERSION, artifacts, unoptimized] Raymarch the atlas tiles
+    
+    - PBR Material settings
+    
+    - Scene hirearchy (stack based transformations, json format update)
 
 
 */

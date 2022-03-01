@@ -22,9 +22,7 @@
             "blend": 0.0,
             "round": 0.019999999552965164,
             "primitive_id": "box",
-            "operation": "add",
-            "mirrorX": false,
-            "mirrorY": false
+            "operation": "add"
         },
         {
             "type": "stroke",
@@ -47,9 +45,7 @@
             "blend": 0.38999998569488525,
             "round": 0.0,
             "primitive_id": "box",
-            "operation": "add",
-            "mirrorX": false,
-            "mirrorY": false
+            "operation": "add"
         },
         {
             "type": "stroke",
@@ -72,9 +68,7 @@
             "blend": 0.2800000011920929,
             "round": 0.0,
             "primitive_id": "box",
-            "operation": "add",
-            "mirrorX": false,
-            "mirrorY": false
+            "operation": "add"
         },
         {
             "type": "stroke",
@@ -97,9 +91,7 @@
             "blend": 0.3199999928474426,
             "round": 0.0,
             "primitive_id": "box",
-            "operation": "add",
-            "mirrorX": false,
-            "mirrorY": false
+            "operation": "add"
         },
         {
             "type": "stroke",
@@ -122,9 +114,7 @@
             "blend": 0.23999999463558197,
             "round": 0.0,
             "primitive_id": "capsule",
-            "operation": "subtract",
-            "mirrorX": false,
-            "mirrorY": false
+            "operation": "subtract"
         },
         {
             "type": "stroke",
@@ -147,9 +137,7 @@
             "blend": 0.23999999463558197,
             "round": 0.0,
             "primitive_id": "capsule",
-            "operation": "subtract",
-            "mirrorX": false,
-            "mirrorY": false
+            "operation": "subtract"
         },
         {
             "type": "stroke",
@@ -172,9 +160,7 @@
             "blend": 0.019999999552965164,
             "round": 0.0,
             "primitive_id": "torus",
-            "operation": "add",
-            "mirrorX": false,
-            "mirrorY": false
+            "operation": "add"
         },
         {
             "type": "stroke",
@@ -197,9 +183,7 @@
             "blend": 0.0,
             "round": 0.0,
             "primitive_id": "box",
-            "operation": "add",
-            "mirrorX": false,
-            "mirrorY": false
+            "operation": "add"
         },
         {
             "type": "stroke",
@@ -222,9 +206,7 @@
             "blend": 0.0,
             "round": 0.0,
             "primitive_id": "ellipsoid",
-            "operation": "add",
-            "mirrorX": false,
-            "mirrorY": false
+            "operation": "add"
         },
         {
             "type": "stroke",
@@ -247,9 +229,7 @@
             "blend": 0.0,
             "round": 0.0,
             "primitive_id": "ellipsoid",
-            "operation": "add",
-            "mirrorX": false,
-            "mirrorY": false
+            "operation": "add"
         },
         {
             "type": "stroke",
@@ -272,9 +252,7 @@
             "blend": 0.019999999552965164,
             "round": 0.0,
             "primitive_id": "torus",
-            "operation": "add",
-            "mirrorX": false,
-            "mirrorY": false
+            "operation": "add"
         },
         {
             "type": "stroke",
@@ -297,9 +275,7 @@
             "blend": 0.019999999552965164,
             "round": 0.0,
             "primitive_id": "torus",
-            "operation": "add",
-            "mirrorX": false,
-            "mirrorY": false
+            "operation": "add"
         },
         {
             "type": "stroke",
@@ -322,9 +298,7 @@
             "blend": 0.019999999552965164,
             "round": 0.0,
             "primitive_id": "torus",
-            "operation": "add",
-            "mirrorX": false,
-            "mirrorY": false
+            "operation": "add"
         },
         {
             "type": "stroke",
@@ -347,9 +321,7 @@
             "blend": 0.019999999552965164,
             "round": 0.0,
             "primitive_id": "torus",
-            "operation": "add",
-            "mirrorX": false,
-            "mirrorY": false
+            "operation": "add"
         },
         {
             "type": "stroke",
@@ -372,9 +344,7 @@
             "blend": 0.019999999552965164,
             "round": 0.0,
             "primitive_id": "torus",
-            "operation": "add",
-            "mirrorX": false,
-            "mirrorY": false
+            "operation": "add"
         },
         {
             "type": "stroke",
@@ -397,9 +367,7 @@
             "blend": 0.019999999552965164,
             "round": 0.0,
             "primitive_id": "torus",
-            "operation": "add",
-            "mirrorX": false,
-            "mirrorY": false
+            "operation": "add"
         },
         {
             "type": "stroke",
@@ -422,9 +390,7 @@
             "blend": 0.019999999552965164,
             "round": 0.0,
             "primitive_id": "torus",
-            "operation": "add",
-            "mirrorX": false,
-            "mirrorY": false
+            "operation": "add"
         },
         {
             "type": "stroke",
@@ -447,9 +413,7 @@
             "blend": 0.019999999552965164,
             "round": 0.0,
             "primitive_id": "torus",
-            "operation": "add",
-            "mirrorX": false,
-            "mirrorY": false
+            "operation": "add"
         },
         {
             "type": "stroke",
@@ -472,9 +436,7 @@
             "blend": 0.019999999552965164,
             "round": 0.0,
             "primitive_id": "torus",
-            "operation": "add",
-            "mirrorX": false,
-            "mirrorY": false
+            "operation": "add"
         },
         {
             "type": "stroke",
@@ -497,9 +459,7 @@
             "blend": 0.019999999552965164,
             "round": 0.0,
             "primitive_id": "torus",
-            "operation": "add",
-            "mirrorX": false,
-            "mirrorY": false
+            "operation": "add"
         },
         {
             "type": "stroke",
@@ -522,9 +482,7 @@
             "blend": 0.019999999552965164,
             "round": 0.0,
             "primitive_id": "torus",
-            "operation": "add",
-            "mirrorX": false,
-            "mirrorY": false
+            "operation": "add"
         },
         {
             "type": "stroke",
@@ -547,9 +505,7 @@
             "blend": 0.019999999552965164,
             "round": 0.0,
             "primitive_id": "torus",
-            "operation": "add",
-            "mirrorX": false,
-            "mirrorY": false
+            "operation": "add"
         },
         {
             "type": "stroke",
@@ -572,9 +528,7 @@
             "blend": 0.0,
             "round": 0.0,
             "primitive_id": "ellipsoid",
-            "operation": "add",
-            "mirrorX": false,
-            "mirrorY": false
+            "operation": "add"
         },
         {
             "type": "stroke",
@@ -597,9 +551,7 @@
             "blend": 0.0,
             "round": 0.0,
             "primitive_id": "ellipsoid",
-            "operation": "add",
-            "mirrorX": false,
-            "mirrorY": false
+            "operation": "add"
         },
         {
             "type": "stroke",
@@ -622,9 +574,7 @@
             "blend": 0.0,
             "round": 0.0,
             "primitive_id": "ellipsoid",
-            "operation": "add",
-            "mirrorX": false,
-            "mirrorY": false
+            "operation": "add"
         },
         {
             "type": "stroke",
@@ -647,17 +597,15 @@
             "blend": 0.0,
             "round": 0.0,
             "primitive_id": "ellipsoid",
-            "operation": "add",
-            "mirrorX": false,
-            "mirrorY": false
+            "operation": "add"
         },
         {
             "type": "stroke",
             "name": "Stroke_17",
             "position": [
-                1.2798964977264404,
-                -0.014123126864433289,
-                1.934494137763977
+                1.1559860706329346,
+                0.11721843481063843,
+                1.732785701751709
             ],
             "rotation": [
                 -163.9918670654297,
@@ -670,11 +618,9 @@
                 0.3789057731628418
             ],
             "blend": 0.0,
-            "round": 0.0,
+            "round": 0.019999999552965164,
             "primitive_id": "ellipsoid",
-            "operation": "add",
-            "mirrorX": false,
-            "mirrorY": false
+            "operation": "add"
         },
         {
             "type": "stroke",
@@ -697,34 +643,30 @@
             "blend": 0.019999999552965164,
             "round": 0.0,
             "primitive_id": "torus",
-            "operation": "add",
-            "mirrorX": false,
-            "mirrorY": false
+            "operation": "add"
         },
         {
             "type": "stroke",
             "name": "Stroke_2",
             "position": [
-                1.8110753297805786,
-                2.0362019538879395,
-                2.6596155166625977
+                1.6639082431793213,
+                -0.28451213240623474,
+                2.453127861022949
             ],
             "rotation": [
-                88.06825256347656,
-                0.6997116208076477,
-                -86.56429290771484
+                32.923587799072266,
+                1.7849788665771484,
+                -114.7005386352539
             ],
             "scale": [
-                0.39775463938713074,
-                0.07238920032978058,
-                0.33743423223495483
+                0.4336684048175812,
+                0.07778014242649078,
+                0.27559027075767517
             ],
             "blend": 0.019999999552965164,
-            "round": 0.0,
+            "round": 0.019999999552965164,
             "primitive_id": "torus",
-            "operation": "add",
-            "mirrorX": false,
-            "mirrorY": false
+            "operation": "add"
         },
         {
             "type": "stroke",
@@ -747,9 +689,7 @@
             "blend": 0.05999999865889549,
             "round": 0.0,
             "primitive_id": "ellipsoid",
-            "operation": "subtract",
-            "mirrorX": false,
-            "mirrorY": false
+            "operation": "subtract"
         },
         {
             "type": "stroke",
@@ -772,9 +712,7 @@
             "blend": 0.05999999865889549,
             "round": 0.0,
             "primitive_id": "ellipsoid",
-            "operation": "subtract",
-            "mirrorX": false,
-            "mirrorY": false
+            "operation": "subtract"
         },
         {
             "type": "stroke",
@@ -797,34 +735,30 @@
             "blend": 0.05999999865889549,
             "round": 0.0,
             "primitive_id": "ellipsoid",
-            "operation": "subtract",
-            "mirrorX": false,
-            "mirrorY": false
+            "operation": "subtract"
         },
         {
             "type": "stroke",
             "name": "Stroke_4",
             "position": [
-                2.023754835128784,
-                -0.077577605843544,
-                2.16158127784729
+                1.2882575988769531,
+                -0.10640693455934525,
+                2.0549604892730713
             ],
             "rotation": [
-                0.0,
-                -0.0,
-                0.0
+                19.010726928710938,
+                37.801856994628906,
+                -21.791481018066406
             ],
             "scale": [
-                0.5376044511795044,
-                0.6019953489303589,
-                0.5152605772018433
+                0.3064303696155548,
+                0.29798510670661926,
+                0.39299604296684265
             ],
             "blend": 0.10000000149011612,
-            "round": 0.0,
+            "round": 0.019999999552965164,
             "primitive_id": "box",
-            "operation": "subtract",
-            "mirrorX": false,
-            "mirrorY": false
+            "operation": "subtract"
         },
         {
             "type": "stroke",
@@ -847,9 +781,7 @@
             "blend": 0.10000000149011612,
             "round": 0.0,
             "primitive_id": "box",
-            "operation": "subtract",
-            "mirrorX": false,
-            "mirrorY": false
+            "operation": "subtract"
         },
         {
             "type": "stroke",
@@ -872,9 +804,7 @@
             "blend": 0.07000000029802322,
             "round": 0.0,
             "primitive_id": "torus",
-            "operation": "subtract",
-            "mirrorX": false,
-            "mirrorY": false
+            "operation": "subtract"
         },
         {
             "type": "stroke",
@@ -897,9 +827,7 @@
             "blend": 0.18000000715255737,
             "round": 0.0,
             "primitive_id": "ellipsoid",
-            "operation": "subtract",
-            "mirrorX": false,
-            "mirrorY": false
+            "operation": "subtract"
         },
         {
             "type": "stroke",
@@ -922,9 +850,7 @@
             "blend": 0.07999999821186066,
             "round": 0.0,
             "primitive_id": "ellipsoid",
-            "operation": "subtract",
-            "mirrorX": false,
-            "mirrorY": false
+            "operation": "subtract"
         },
         {
             "type": "stroke",
@@ -947,9 +873,7 @@
             "blend": 0.07000000029802322,
             "round": 0.0,
             "primitive_id": "torus",
-            "operation": "subtract",
-            "mirrorX": false,
-            "mirrorY": false
+            "operation": "subtract"
         },
         {
             "type": "stroke",
@@ -972,9 +896,7 @@
             "blend": 0.3400000035762787,
             "round": 0.0,
             "primitive_id": "box",
-            "operation": "add",
-            "mirrorX": false,
-            "mirrorY": false
+            "operation": "add"
         },
         {
             "type": "stroke",
@@ -997,9 +919,7 @@
             "blend": 0.11999999731779099,
             "round": 0.0,
             "primitive_id": "box",
-            "operation": "subtract",
-            "mirrorX": false,
-            "mirrorY": false
+            "operation": "subtract"
         },
         {
             "type": "stroke",
@@ -1022,9 +942,30 @@
             "blend": 0.2199999988079071,
             "round": 0.0,
             "primitive_id": "box",
-            "operation": "subtract",
-            "mirrorX": false,
-            "mirrorY": false
+            "operation": "subtract"
+        },
+        {
+            "type": "stroke",
+            "name": "Stroke_1",
+            "position": [
+                1.1268187761306763,
+                -0.1637454628944397,
+                1.9890698194503784
+            ],
+            "rotation": [
+                34.93818283081055,
+                2.598933458328247,
+                -99.99007415771484
+            ],
+            "scale": [
+                0.10179699957370758,
+                1.4285534620285034,
+                0.5152602195739746
+            ],
+            "blend": 0.0,
+            "round": 0.019999999552965164,
+            "primitive_id": "capsule",
+            "operation": "add"
         }
     ]
 }

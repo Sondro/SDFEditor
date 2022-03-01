@@ -1,3 +1,4 @@
+//Copyright (c) 2022 David Gallardo and the Premake project
 
 #pragma once
 
