@@ -1,7 +1,7 @@
 // Copyright (c) 2022 David Gallardo and SDFEditor Project
 
 #include "SceneStack.h"
-#include "SceneData.h"
+#include "Scene.h"
 
 constexpr size_t kMaxStackElements = 20;
 

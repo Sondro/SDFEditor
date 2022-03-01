@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "SceneData.h"
+#include "Scene.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>

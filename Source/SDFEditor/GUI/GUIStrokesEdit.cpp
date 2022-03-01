@@ -2,7 +2,7 @@
 
 #include "GUIStrokesEdit.h"
 
-#include <SDFEditor/Tool/SceneData.h>
+#include <SDFEditor/Tool/Scene.h>
 #include <SDFEditor/Math/Box.h>
 
 #include <sbx/Core/Log.h>

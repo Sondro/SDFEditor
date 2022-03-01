@@ -1,7 +1,7 @@
 // Copyright (c) 2022 David Gallardo and SDFEditor Project
 
 #include "SceneDocument.h"
-#include "SceneData.h"
+#include "Scene.h"
 
 #include <SDFEditor/Utils/FileIO.h>
 

@@ -1,7 +1,7 @@
 // Copyright (c) 2022 David Gallardo and SDFEditor Project
 
 #include "SceneClipboard.h"
-#include "SceneData.h"
+#include "Scene.h"
 
 CSceneClipboard::CSceneClipboard(CScene& aScene)
     : mScene(aScene)

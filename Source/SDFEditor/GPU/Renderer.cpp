@@ -5,7 +5,7 @@
 #include <GLFW/glfw3.h>
 
 #include "SDFEditor/Utils/FileIO.h"
-#include "SDFEditor/Tool/SceneData.h"
+#include "SDFEditor/Tool/Scene.h"
 
 #include <sbx/Core/Log.h>
 
@@ -67,8 +67,8 @@ void CRenderer::Init()
     glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 1, &workGroupCounts[1]);
     glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 2, &workGroupCounts[2]);
 
-    SBX_LOG("workGroupSizes: (%d, %d, %d)", workGroupSizes[0], workGroupSizes[1], workGroupSizes[2]);
-    SBX_LOG("workGroupCounts: (%d, %d, %d)", workGroupCounts[0], workGroupCounts[1], workGroupCounts[2]);
+    SBX_LOG("GL_MAX_COMPUTE_WORK_GROUP_SIZE: (%d, %d, %d)", workGroupSizes[0], workGroupSizes[1], workGroupSizes[2]);
+    SBX_LOG("GL_MAX_COMPUTE_WORK_GROUP_COUNT: (%d, %d, %d)", workGroupCounts[0], workGroupCounts[1], workGroupCounts[2]);
 
     // Strokes buffer
     mStrokesBuffer = std::make_shared<CGPUShaderStorageObject>(EGPUBufferBindTarget::SHADER_BUFFER_STORAGE);

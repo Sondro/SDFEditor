@@ -4,7 +4,7 @@
 
 #include <cstdint>
 #include "SDFEditor/GPU/Renderer.h"
-#include "SDFEditor/Tool/SceneData.h"
+#include "SDFEditor/Tool/Scene.h"
 
 struct TAppViewport
 {
