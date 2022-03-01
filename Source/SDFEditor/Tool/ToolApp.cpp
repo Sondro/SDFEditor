@@ -130,6 +130,10 @@ void CToolApp::UpdateCamera(bool& aCameraMoving)
         }
     }
 
+    // TODO: rotation control should be improved, this is very inconstitent with monitor edges and hovering everything
+    // TODO proposal: use glfw mouse callback, use ImGui::CaptureMouseFromApp and avoid using imgui mouse state
+    // TODO: keep the mouse on the same position but get a delta
+
     static double lPrevCursorX, lPrevCursorY;
     static bool lWasMoving = false;
 
@@ -147,6 +151,7 @@ void CToolApp::UpdateCamera(bool& aCameraMoving)
         }
         
         aCameraMoving = true;
+        
     }
     else if(lWasMoving)
     {
@@ -167,13 +172,6 @@ bool CToolApp::HandleShortcuts()
         mScene.SetDirty();
         return true;
     }
-
-    // F3 Load Scene
-    /*if (ImGui::IsKeyPressed(292, false))
-    {
-        LoadScene("test.dfs");
-        return true;
-    }*/
 
     // Ctrl + S Save Scene
     if (io.KeyCtrl && !io.KeyShift && ImGui::IsKeyPressed('S', false))
