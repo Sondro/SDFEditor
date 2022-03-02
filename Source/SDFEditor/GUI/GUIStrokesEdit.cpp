@@ -185,10 +185,21 @@ namespace GUI
 
                 // OPERATION
                 static const char* lStrokeOpList = "Add\0Subtract\0Intersect\0"; //Replace\0";
-                int32_t lOpIndex = lStrokeInfo.id.y & EStrokeOp::OpsMaskAll;
+                int32_t lOpIndex = lStrokeInfo.id.y & EStrokeOp::OpsMaskMode;
                 lDirty |= ImGui::Combo("Operation", &lOpIndex, lStrokeOpList);
-                lStrokeInfo.id.y &= ~EStrokeOp::OpsMaskAll;
+                lStrokeInfo.id.y &= ~EStrokeOp::OpsMaskMode;
                 lStrokeInfo.id.y |= lOpIndex;
+
+                // MIRROR
+                bool lMirrorX = bool(lStrokeInfo.id.y & EStrokeOp::OpMirrorX);
+                bool lMirrorY = bool(lStrokeInfo.id.y & EStrokeOp::OpMirrorY);
+                lDirty |= ImGui::Checkbox("Mirror X", &lMirrorX);
+                ImGui::SameLine();
+                lDirty |= ImGui::Checkbox("Mirror Y", &lMirrorY);
+                lStrokeInfo.id.y &= ~EStrokeOp::OpsMaskMirror;
+  
+                lStrokeInfo.id.y |= lMirrorX ? EStrokeOp::OpMirrorX : 0;
+                lStrokeInfo.id.y |= lMirrorY ? EStrokeOp::OpMirrorY : 0;
 
                 // PROPERTIES
                 //lDirty |= ImGui::DragInt4("shapeId", (int32_t*)&aScene.mStorkesArray[lSelectedIndex].id.x, 0.01f);

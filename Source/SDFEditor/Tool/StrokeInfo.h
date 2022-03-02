@@ -10,13 +10,18 @@ namespace EStrokeOp
 {
     enum Type
     {
-        OpAdd = 0,
-        OpSubtract = 1,
-        OpIntersect = 2,
-        OpReplace = 3,
+        OpAdd           = 0,
+        OpSubtract      = 0b0001,
+        OpIntersect     = 0b0010,
+        OpReplace       = 0b0011,
 
-        OpsMaskAll = 0x3,
-        OpsShift = 0,
+        OpMirrorX       = 0b0100,
+        OpMirrorY       = 0b1000,
+
+        OpsMaskMode     = 0b0011,
+        OpsMaskMirror   = 0b1100,
+
+        OpsMaskAll      = 0b1111
     };
 }
 

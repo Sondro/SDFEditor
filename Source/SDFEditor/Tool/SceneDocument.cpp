@@ -50,7 +50,7 @@ namespace
 
     const char* GetOperationNameByCode(int32_t aOperation)
     {
-        return sOpNames[aOperation & EStrokeOp::OpsMaskAll];
+        return sOpNames[aOperation & EStrokeOp::OpsMaskMode];
     }
 
     int32_t GetOperationCodeByName(std::string& aOperationName)
@@ -121,9 +121,9 @@ void CSceneDocument::Save()
             lDocStroke["blend"] = lStroke.posb.w;
             lDocStroke["round"] = lStroke.param0.w;
             lDocStroke["primitive_id"] = GetPrimitiveNameByCode(lStroke.id.x);
-            lDocStroke["operation"] = GetOperationNameByCode(lStroke.id.y & EStrokeOp::OpsMaskAll);
-            //lDocStroke["mirrorX"] = false;
-            //lDocStroke["mirrorY"] = false;
+            lDocStroke["operation"] = GetOperationNameByCode(lStroke.id.y & EStrokeOp::OpsMaskMode);
+            lDocStroke["mirror_x"] = bool(lStroke.id.y & EStrokeOp::OpMirrorX);
+            lDocStroke["mirror_y"] = bool(lStroke.id.y & EStrokeOp::OpMirrorY);
         }
 
         //save json
@@ -179,6 +179,8 @@ void CSceneDocument::Load()
                 JSON_CHECK("primitive_id", lStroke.id.x = GetPrimitiveCodeByName(lJsonStroke["primitive_id"].get<std::string>()));
                 lStroke.id.y = 0;
                 JSON_CHECK("operation", lStroke.id.y |= GetOperationCodeByName(lJsonStroke["operation"].get<std::string>()));
+                JSON_CHECK("mirror_x", lStroke.id.y |= (lJsonStroke["mirror_x"].get<bool>()) ? EStrokeOp::OpMirrorX : 0);
+                JSON_CHECK("mirror_y", lStroke.id.y |= (lJsonStroke["mirror_y"].get<bool>()) ? EStrokeOp::OpMirrorY : 0);
 
                 mScene.mStorkesArray.emplace_back(lStroke);
             }

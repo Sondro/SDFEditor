@@ -1,4 +1,5 @@
 // Copyright (c) 2022 David Gallardo and SDFEditor Project
+// Serialization for Save/Load
 
 #pragma once
 

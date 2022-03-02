@@ -157,8 +157,19 @@ float evalStroke(vec3 p, in stroke_t stroke)
 {
     float shape = 1000000.0;
 
+    if ((stroke.id.y & 0x4) == 0x4)
+    {
+        p.x = abs(p.x);
+    }
+
+    if ((stroke.id.y & 0x8) == 0x8)
+    {
+        p.y = abs(p.y);
+    }
+    //p.y = abs(p.y);
     // TODO: mirror goes here
     vec3 position = p - stroke.posb.xyz;
+
     position = quatMultVec3(stroke.quat, position);
 
     if (stroke.id.x == 0)
