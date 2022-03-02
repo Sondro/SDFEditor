@@ -16,6 +16,10 @@ The project is coded in C++, uses OpenGL 4.5 to interpret the primitives data in
 - Undo / Redo
 - Load / Save scene in an open JSON format
 
+### License and Anti-NFT Clausule
+
+SDFEditor has a permissive license that let you use and redistribute SDFEditor in binary or source code if you follow a list of conditions, and one of them is an Anti-NFT clausule that explicitly prohibits the usage of this software to produce any kind of content that would be used as NFT or for any other crypto-currency trading.
+
 ## Building
 
 To create the Visual Studio Solution files execute GenerateSolution.bat, this will run the premake tool included in the project. This project has only been tested in Visual Studio 2019 in Windows, but porting to other systems should be easy providing a compiled version of GLFW and premake.
