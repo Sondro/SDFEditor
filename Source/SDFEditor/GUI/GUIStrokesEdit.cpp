@@ -214,7 +214,7 @@ namespace GUI
 
                 lDirty |= ImGui::DragFloat3("Size", (float*)&lStrokeInfo.param0.x, 0.02f);
 
-                if ((ImGui::Button("Remove") || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Delete), false)) && aScene.mStorkesArray.size() > 0)
+                if ((ImGui::Button("Remove") || (!ImGui::GetIO().WantCaptureKeyboard && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Delete), false))) && aScene.mStorkesArray.size() > 0)
                 {
                     aScene.mStorkesArray.erase(aScene.mStorkesArray.begin() + lSelectedIndex);
                     aScene.mSelectedItems.clear();
@@ -341,12 +341,15 @@ namespace GUI
             int32_t lSelectedIndex = aScene.mSelectedItems[0];
             TStrokeInfo& lStrokeInfo = aScene.mStorkesArray[lSelectedIndex];
 
-            if (io.KeysDown['T'])
-                gGUIState.mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
-            if (io.KeysDown['R'])
-                gGUIState.mCurrentGizmoOperation = ImGuizmo::ROTATE;
-            if (io.KeysDown['Y']) // r Key
-                gGUIState.mCurrentGizmoOperation = ImGuizmo::SCALE;
+            if (!ImGui::GetIO().WantCaptureKeyboard)
+            {
+                if (ImGui::IsKeyPressed('T', false))
+                    gGUIState.mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
+                if (ImGui::IsKeyPressed('R', false))
+                    gGUIState.mCurrentGizmoOperation = ImGuizmo::ROTATE;
+                if (ImGui::IsKeyPressed('Y', false))
+                    gGUIState.mCurrentGizmoOperation = ImGuizmo::SCALE;
+            }
 
             glm::mat4 lTransformationMatrix;
             ImGuizmo::RecomposeMatrixFromComponents(&lStrokeInfo.posb.x, &lStrokeInfo.mEulerAngles.x, &lStrokeInfo.param0.x, glm::value_ptr(lTransformationMatrix));

@@ -130,7 +130,7 @@ void CToolApp::UpdateCamera(bool& aCameraMoving)
         }
     }
 
-    // TODO: rotation control should be improved, this is very inconstitent with monitor edges and hovering everything
+    // TODO: rotation control should be improved, this is very inconsistent with monitor edges and hovering everything
     // TODO proposal: use glfw mouse callback, use ImGui::CaptureMouseFromApp and avoid using imgui mouse state
     // TODO: keep the mouse on the same position but get a delta
 
