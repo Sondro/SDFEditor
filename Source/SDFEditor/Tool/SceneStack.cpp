@@ -66,7 +66,7 @@ void CSceneStack::PushState(TPushStateFlags aFlags)
             lState->mSelectedItems = new std::vector< uint32_t >(mScene.mSelectedItems);
         }
 
-        //Material change stack disabled for now
+        // TODO: material not in undo & redo for now
         //if (aFlags & EPushStateFlags::EPE_MATERIAL)
         //{
         //    lState->mGlobalMaterial = new TGlobalMaterialBufferData(mScene.mGlobalMaterial);

@@ -290,6 +290,7 @@ namespace GUI
         else if (gGUIState.mMaterialEditing && !ImGui::IsMouseDown(ImGuiMouseButton_Left) && !ImGui::GetIO().WantCaptureKeyboard)
         {
             gGUIState.mMaterialEditing = false;
+            // TODO: material not in undo & redo for now
             //aScene.mStack->PushState(EPushStateFlags::EPE_MATERIAL);
         }
     }
