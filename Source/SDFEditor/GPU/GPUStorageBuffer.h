@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <memory>
 
-using CGPUShaderStorageObjectRef = std::shared_ptr<class CGPUShaderStorageObject>;
+using CGPUBufferObjectRef = std::shared_ptr<class CGPUBufferObject>;
 
 namespace EGPUBufferFlags
 {
@@ -22,6 +22,7 @@ namespace EGPUBufferBindTarget
 {
     enum Type
     {
+        UNIFORM_BUFFER,
         SHADER_BUFFER_STORAGE,
         ATOMIC_COUNTER_BUFFER,
         DISPATCH_INDIRECT_BUFFER,
@@ -30,11 +31,11 @@ namespace EGPUBufferBindTarget
     };
 };
 
-class CGPUShaderStorageObject
+class CGPUBufferObject
 {
 public:
-    CGPUShaderStorageObject(EGPUBufferBindTarget::Type aTarget);
-    ~CGPUShaderStorageObject();
+    CGPUBufferObject(EGPUBufferBindTarget::Type aTarget);
+    ~CGPUBufferObject();
 
     void SetData(size_t aSize, void* aData, uint32_t aFlags = EGPUBufferFlags::ALL);
     void UpdateSubData(intptr_t aOffset, size_t aSize, void* aData);
@@ -46,6 +47,7 @@ public:
     size_t GetStorageSize() const { return mStorageSize; }
 
     void BindShaderStorage(uint32_t aBindingIndex);
+    void BindUniformBuffer(uint32_t aBindingIndex);
 
     void BindTarget(EGPUBufferBindTarget::Type aBindTarget);
     void UnbindTarget(EGPUBufferBindTarget::Type aBindTarget);

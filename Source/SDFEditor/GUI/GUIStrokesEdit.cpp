@@ -33,6 +33,7 @@ namespace GUI
         bool mGridActive{ true };
         bool mBoundsActive{ true };
         bool mPanelEditing{ false };
+        bool mMaterialEditing{ false };
         bool mGuizmoEditing{ false };
 
         bool ValidStrokeSelected(class CScene& aScene)
@@ -48,195 +49,216 @@ namespace GUI
         aScene.mSelectedItems.clear();
     }
 
-    void DrawStrokesPanel(class CScene& aScene)
+    void DrawStrokesPanel(class CScene& aScene);
+    void DrawGlobalMaterialPanel(class CScene& aScene);
+    void DrawMainPanel(class CScene& aScene)
     {
         const ImVec2 kViewPos = ImGui::GetMainViewport()->Pos;
-
-        bool lDirty = false;
+        
         ImGui::SetNextWindowSize(ImVec2(325, 750), ImGuiCond_Once);
         ImGui::SetNextWindowPos(kViewPos + ImVec2(40, 125), ImGuiCond_Once);
-        if (ImGui::Begin("Strokes Panel"))
+        if (ImGui::Begin("Main Panel"))
         {
+            ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
+            if (ImGui::BeginTabBar("MainPanelTabBar", tab_bar_flags))
             {
-                // Visible List Items
-                ImGui::PushItemWidth(40);
-                ImGui::DragInt(" Visible list Items", &gGUIState.mVisibleItemsInList, 1, 5, 20);
-                ImGui::PopItemWidth();
-                ImGui::SameLine();
-                ImGui::Text("(%d total)", aScene.mStorkesArray.size() & 0xFFFFFFFF);
-                gGUIState.mVisibleItemsInList = glm::clamp(gGUIState.mVisibleItemsInList, 5, 20);
-            }
-            
-            // Custom selectable widget
-            const float item_height = ImGui::GetTextLineHeightWithSpacing();
-            if (ImGui::BeginChildFrame(ImGui::GetID("StrokesListFrame"), ImVec2(-FLT_MIN, (float(gGUIState.mVisibleItemsInList) + 0.5f) * item_height)))
-            {
-                const ImU32 lActiveColor = ImGui::GetColorU32(ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
-                const ImU32 lHoveredColor = ImGui::GetColorU32(ImGui::GetStyleColorVec4(ImGuiCol_ButtonHovered));
-                for (int32_t i = 0; i < aScene.mStorkesArray.size(); i++)
+                if (ImGui::BeginTabItem("Strokes"))
                 {
-                    const ImVec2 lRegionOrigin = ImGui::GetCursorScreenPos() - ImVec2(2.0f, 0.0f);
-                    const ImVec2 lRegionEnd = ImVec2(lRegionOrigin.x + ImGui::GetWindowWidth() + 2.0f, lRegionOrigin.y + item_height);
+                    DrawStrokesPanel(aScene);
+                    ImGui::EndTabItem();
+                }
+                if (ImGui::BeginTabItem("Material"))
+                {
+                    DrawGlobalMaterialPanel(aScene);
+                    ImGui::EndTabItem();
+                }
+                ImGui::EndTabBar();
+            }
+        }
+        ImGui::End();
+    }
 
-                    auto lItemIt = std::find(aScene.mSelectedItems.begin(), aScene.mSelectedItems.end(), i);
-                    const bool lIsSelected = lItemIt != aScene.mSelectedItems.end();
-                    const bool lIsHovered = ImGui::IsMouseHoveringRect(lRegionOrigin, lRegionEnd);
+    void DrawStrokesPanel(class CScene& aScene)
+    {
+        bool lDirty = false;
+        {
+            // Visible List Items
+            ImGui::PushItemWidth(40);
+            ImGui::DragInt(" Visible list Items", &gGUIState.mVisibleItemsInList, 1, 5, 20);
+            ImGui::PopItemWidth();
+            ImGui::SameLine();
+            ImGui::Text("(%d total)", aScene.mStorkesArray.size() & 0xFFFFFFFF);
+            gGUIState.mVisibleItemsInList = glm::clamp(gGUIState.mVisibleItemsInList, 5, 20);
+        }
+            
+        // Custom selectable widget
+        const float item_height = ImGui::GetTextLineHeightWithSpacing();
+        if (ImGui::BeginChildFrame(ImGui::GetID("StrokesListFrame"), ImVec2(-FLT_MIN, (float(gGUIState.mVisibleItemsInList) + 0.5f) * item_height)))
+        {
+            const ImU32 lActiveColor = ImGui::GetColorU32(ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
+            const ImU32 lHoveredColor = ImGui::GetColorU32(ImGui::GetStyleColorVec4(ImGuiCol_ButtonHovered));
+            for (int32_t i = 0; i < aScene.mStorkesArray.size(); i++)
+            {
+                const ImVec2 lRegionOrigin = ImGui::GetCursorScreenPos() - ImVec2(2.0f, 0.0f);
+                const ImVec2 lRegionEnd = ImVec2(lRegionOrigin.x + ImGui::GetWindowWidth() + 2.0f, lRegionOrigin.y + item_height);
+
+                auto lItemIt = std::find(aScene.mSelectedItems.begin(), aScene.mSelectedItems.end(), i);
+                const bool lIsSelected = lItemIt != aScene.mSelectedItems.end();
+                const bool lIsHovered = ImGui::IsMouseHoveringRect(lRegionOrigin, lRegionEnd);
                     
-                    if (lIsSelected || lIsHovered)
+                if (lIsSelected || lIsHovered)
+                {
+                    ImGui::GetWindowDrawList()->AddRectFilled(lRegionOrigin, lRegionEnd, lIsSelected ? lActiveColor : lHoveredColor);
+                }
+                ImGui::GetCurrentWindow()->DC.CursorPos.y += 2.0f;
+                ImGui::Text("%s", aScene.mStorkesArray[i].mName);
+                ImGui::ItemAdd(ImRect(lRegionOrigin, lRegionEnd), ImGui::GetCurrentWindow()->GetID(1000 + i));
+                if (ImGui::IsItemHovered() && ImGui::IsItemClicked())
+                {
+                    if (!ImGui::GetIO().KeyCtrl)
                     {
-                        ImGui::GetWindowDrawList()->AddRectFilled(lRegionOrigin, lRegionEnd, lIsSelected ? lActiveColor : lHoveredColor);
+                        aScene.mSelectedItems.clear();
+                        aScene.mSelectedItems.push_back(i);
                     }
-                    ImGui::GetCurrentWindow()->DC.CursorPos.y += 2.0f;
-                    ImGui::Text("%s", aScene.mStorkesArray[i].mName);
-                    ImGui::ItemAdd(ImRect(lRegionOrigin, lRegionEnd), ImGui::GetCurrentWindow()->GetID(1000 + i));
-                    if (ImGui::IsItemHovered() && ImGui::IsItemClicked())
+                    else
                     {
-                        if (!ImGui::GetIO().KeyCtrl)
+                        if (lIsSelected)
                         {
-                            aScene.mSelectedItems.clear();
-                            aScene.mSelectedItems.push_back(i);
+                            aScene.mSelectedItems.erase(lItemIt);
                         }
                         else
                         {
-                            if (lIsSelected)
-                            {
-                                aScene.mSelectedItems.erase(lItemIt);
-                            }
-                            else
-                            {
-                                aScene.mSelectedItems.push_back(i);
-                            }
+                            aScene.mSelectedItems.push_back(i);
                         }
                     }
                 }
-                /*for (int n = 0; n < close_queue.Size; n++)
-                    if (close_queue[n]->Dirty)
-                        ImGui::Text("%s", close_queue[n]->Name);*/
-                ImGui::EndChildFrame();
             }
-
-            if (ImGui::Button("Add New"))
-            {
-                uint32_t lCloneIndex = (aScene.mSelectedItems.size() == 1) ? aScene.mSelectedItems[0] : UINT32_MAX;
-                aScene.AddNewStroke(lCloneIndex);
-                aScene.mSelectedItems.clear();
-                aScene.mSelectedItems.push_back(int32_t(aScene.mStorkesArray.size() - 1));
-                lDirty = true;
-            }
-
-            ImGui::BeginDisabled(aScene.mSelectedItems.size() == 0 || aScene.mStorkesArray.size() <= 1);
-            ImGui::SameLine();
-            if (ImGui::Button("Move Up"))
-            {
-                std::sort(aScene.mSelectedItems.begin(), aScene.mSelectedItems.end());
-                for (int32_t i = 0; i < aScene.mSelectedItems.size(); i++)
-                {
-                    int32_t lSelectedIndex = aScene.mSelectedItems[i];
-                    if (lSelectedIndex > 0)
-                    {
-                        std::swap(aScene.mStorkesArray[lSelectedIndex], aScene.mStorkesArray[size_t(lSelectedIndex) - 1]);
-                        aScene.mSelectedItems[i] = lSelectedIndex - 1;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-                lDirty = true;
-            }
-            ImGui::SameLine();
-            if (ImGui::Button("Move Down"))
-            {
-                std::sort(aScene.mSelectedItems.begin(), aScene.mSelectedItems.end());
-                for (int32_t i = int32_t(aScene.mSelectedItems.size()) - 1; i >= 0; i--)
-                {
-                    int32_t lSelectedIndex = aScene.mSelectedItems[i];
-                    if (lSelectedIndex < aScene.mStorkesArray.size() - 1)
-                    {
-                        std::swap(aScene.mStorkesArray[lSelectedIndex], aScene.mStorkesArray[size_t(lSelectedIndex) + 1]);
-                        aScene.mSelectedItems[i] = lSelectedIndex + 1;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-                lDirty = true;
-            }
-            ImGui::EndDisabled();
-
-            if (gGUIState.ValidStrokeSelected(aScene))
-            {
-                int32_t lSelectedIndex = aScene.mSelectedItems[0];
-                TStrokeInfo& lStrokeInfo = aScene.mStorkesArray[lSelectedIndex];
-                ImGui::PushID(lSelectedIndex);
-
-                // NAME
-                lDirty |= ImGui::InputText("Name", lStrokeInfo.mName, TStrokeInfo::MAX_NAME_SIZE);
-
-                if (lStrokeInfo.mName[0] == 0)
-                {
-                    ::strcpy(lStrokeInfo.mName, "Unnamed");
-                }
-
-                // PRIMITIVE
-                static const char* lPrimitiveList = "Ellipsoid\0Box\0Torus\0Capsule\0";
-                lDirty |= ImGui::Combo("Primitive", &lStrokeInfo.id.x, lPrimitiveList);
-
-                // OPERATION
-                static const char* lStrokeOpList = "Add\0Subtract\0Intersect\0"; //Replace\0";
-                int32_t lOpIndex = lStrokeInfo.id.y & EStrokeOp::OpsMaskMode;
-                lDirty |= ImGui::Combo("Operation", &lOpIndex, lStrokeOpList);
-                lStrokeInfo.id.y &= ~EStrokeOp::OpsMaskMode;
-                lStrokeInfo.id.y |= lOpIndex;
-
-                // MIRROR
-                bool lMirrorX = bool(lStrokeInfo.id.y & EStrokeOp::OpMirrorX);
-                bool lMirrorY = bool(lStrokeInfo.id.y & EStrokeOp::OpMirrorY);
-                lDirty |= ImGui::Checkbox("Mirror X", &lMirrorX);
-                ImGui::SameLine();
-                lDirty |= ImGui::Checkbox("Mirror Y", &lMirrorY);
-                lStrokeInfo.id.y &= ~EStrokeOp::OpsMaskMirror;
-  
-                lStrokeInfo.id.y |= lMirrorX ? EStrokeOp::OpMirrorX : 0;
-                lStrokeInfo.id.y |= lMirrorY ? EStrokeOp::OpMirrorY : 0;
-
-                // PROPERTIES
-                //lDirty |= ImGui::DragInt4("shapeId", (int32_t*)&aScene.mStorkesArray[lSelectedIndex].id.x, 0.01f);
-
-
-                lDirty |= ImGui::DragFloat("Blend", (float*)&lStrokeInfo.posb.w, 0.01f, 0.0f, 1.0f);
-                lStrokeInfo.posb.w = glm::clamp(lStrokeInfo.posb.w, 0.0f, 1.0f);
-                if (lStrokeInfo.id.x == EPrimitive::PrBox)
-                {
-                    lDirty |= ImGui::DragFloat("Round", (float*)&lStrokeInfo.param0.w, 0.01f, 0.0f, 1.0f);
-                    lStrokeInfo.param0.w = glm::clamp(lStrokeInfo.param0.w, 0.0f, 1.0f);
-                }
-                
-                //lDirty |= ImGui::DragFloat4("param1", (float*)&lStrokeInfo.param1.x, 0.01f);
-
-                lDirty |= ImGui::DragFloat3("Position", (float*)&lStrokeInfo.posb.x, 0.01f);
-
-                if (ImGui::DragFloat3("Rotation", (float*)&lStrokeInfo.mEulerAngles.x, 0.01f))
-                {
-                    lStrokeInfo.UpdateRotation();
-                    lDirty = true;
-                }
-
-                lDirty |= ImGui::DragFloat3("Size", (float*)&lStrokeInfo.param0.x, 0.02f);
-
-                if ((ImGui::Button("Remove") || (!ImGui::GetIO().WantCaptureKeyboard && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Delete), false))) && aScene.mStorkesArray.size() > 0)
-                {
-                    aScene.mStorkesArray.erase(aScene.mStorkesArray.begin() + lSelectedIndex);
-                    aScene.mSelectedItems.clear();
-                    lDirty = true;
-                }
-                ImGui::Separator();
-                ImGui::PopID();
-            }
+            /*for (int n = 0; n < close_queue.Size; n++)
+                if (close_queue[n]->Dirty)
+                    ImGui::Text("%s", close_queue[n]->Name);*/
+            ImGui::EndChildFrame();
         }
 
-        ImGui::End();
+        if (ImGui::Button("Add New"))
+        {
+            uint32_t lCloneIndex = (aScene.mSelectedItems.size() == 1) ? aScene.mSelectedItems[0] : UINT32_MAX;
+            aScene.AddNewStroke(lCloneIndex);
+            aScene.mSelectedItems.clear();
+            aScene.mSelectedItems.push_back(int32_t(aScene.mStorkesArray.size() - 1));
+            lDirty = true;
+        }
+
+        ImGui::BeginDisabled(aScene.mSelectedItems.size() == 0 || aScene.mStorkesArray.size() <= 1);
+        ImGui::SameLine();
+        if (ImGui::Button("Move Up"))
+        {
+            std::sort(aScene.mSelectedItems.begin(), aScene.mSelectedItems.end());
+            for (int32_t i = 0; i < aScene.mSelectedItems.size(); i++)
+            {
+                int32_t lSelectedIndex = aScene.mSelectedItems[i];
+                if (lSelectedIndex > 0)
+                {
+                    std::swap(aScene.mStorkesArray[lSelectedIndex], aScene.mStorkesArray[size_t(lSelectedIndex) - 1]);
+                    aScene.mSelectedItems[i] = lSelectedIndex - 1;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            lDirty = true;
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Move Down"))
+        {
+            std::sort(aScene.mSelectedItems.begin(), aScene.mSelectedItems.end());
+            for (int32_t i = int32_t(aScene.mSelectedItems.size()) - 1; i >= 0; i--)
+            {
+                int32_t lSelectedIndex = aScene.mSelectedItems[i];
+                if (lSelectedIndex < aScene.mStorkesArray.size() - 1)
+                {
+                    std::swap(aScene.mStorkesArray[lSelectedIndex], aScene.mStorkesArray[size_t(lSelectedIndex) + 1]);
+                    aScene.mSelectedItems[i] = lSelectedIndex + 1;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            lDirty = true;
+        }
+        ImGui::EndDisabled();
+
+        if (gGUIState.ValidStrokeSelected(aScene))
+        {
+            int32_t lSelectedIndex = aScene.mSelectedItems[0];
+            TStrokeInfo& lStrokeInfo = aScene.mStorkesArray[lSelectedIndex];
+            ImGui::PushID(lSelectedIndex);
+
+            // NAME
+            lDirty |= ImGui::InputText("Name", lStrokeInfo.mName, TStrokeInfo::MAX_NAME_SIZE);
+
+            if (lStrokeInfo.mName[0] == 0)
+            {
+                ::strcpy(lStrokeInfo.mName, "Unnamed");
+            }
+
+            // PRIMITIVE
+            static const char* lPrimitiveList = "Ellipsoid\0Box\0Torus\0Capsule\0";
+            lDirty |= ImGui::Combo("Primitive", &lStrokeInfo.id.x, lPrimitiveList);
+
+            // OPERATION
+            static const char* lStrokeOpList = "Add\0Subtract\0Intersect\0"; //Replace\0";
+            int32_t lOpIndex = lStrokeInfo.id.y & EStrokeOp::OpsMaskMode;
+            lDirty |= ImGui::Combo("Operation", &lOpIndex, lStrokeOpList);
+            lStrokeInfo.id.y &= ~EStrokeOp::OpsMaskMode;
+            lStrokeInfo.id.y |= lOpIndex;
+
+            // MIRROR
+            bool lMirrorX = bool(lStrokeInfo.id.y & EStrokeOp::OpMirrorX);
+            bool lMirrorY = bool(lStrokeInfo.id.y & EStrokeOp::OpMirrorY);
+            lDirty |= ImGui::Checkbox("Mirror X", &lMirrorX);
+            ImGui::SameLine();
+            lDirty |= ImGui::Checkbox("Mirror Y", &lMirrorY);
+            lStrokeInfo.id.y &= ~EStrokeOp::OpsMaskMirror;
+  
+            lStrokeInfo.id.y |= lMirrorX ? EStrokeOp::OpMirrorX : 0;
+            lStrokeInfo.id.y |= lMirrorY ? EStrokeOp::OpMirrorY : 0;
+
+            // PROPERTIES
+            //lDirty |= ImGui::DragInt4("shapeId", (int32_t*)&aScene.mStorkesArray[lSelectedIndex].id.x, 0.01f);
+
+
+            lDirty |= ImGui::DragFloat("Blend", (float*)&lStrokeInfo.posb.w, 0.01f, 0.0f, 1.0f);
+            lStrokeInfo.posb.w = glm::clamp(lStrokeInfo.posb.w, 0.0f, 1.0f);
+            if (lStrokeInfo.id.x == EPrimitive::PrBox)
+            {
+                lDirty |= ImGui::DragFloat("Round", (float*)&lStrokeInfo.param0.w, 0.01f, 0.0f, 1.0f);
+                lStrokeInfo.param0.w = glm::clamp(lStrokeInfo.param0.w, 0.0f, 1.0f);
+            }
+                
+            //lDirty |= ImGui::DragFloat4("param1", (float*)&lStrokeInfo.param1.x, 0.01f);
+
+            lDirty |= ImGui::DragFloat3("Position", (float*)&lStrokeInfo.posb.x, 0.01f);
+
+            if (ImGui::DragFloat3("Rotation", (float*)&lStrokeInfo.mEulerAngles.x, 0.01f))
+            {
+                lStrokeInfo.UpdateRotation();
+                lDirty = true;
+            }
+
+            lDirty |= ImGui::DragFloat3("Size", (float*)&lStrokeInfo.param0.x, 0.02f);
+
+            if ((ImGui::Button("Remove") || (!ImGui::GetIO().WantCaptureKeyboard && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Delete), false))) && aScene.mStorkesArray.size() > 0)
+            {
+                aScene.mStorkesArray.erase(aScene.mStorkesArray.begin() + lSelectedIndex);
+                aScene.mSelectedItems.clear();
+                lDirty = true;
+            }
+            ImGui::Separator();
+            ImGui::PopID();
+        }
+
         if (lDirty)
         {
             gGUIState.mPanelEditing = true;
@@ -245,7 +267,30 @@ namespace GUI
         else if(gGUIState.mPanelEditing && !ImGui::IsMouseDown(ImGuiMouseButton_Left) && !ImGui::GetIO().WantCaptureKeyboard)
         {
             gGUIState.mPanelEditing = false;
-            aScene.mStack->PushState(EPushStateFlags::EPE_ALL);
+            aScene.mStack->PushState(EPushStateFlags::EPE_STROKES_ALL);
+        }
+    }
+
+    void DrawGlobalMaterialPanel(class CScene& aScene)
+    {
+        bool lDirty = false;
+
+        lDirty |= ImGui::ColorEdit3("Surface", &aScene.mGlobalMaterial.surfaceColor.x);
+        lDirty |= ImGui::ColorEdit3("Fresnel", &aScene.mGlobalMaterial.fresnelColor.x);
+        lDirty |= ImGui::ColorEdit3("AO", &aScene.mGlobalMaterial.aoColor.x);
+
+        ImGui::Separator();
+        lDirty |= ImGui::ColorEdit3("Background", &aScene.mGlobalMaterial.backgroundColor.x);
+
+        if (lDirty)
+        {
+            gGUIState.mMaterialEditing = true;
+            aScene.SetMaterialDirty();
+        }
+        else if (gGUIState.mMaterialEditing && !ImGui::IsMouseDown(ImGuiMouseButton_Left) && !ImGui::GetIO().WantCaptureKeyboard)
+        {
+            gGUIState.mMaterialEditing = false;
+            //aScene.mStack->PushState(EPushStateFlags::EPE_MATERIAL);
         }
     }
 
@@ -383,7 +428,7 @@ namespace GUI
             else if (gGUIState.mGuizmoEditing && !ImGui::IsMouseDown(ImGuiMouseButton_Left))
             {
                 gGUIState.mGuizmoEditing = false;
-                aScene.mStack->PushState(EPushStateFlags::EPE_ALL);
+                aScene.mStack->PushState(EPushStateFlags::EPE_STROKES_ALL);
             }
         }
 

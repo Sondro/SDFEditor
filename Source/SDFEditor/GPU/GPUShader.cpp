@@ -53,20 +53,36 @@ CGPUShaderProgram::~CGPUShaderProgram()
 }
 
 
-uint32_t CGPUShaderProgram::GetBlockIndex(const char* aBlockName) const
+uint32_t CGPUShaderProgram::GetStorageBlockIndex(const char* aBlockName) const
 {
     return glGetProgramResourceIndex(mShaderProgramHandler, GL_SHADER_STORAGE_BLOCK, aBlockName);
 }
 
+uint32_t CGPUShaderProgram::GetUniformBlockIndex(const char* aBlockName) const
+{
+    return glGetProgramResourceIndex(mShaderProgramHandler, GL_UNIFORM_BLOCK, aBlockName);
+}
+
 void CGPUShaderProgram::StorageBlockBinding(const char* aBlockName, uint32_t aBlockBinding) const
 {
-    uint32_t lBlockIndex = GetBlockIndex(aBlockName);
+    uint32_t lBlockIndex = GetStorageBlockIndex(aBlockName);
     StorageBlockBinding(lBlockIndex, aBlockBinding);
 }
 
 void CGPUShaderProgram::StorageBlockBinding(uint32_t aBlockIndex, uint32_t aBlockBinding) const
 {
     glShaderStorageBlockBinding(mShaderProgramHandler, aBlockIndex, aBlockBinding);
+}
+
+void CGPUShaderProgram::UniformBlockBinding(const char* aBlockName, uint32_t aBlockBinding) const
+{
+    uint32_t lBlockIndex = GetUniformBlockIndex(aBlockName);
+    UniformBlockBinding(lBlockIndex, aBlockBinding);
+}
+
+void CGPUShaderProgram::UniformBlockBinding(uint32_t aBlockIndex, uint32_t aBlockBinding) const
+{
+    glUniformBlockBinding(mShaderProgramHandler, aBlockIndex, aBlockBinding);
 }
 
 CGPUShaderPipeline::CGPUShaderPipeline(std::vector<CGPUShaderProgramRef> const& aPrograms)

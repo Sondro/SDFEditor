@@ -25,9 +25,13 @@ public:
     CGPUShaderProgram(CShaderCodeRefList const & aCode, EShaderSourceType aType, std::string const & aName);
     ~CGPUShaderProgram();
     uint32_t GetHandler() const { return mShaderProgramHandler; }
-    uint32_t GetBlockIndex(const char* aBlockName) const;
+    uint32_t GetStorageBlockIndex(const char* aBlockName) const;
+    uint32_t GetUniformBlockIndex(const char* aBlockName) const;
     void StorageBlockBinding(const char* aBlockName, uint32_t aBlockBinding) const;
     void StorageBlockBinding(uint32_t aBlockIndex, uint32_t aBlockBinding) const;
+    void UniformBlockBinding(const char* aBlockName, uint32_t aBlockBinding) const;
+    void UniformBlockBinding(uint32_t aBlockIndex, uint32_t aBlockBinding) const;
+
 private:
     
     uint32_t mShaderProgramHandler;

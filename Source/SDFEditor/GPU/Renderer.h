@@ -18,7 +18,7 @@ public:
     void UpdateSceneData(class CScene const& aScene);
     void RenderFrame();
 
-    CGPUShaderStorageObjectRef GetStrokesBufferRef() { return mStrokesBuffer; }
+    CGPUBufferObjectRef GetStrokesBufferRef() { return mStrokesBuffer; }
 
 private:
     // View data
@@ -38,7 +38,9 @@ private:
     CGPUTextureRef mSdfLut;
     CGPUTextureRef mSdfAtlas;
 
-    CGPUShaderStorageObjectRef mStrokesBuffer;
-    CGPUShaderStorageObjectRef mSlotListBuffer;
-    CGPUShaderStorageObjectRef mSlotCounterBuffer;
+    CGPUBufferObjectRef mStrokesBuffer;
+    CGPUBufferObjectRef mSlotListBuffer;
+    CGPUBufferObjectRef mSlotCounterBuffer;
+
+    CGPUBufferObjectRef mMaterialBuffer;
 };

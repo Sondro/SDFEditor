@@ -3,12 +3,15 @@
 #include "SceneStack.h"
 #include "Scene.h"
 
+#include <sbx/Core/Log.h>
+
 constexpr size_t kMaxStackElements = 20;
 
 TStoredSceneState::TStoredSceneState(TPushStateFlags aFlags)
     : mFlags(aFlags)
     , mStorkesArray(nullptr)
     , mSelectedItems(nullptr)
+    , mGlobalMaterial(nullptr)
 
 {
 }
@@ -26,13 +29,18 @@ TStoredSceneState::~TStoredSceneState()
         delete mSelectedItems;
         mSelectedItems = nullptr;
     }
+
+    if (mGlobalMaterial != nullptr)
+    {
+        delete mGlobalMaterial;
+        mGlobalMaterial = nullptr;
+    }
 }
 
 void CSceneStack::Reset()
 {
     mPopedStates.clear();
     mPushedStates.clear();
-    PushState(EPushStateFlags::EPE_ALL);
 }
 
 void CSceneStack::PushState(TPushStateFlags aFlags)
@@ -57,6 +65,12 @@ void CSceneStack::PushState(TPushStateFlags aFlags)
         {
             lState->mSelectedItems = new std::vector< uint32_t >(mScene.mSelectedItems);
         }
+
+        //Material change stack disabled for now
+        //if (aFlags & EPushStateFlags::EPE_MATERIAL)
+        //{
+        //    lState->mGlobalMaterial = new TGlobalMaterialBufferData(mScene.mGlobalMaterial);
+        //}
 
         mPushedStates.push_back(lState);
     }
@@ -95,9 +109,19 @@ bool CSceneStack::RestorePopedState()
 void CSceneStack::ApplySceneState(bool aPopedSelection)
 {
     //appply scene changes
-    if (mPushedStates.size() > 0 && mPushedStates.back()->mStorkesArray)
+    if (mPushedStates.size() > 0)
     {
-        mScene.mStorkesArray = *mPushedStates.back()->mStorkesArray;
+        if (mPushedStates.back()->mStorkesArray)
+        {
+            mScene.mStorkesArray = *mPushedStates.back()->mStorkesArray;
+            mScene.SetDirty();
+        }
+
+        if (mPushedStates.back()->mGlobalMaterial)
+        {
+            mScene.mGlobalMaterial = *mPushedStates.back()->mGlobalMaterial;
+            mScene.SetMaterialDirty();
+        }
     }
 
     if(aPopedSelection)

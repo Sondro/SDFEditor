@@ -8,7 +8,7 @@ namespace GUI
 {
     void ResetSelection(CScene& aScene);
 
-    void DrawStrokesPanel(CScene& aScene);
+    void DrawMainPanel(CScene& aScene);
     void DrawStrokesGuizmos(CScene& aScene);
 
     void RaycastSelectStroke(CScene& aScene);

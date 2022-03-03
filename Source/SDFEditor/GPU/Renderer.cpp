@@ -48,6 +48,7 @@ namespace EBlockBinding
         strokes_buffer = 0,
         slot_list_buffer = 1,
         slot_count_buffer = 2,
+        global_material = 3,
     };
 };
 
@@ -71,7 +72,7 @@ void CRenderer::Init()
     SBX_LOG("GL_MAX_COMPUTE_WORK_GROUP_COUNT: (%d, %d, %d)", workGroupCounts[0], workGroupCounts[1], workGroupCounts[2]);
 
     // Strokes buffer
-    mStrokesBuffer = std::make_shared<CGPUShaderStorageObject>(EGPUBufferBindTarget::SHADER_BUFFER_STORAGE);
+    mStrokesBuffer = std::make_shared<CGPUBufferObject>(EGPUBufferBindTarget::SHADER_BUFFER_STORAGE);
     mStrokesBuffer->SetData(16 * sizeof(stroke_t), nullptr, EGPUBufferFlags::DYNAMIC_STORAGE);
     mStrokesBuffer->BindShaderStorage(EBlockBinding::strokes_buffer);
 
@@ -106,7 +107,7 @@ void CRenderer::Init()
     mSdfAtlas = std::make_shared<CGPUTexture>(lSdfAtlasConfig);
 
     // Slot list buffer
-    mSlotListBuffer = std::make_shared<CGPUShaderStorageObject>(EGPUBufferBindTarget::SHADER_BUFFER_STORAGE);
+    mSlotListBuffer = std::make_shared<CGPUBufferObject>(EGPUBufferBindTarget::SHADER_BUFFER_STORAGE);
     size_t lListSize = size_t(lSdfLutConfig.mExtentX) * 
                        size_t(lSdfLutConfig.mExtentY) * 
                        size_t(lSdfLutConfig.mSlices) * 
@@ -115,9 +116,14 @@ void CRenderer::Init()
     mSlotListBuffer->BindShaderStorage(EBlockBinding::slot_list_buffer);
 
     // Atomic Counter buffer
-    mSlotCounterBuffer = std::make_shared<CGPUShaderStorageObject>(EGPUBufferBindTarget::SHADER_BUFFER_STORAGE);
+    mSlotCounterBuffer = std::make_shared<CGPUBufferObject>(EGPUBufferBindTarget::SHADER_BUFFER_STORAGE);
     mSlotCounterBuffer->SetData(sizeof(uint32_t) * 3, nullptr, EGPUBufferFlags::DYNAMIC_STORAGE);
     mSlotCounterBuffer->BindShaderStorage(EBlockBinding::slot_count_buffer);
+
+    // Material Buffer
+    mMaterialBuffer = std::make_shared<CGPUBufferObject>(EGPUBufferBindTarget::UNIFORM_BUFFER);
+    mMaterialBuffer->SetData(sizeof(TGlobalMaterialBufferData), nullptr, EGPUBufferFlags::DYNAMIC_STORAGE);
+    mMaterialBuffer->BindUniformBuffer(EBlockBinding::global_material);
 }
 
 void CRenderer::Shutdown()
@@ -185,7 +191,7 @@ void CRenderer::UpdateSceneData(CScene const& aScene)
 
         if (lSizeBytes > mStrokesBuffer->GetStorageSize())
         {
-            mStrokesBuffer = std::make_shared<CGPUShaderStorageObject>(EGPUBufferBindTarget::SHADER_BUFFER_STORAGE);
+            mStrokesBuffer = std::make_shared<CGPUBufferObject>(EGPUBufferBindTarget::SHADER_BUFFER_STORAGE);
             mStrokesBuffer->SetData(lSizeBytes + (16 * sizeof(stroke_t)), nullptr, EGPUBufferFlags::DYNAMIC_STORAGE);
             mStrokesBuffer->BindShaderStorage(EBlockBinding::strokes_buffer);
         }
@@ -226,6 +232,11 @@ void CRenderer::UpdateSceneData(CScene const& aScene)
         mSdfAtlas->BindImage(0, 0, EImgAccess::WRITE_ONLY);
         glDispatchComputeIndirect(0);
         mSlotCounterBuffer->UnbindTarget(EGPUBufferBindTarget::DISPATCH_INDIRECT_BUFFER);
+    }
+
+    if (aScene.IsMaterialDirty())
+    {
+        mMaterialBuffer->UpdateSubData(0, sizeof(TGlobalMaterialBufferData), (void*)&aScene.mGlobalMaterial);
     }
 
     //Update Matrix

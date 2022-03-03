@@ -98,3 +98,11 @@ struct TStrokeInfo : public stroke_t
 
     char mName[MAX_NAME_SIZE];
 };
+
+struct TGlobalMaterialBufferData
+{
+    glm::vec4 surfaceColor{ 0.18, 0.032, 0.00, 1.0f };
+    glm::vec4 fresnelColor{ 0.30f, 0.090f, 0.050f, 1.0f };
+    glm::vec4 aoColor{ 0.07f, 0.016f, 0.018f, 1.0f };
+    glm::vec4 backgroundColor{ 0.07f, 0.08f, 0.19f , 1.0f };
+};

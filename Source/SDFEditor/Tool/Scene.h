@@ -14,6 +14,8 @@
 
 #include <SDFEditor/Tool/Camera.h>
 
+
+
 class CScene
 {
 public:
@@ -29,12 +31,17 @@ public:
     void SetDirty();
     void CleanDirtyFlag() { mDirty = false; }
 
+    bool IsMaterialDirty() const { return mMaterialDirty; }
+    void SetMaterialDirty();
+    void CleanMaterialDirtyFlag() { mMaterialDirty = false; }
+
     uint32_t AddNewStroke(uint32_t aBaseStrokeIndex = UINT32_MAX);
 
     // Scene data
     std::vector< TStrokeInfo > mStorkesArray;
     std::vector<uint32_t> mSelectedItems;
     CCamera mCamera;
+    TGlobalMaterialBufferData mGlobalMaterial;
 
     // Components
     std::unique_ptr<CSceneStack> mStack;
@@ -48,6 +55,7 @@ public:
     bool    mAtlasNearestFilter{ false };
 private:
     bool mDirty;
+    bool mMaterialDirty;
     uint32_t mNextStrokeId;
 };
 

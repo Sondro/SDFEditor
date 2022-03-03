@@ -15,9 +15,11 @@ namespace EPushStateFlags
 {
     enum Type
     {
-        EPE_STROKES = 1 << 0,
-        EPE_SELECTION = 1 << 1,
-        EPE_ALL = EPE_STROKES | EPE_SELECTION,
+        EPE_STROKES     = 1 << 0,
+        EPE_SELECTION   = 1 << 1,
+        EPE_MATERIAL    = 1 << 2,
+        EPE_STROKES_ALL = EPE_STROKES | EPE_SELECTION,
+        EPE_ALL = EPE_STROKES | EPE_SELECTION | EPE_MATERIAL,
     };
 };
 
@@ -28,6 +30,7 @@ struct TStoredSceneState
     TPushStateFlags             mFlags;
     std::vector< TStrokeInfo >* mStorkesArray;
     std::vector< uint32_t >*    mSelectedItems;
+    TGlobalMaterialBufferData*  mGlobalMaterial;
 
     TStoredSceneState(TPushStateFlags aFlags);
     ~TStoredSceneState();

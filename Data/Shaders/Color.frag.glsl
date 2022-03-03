@@ -7,6 +7,14 @@ layout(location = 2) in vec4 inFar;
 
 layout(location = 0) out vec4 outColor;
 
+layout(std140, binding = 3) uniform global_material
+{
+    vec4 surfaceColor;
+    vec4 fresnelColor;
+    vec4 aoColor;
+    vec4 backgroundColor;
+};
+
 struct ray_t
 {
     vec3 pos;
@@ -105,13 +113,17 @@ vec3 ApplyMaterial(vec3 pos, vec3 rayDir, vec3 normal, float ao)
     float dotCam = 1.0 - abs(dot(rayDir, normal));
     dotCam = pow(dotCam, 2.0);
 
-    vec3 color = vec3(0.5 + 0.5 * normal);// *dotSN* mix(0.5, 1.0, ao);
+    //vec3 color = vec3(0.5 + 0.5 * normal);// *dotSN* mix(0.5, 1.0, ao);
   //  color = mix(color, vec3(0.5), dotCam);
     
     //vec3 color = vec3(0); 
-    color = mix(vec3(0.18, 0.032, 0.00), vec3(0.30, 0.090, 0.050), dotCam);
-    color = mix(vec3(0.07, 0.016, 0.018), color, ao) * dotSN;// *dotSN;
+    //color = mix(vec3(0.18, 0.032, 0.00), vec3(0.30, 0.090, 0.050), dotCam);
+    //color = mix(vec3(0.07, 0.016, 0.018), color, ao) * dotSN;// *dotSN;
     
+    vec3 color = vec3(0);
+    color = mix(surfaceColor.rgb, fresnelColor.rgb, dotCam);
+    color = mix(aoColor.rgb, color, ao) * dotSN;
+
     return color;
 }
 
@@ -123,7 +135,7 @@ vec3 RaymarchStrokes(in ray_t camRay)
     int maxIters = 70;
     float limit = 0.02f;
 
-    vec3 color = vec3(0.07, 0.08, 0.19) * 0.8;
+    vec3 color = backgroundColor.rgb;
 
     for (iters = 0; iters < maxIters && finalDist > limit; iters++)
     {
@@ -152,7 +164,7 @@ vec3 RaymarchAtlas(in ray_t camRay)
     //float limit = sqrt(pow(uVoxelSide.x * 0.5, 2.0) * 2.0f);
     float limit = uVoxelSide.x * 1.0;
     float limitSubVoxel = 0.02;
-    vec3 color = vec3(0.07, 0.08, 0.19) * 0.8;
+    vec3 color = backgroundColor.rgb;
 
     vec3 testNormal = vec3(0, 0, 0);
     vec2 testDistance = vec2(0, 0);

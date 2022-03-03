@@ -15,6 +15,7 @@ CScene::CScene()
     , mClipboard(std::make_unique<CSceneClipboard>(*this))
     , mDocument(std::make_unique<CSceneDocument>(*this))
     , mDirty(true)
+    , mMaterialDirty(true)
     , mNextStrokeId(0)
 {
     Reset(true);
@@ -29,12 +30,19 @@ void CScene::Reset(bool aAddDefault)
     mNextStrokeId = 0;
     mStorkesArray.clear();
     mSelectedItems.clear();
+    mStack->Reset();
+    mGlobalMaterial = TGlobalMaterialBufferData();
+    
     if (aAddDefault)
     {
         AddNewStroke();
+        
     }
-    mStack->Reset();
+   
+    mStack->PushState(EPushStateFlags::EPE_ALL);
+
     SetDirty();
+    SetMaterialDirty();
     mDocument->SetFilePath("");
     mDocument->SetPendingChanges(false, true);
 }
@@ -43,6 +51,12 @@ void CScene::SetDirty()
 {
     mDirty = true; 
     mDocument->SetPendingChanges(true, false); 
+}
+
+void CScene::SetMaterialDirty()
+{
+    mMaterialDirty = true;
+    mDocument->SetPendingChanges(true, false);
 }
 
 uint32_t CScene::AddNewStroke(uint32_t aBaseStrokeIndex)

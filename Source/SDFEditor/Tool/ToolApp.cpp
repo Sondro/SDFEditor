@@ -13,7 +13,7 @@
 
 CToolApp::CToolApp()
 {
-    mScene.Reset(true);
+
 }
 
 CToolApp::~CToolApp()
@@ -51,7 +51,7 @@ void CToolApp::Update()
     GUI::DrawDocOptionsBar(*this);
 
     // TODO: Update scene with ui
-    GUI::DrawStrokesPanel(mScene);
+    GUI::DrawMainPanel(mScene);
     GUI::DrawStrokesGuizmos(mScene);
 
 
@@ -74,6 +74,7 @@ void CToolApp::Update()
     mRenderer.UpdateSceneData(mScene);
 
     mScene.CleanDirtyFlag();
+    mScene.CleanMaterialDirtyFlag();
 }
 
 void CToolApp::Render()
@@ -204,20 +205,14 @@ bool CToolApp::HandleShortcuts()
     // Ctrl + Z Undo (no Shift)
     if (io.KeyCtrl && !io.KeyShift && ImGui::IsKeyPressed('Z', false))
     {
-        if (mScene.mStack->PopState())
-        {
-            mScene.SetDirty();
-        }
+        mScene.mStack->PopState();
         return true;
     }
 
     // Ctrl + Shift + Z Redo
     if (io.KeyCtrl && io.KeyShift && ImGui::IsKeyPressed('Z', false))
     {
-        if (mScene.mStack->RestorePopedState())
-        {
-            mScene.SetDirty();
-        }
+        mScene.mStack->RestorePopedState();
         return true;
     }
 
@@ -233,7 +228,7 @@ bool CToolApp::HandleShortcuts()
     {
         if (mScene.mClipboard->AddCopiedItems())
         {
-            mScene.mStack->PushState(EPushStateFlags::EPE_ALL);
+            mScene.mStack->PushState(EPushStateFlags::EPE_STROKES_ALL);
             mScene.SetDirty();
         }
         return true;
