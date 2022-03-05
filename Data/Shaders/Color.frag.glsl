@@ -108,7 +108,7 @@ vec3 ApplyMaterial(vec3 pos, vec3 rayDir, vec3 normal, float ao)
 
     float dotSN = dot(normal, lightDir);
     dotSN = (dotSN + 1.0) * 0.5;
-    dotSN = mix(0.4, 1.0, dotSN);
+    dotSN = mix(0.2, 1.0, dotSN);
 
     float dotCam = 1.0 - abs(dot(rayDir, normal));
     dotCam = pow(dotCam, 2.0);
