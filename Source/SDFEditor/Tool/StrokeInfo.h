@@ -105,4 +105,9 @@ struct TGlobalMaterialBufferData
     glm::vec4 fresnelColor{ 0.30f, 0.090f, 0.050f, 1.0f };
     glm::vec4 aoColor{ 0.07f, 0.016f, 0.018f, 1.0f };
     glm::vec4 backgroundColor{ 0.07f, 0.08f, 0.19f , 1.0f };
+
+    glm::vec4 lightAColor{ 1.0f, 0.6f, 0.4f, 1.0f };
+    glm::vec4 lightBColor{ 0.4f, 0.6f, 1.0f, 1.0f };
+
+    glm::vec4 pbr{0.6f, 0.0f, 2.0f, 0.0f}; // roughness.x, metalness.y, fresnelAngle.z
 };

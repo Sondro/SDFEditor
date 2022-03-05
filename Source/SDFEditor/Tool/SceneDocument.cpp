@@ -149,6 +149,21 @@ void CSceneDocument::Save()
                                                                 mScene.mGlobalMaterial.backgroundColor.z,
                                                                 mScene.mGlobalMaterial.backgroundColor.w });
 
+        lDocMaterial["mat_pbr"] = ordered_json::array({ mScene.mGlobalMaterial.pbr.x,
+                                                        mScene.mGlobalMaterial.pbr.y,
+                                                        mScene.mGlobalMaterial.pbr.z,
+                                                        mScene.mGlobalMaterial.pbr.w });
+
+        lDocMaterial["mat_light_a"] = ordered_json::array({ mScene.mGlobalMaterial.lightAColor.x,
+                                                            mScene.mGlobalMaterial.lightAColor.y,
+                                                            mScene.mGlobalMaterial.lightAColor.z,
+                                                            mScene.mGlobalMaterial.lightAColor.w });
+
+        lDocMaterial["mat_light_b"] = ordered_json::array({ mScene.mGlobalMaterial.lightBColor.x,
+                                                            mScene.mGlobalMaterial.lightBColor.y,
+                                                            mScene.mGlobalMaterial.lightBColor.z,
+                                                            mScene.mGlobalMaterial.lightBColor.w });
+
         //save json
         std::ofstream lOutputFile(mFilePath);
         lOutputFile << std::setw(4) << lDoc << std::endl;
@@ -224,6 +239,9 @@ void CSceneDocument::Load()
         JSON_MAT_CHECK(lMatJson, "mat_fresnel", ::memcpy(&lMat.fresnelColor, lMatJson["mat_fresnel"].get<std::array<float, 4>>().data(), sizeof(float) * 4));
         JSON_MAT_CHECK(lMatJson, "mat_ao",      ::memcpy(&lMat.aoColor, lMatJson["mat_ao"].get<std::array<float, 4>>().data(), sizeof(float) * 4));
         JSON_MAT_CHECK(lMatJson, "mat_background", ::memcpy(&lMat.backgroundColor, lMatJson["mat_background"].get<std::array<float, 4>>().data(), sizeof(float) * 4));
+        JSON_MAT_CHECK(lMatJson, "mat_pbr", ::memcpy(&lMat.pbr, lMatJson["mat_pbr"].get<std::array<float, 4>>().data(), sizeof(float) * 4));
+        JSON_MAT_CHECK(lMatJson, "mat_light_a", ::memcpy(&lMat.lightAColor, lMatJson["mat_light_a"].get<std::array<float, 4>>().data(), sizeof(float) * 4));
+        JSON_MAT_CHECK(lMatJson, "mat_light_b", ::memcpy(&lMat.lightBColor, lMatJson["mat_light_b"].get<std::array<float, 4>>().data(), sizeof(float) * 4));
     }
     else
     {

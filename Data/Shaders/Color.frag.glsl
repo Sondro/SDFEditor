@@ -13,6 +13,11 @@ layout(std140, binding = 3) uniform global_material
     vec4 fresnelColor;
     vec4 aoColor;
     vec4 backgroundColor;
+
+    vec4 lightAColor;
+    vec4 lightBColor;
+
+    vec4 pbr; // roughness.x, metalness.y
 };
 
 struct ray_t
@@ -102,16 +107,69 @@ float CalcAOAtlas(in vec3 pos, in vec3 nor)
     return clamp(1.0 - 1.6 * occ, 0.0, 1.0);
 }
 
+// Blend between dielectric and metallic materials.
+// Note: The range of semiconductors is approx. [0.2, 0.45]
+vec3 BlendMaterial(vec3 Kdiff, vec3 Kspec, vec3 Kbase, float metallic)
+{
+    //float scRange = clamp(0.2, 0.45, metallic);
+    float scRange = metallic;
+    vec3  dielectric = Kdiff + Kspec;
+    vec3  metal = Kspec * Kbase;
+    return mix(dielectric, metal, scRange);
+}
+
+//mostly from: http://blog.selfshadow.com/publications/s2013-shading-course/karis/s2013_pbs_epic_notes_v2.pdf
+//from https://www.shadertoy.com/view/ltjBzK
+vec3 ApplyLight(in vec3 pos, in vec3 rd, in vec3 n, in vec3 alb, vec3 lgt, vec3 lcol, float rough, float metallic)
+{
+    //const float rough = 0.3;
+    float nl = dot(n, lgt);
+    nl = (nl + 0.3) / 1.3;
+    float nv = dot(n, -rd);
+    vec3 col = vec3(0.);
+    //float ao = calcAO(pos, n);
+    vec3 f0 = vec3(0.1);
+    if (nl > 0.)
+    {
+        vec3 haf = normalize(lgt - rd);
+        float nh = clamp(dot(n, haf), 0., 1.);
+        float nv = clamp(dot(n, -rd), 0., 1.);
+        float lh = clamp(dot(lgt, haf), 0., 1.);
+        float a = rough * rough;
+        float a2 = a * a;
+        float dnm = nh * nh * (a2 - 1.) + 1.;
+        float D = a2 / (3.14159 * dnm * dnm);
+        float k = pow(rough + 1., 2.) / 8.; //hotness reducing
+        float G = (1. / (nl * (1. - k) + k)) * (1. / (nv * (1. - k) + k));
+        vec3 F = f0 + (1. - f0) * exp2((-5.55473 * lh - 6.98316) * lh);
+        vec3 spec = nl * D * F * G;
+        col.rgb = lcol * nl * (spec + alb * (1. - f0));
+        //col.rgb = alb * ((metallic > 0.001) ? max(0.5, rough) : 0.0);
+        //col.rgb += BlendMaterial(lcol*nl*alb*(1. - f0), lcol*nl*spec, alb, metallic);
+    }
+    //col *= shadow(pos, lgt, 0.1,2.)*0.8+0.2;
+
+#if 1
+    float bnc = clamp(dot(n, normalize(vec3(-lgt.x, 5.0, -lgt.z))) * .5 + 0.28, 0., 1.);
+    col.rgb += lcol * alb * bnc * 0.1;
+#endif
+
+    //col += 0.05*alb;
+    //col *= ao;
+    return col;
+}
+
 vec3 ApplyMaterial(vec3 pos, vec3 rayDir, vec3 normal, float ao)
 {
     vec3 lightDir = normalize(vec3(1.0, 1.0, 0.0));
+    vec3 lightDir2 = normalize(vec3(-1.0, -1.0, 0.0));
 
-    float dotSN = dot(normal, lightDir);
-    dotSN = (dotSN + 1.0) * 0.5;
-    dotSN = mix(0.2, 1.0, dotSN);
+    //float dotSN = dot(normal, lightDir);
+    //dotSN = (dotSN + 1.0) * 0.5;
+    //dotSN = mix(0.2, 1.0, dotSN);
 
     float dotCam = 1.0 - abs(dot(rayDir, normal));
-    dotCam = pow(dotCam, 2.0);
+    dotCam = pow(dotCam, pbr.z);
 
     //vec3 color = vec3(0.5 + 0.5 * normal);// *dotSN* mix(0.5, 1.0, ao);
   //  color = mix(color, vec3(0.5), dotCam);
@@ -121,8 +179,14 @@ vec3 ApplyMaterial(vec3 pos, vec3 rayDir, vec3 normal, float ao)
     //color = mix(vec3(0.07, 0.016, 0.018), color, ao) * dotSN;// *dotSN;
     
     vec3 color = vec3(0);
-    color = mix(surfaceColor.rgb, fresnelColor.rgb, dotCam);
-    color = mix(aoColor.rgb, color, ao) * dotSN;
+    //color = mix(surfaceColor.rgb, fresnelColor.rgb, dotCam);
+   // color = mix(aoColor.rgb, color, ao) * dotSN;
+    
+    
+    color += ApplyLight(pos, rayDir, normal, surfaceColor.rgb, lightDir, lightAColor.rgb, pbr.x, pbr.y);
+    color += ApplyLight(pos, rayDir, normal, surfaceColor.rgb, lightDir2, lightBColor.rgb, pbr.x, pbr.y);
+    color = mix(color, fresnelColor.rgb, dotCam);
+    color = mix(aoColor.rgb, color, ao);
 
     return color;
 }

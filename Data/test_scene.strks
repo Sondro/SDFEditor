@@ -22,7 +22,9 @@
             "blend": 0.0,
             "round": 0.019999999552965164,
             "primitive_id": "box",
-            "operation": "add"
+            "operation": "add",
+            "mirror_x": false,
+            "mirror_y": false
         },
         {
             "type": "stroke",
@@ -45,7 +47,9 @@
             "blend": 0.38999998569488525,
             "round": 0.0,
             "primitive_id": "box",
-            "operation": "add"
+            "operation": "add",
+            "mirror_x": false,
+            "mirror_y": false
         },
         {
             "type": "stroke",
@@ -68,7 +72,9 @@
             "blend": 0.2800000011920929,
             "round": 0.0,
             "primitive_id": "box",
-            "operation": "add"
+            "operation": "add",
+            "mirror_x": false,
+            "mirror_y": false
         },
         {
             "type": "stroke",
@@ -91,7 +97,9 @@
             "blend": 0.3199999928474426,
             "round": 0.0,
             "primitive_id": "box",
-            "operation": "add"
+            "operation": "add",
+            "mirror_x": false,
+            "mirror_y": false
         },
         {
             "type": "stroke",
@@ -114,7 +122,9 @@
             "blend": 0.23999999463558197,
             "round": 0.0,
             "primitive_id": "capsule",
-            "operation": "subtract"
+            "operation": "subtract",
+            "mirror_x": false,
+            "mirror_y": false
         },
         {
             "type": "stroke",
@@ -137,7 +147,9 @@
             "blend": 0.23999999463558197,
             "round": 0.0,
             "primitive_id": "capsule",
-            "operation": "subtract"
+            "operation": "subtract",
+            "mirror_x": false,
+            "mirror_y": false
         },
         {
             "type": "stroke",
@@ -160,7 +172,9 @@
             "blend": 0.019999999552965164,
             "round": 0.0,
             "primitive_id": "torus",
-            "operation": "add"
+            "operation": "add",
+            "mirror_x": false,
+            "mirror_y": false
         },
         {
             "type": "stroke",
@@ -183,7 +197,9 @@
             "blend": 0.0,
             "round": 0.0,
             "primitive_id": "box",
-            "operation": "add"
+            "operation": "add",
+            "mirror_x": false,
+            "mirror_y": false
         },
         {
             "type": "stroke",
@@ -206,7 +222,9 @@
             "blend": 0.0,
             "round": 0.0,
             "primitive_id": "ellipsoid",
-            "operation": "add"
+            "operation": "add",
+            "mirror_x": false,
+            "mirror_y": false
         },
         {
             "type": "stroke",
@@ -229,7 +247,9 @@
             "blend": 0.0,
             "round": 0.0,
             "primitive_id": "ellipsoid",
-            "operation": "add"
+            "operation": "add",
+            "mirror_x": false,
+            "mirror_y": false
         },
         {
             "type": "stroke",
@@ -252,7 +272,9 @@
             "blend": 0.019999999552965164,
             "round": 0.0,
             "primitive_id": "torus",
-            "operation": "add"
+            "operation": "add",
+            "mirror_x": false,
+            "mirror_y": false
         },
         {
             "type": "stroke",
@@ -275,7 +297,9 @@
             "blend": 0.019999999552965164,
             "round": 0.0,
             "primitive_id": "torus",
-            "operation": "add"
+            "operation": "add",
+            "mirror_x": false,
+            "mirror_y": false
         },
         {
             "type": "stroke",
@@ -298,7 +322,9 @@
             "blend": 0.019999999552965164,
             "round": 0.0,
             "primitive_id": "torus",
-            "operation": "add"
+            "operation": "add",
+            "mirror_x": false,
+            "mirror_y": false
         },
         {
             "type": "stroke",
@@ -321,7 +347,9 @@
             "blend": 0.019999999552965164,
             "round": 0.0,
             "primitive_id": "torus",
-            "operation": "add"
+            "operation": "add",
+            "mirror_x": false,
+            "mirror_y": false
         },
         {
             "type": "stroke",
@@ -344,7 +372,9 @@
             "blend": 0.019999999552965164,
             "round": 0.0,
             "primitive_id": "torus",
-            "operation": "add"
+            "operation": "add",
+            "mirror_x": false,
+            "mirror_y": false
         },
         {
             "type": "stroke",
@@ -367,7 +397,9 @@
             "blend": 0.019999999552965164,
             "round": 0.0,
             "primitive_id": "torus",
-            "operation": "add"
+            "operation": "add",
+            "mirror_x": false,
+            "mirror_y": false
         },
         {
             "type": "stroke",
@@ -390,7 +422,9 @@
             "blend": 0.019999999552965164,
             "round": 0.0,
             "primitive_id": "torus",
-            "operation": "add"
+            "operation": "add",
+            "mirror_x": false,
+            "mirror_y": false
         },
         {
             "type": "stroke",
@@ -413,7 +447,9 @@
             "blend": 0.019999999552965164,
             "round": 0.0,
             "primitive_id": "torus",
-            "operation": "add"
+            "operation": "add",
+            "mirror_x": false,
+            "mirror_y": false
         },
         {
             "type": "stroke",
@@ -436,7 +472,9 @@
             "blend": 0.019999999552965164,
             "round": 0.0,
             "primitive_id": "torus",
-            "operation": "add"
+            "operation": "add",
+            "mirror_x": false,
+            "mirror_y": false
         },
         {
             "type": "stroke",
@@ -459,7 +497,9 @@
             "blend": 0.019999999552965164,
             "round": 0.0,
             "primitive_id": "torus",
-            "operation": "add"
+            "operation": "add",
+            "mirror_x": false,
+            "mirror_y": false
         },
         {
             "type": "stroke",
@@ -482,7 +522,9 @@
             "blend": 0.019999999552965164,
             "round": 0.0,
             "primitive_id": "torus",
-            "operation": "add"
+            "operation": "add",
+            "mirror_x": false,
+            "mirror_y": false
         },
         {
             "type": "stroke",
@@ -505,7 +547,9 @@
             "blend": 0.019999999552965164,
             "round": 0.0,
             "primitive_id": "torus",
-            "operation": "add"
+            "operation": "add",
+            "mirror_x": false,
+            "mirror_y": false
         },
         {
             "type": "stroke",
@@ -528,7 +572,9 @@
             "blend": 0.0,
             "round": 0.0,
             "primitive_id": "ellipsoid",
-            "operation": "add"
+            "operation": "add",
+            "mirror_x": false,
+            "mirror_y": false
         },
         {
             "type": "stroke",
@@ -551,7 +597,9 @@
             "blend": 0.0,
             "round": 0.0,
             "primitive_id": "ellipsoid",
-            "operation": "add"
+            "operation": "add",
+            "mirror_x": false,
+            "mirror_y": false
         },
         {
             "type": "stroke",
@@ -574,7 +622,9 @@
             "blend": 0.0,
             "round": 0.0,
             "primitive_id": "ellipsoid",
-            "operation": "add"
+            "operation": "add",
+            "mirror_x": false,
+            "mirror_y": false
         },
         {
             "type": "stroke",
@@ -597,7 +647,9 @@
             "blend": 0.0,
             "round": 0.0,
             "primitive_id": "ellipsoid",
-            "operation": "add"
+            "operation": "add",
+            "mirror_x": false,
+            "mirror_y": false
         },
         {
             "type": "stroke",
@@ -620,7 +672,9 @@
             "blend": 0.0,
             "round": 0.019999999552965164,
             "primitive_id": "ellipsoid",
-            "operation": "add"
+            "operation": "add",
+            "mirror_x": false,
+            "mirror_y": false
         },
         {
             "type": "stroke",
@@ -643,7 +697,9 @@
             "blend": 0.019999999552965164,
             "round": 0.0,
             "primitive_id": "torus",
-            "operation": "add"
+            "operation": "add",
+            "mirror_x": false,
+            "mirror_y": false
         },
         {
             "type": "stroke",
@@ -666,7 +722,9 @@
             "blend": 0.019999999552965164,
             "round": 0.019999999552965164,
             "primitive_id": "torus",
-            "operation": "add"
+            "operation": "add",
+            "mirror_x": false,
+            "mirror_y": false
         },
         {
             "type": "stroke",
@@ -689,7 +747,9 @@
             "blend": 0.05999999865889549,
             "round": 0.0,
             "primitive_id": "ellipsoid",
-            "operation": "subtract"
+            "operation": "subtract",
+            "mirror_x": false,
+            "mirror_y": false
         },
         {
             "type": "stroke",
@@ -712,7 +772,9 @@
             "blend": 0.05999999865889549,
             "round": 0.0,
             "primitive_id": "ellipsoid",
-            "operation": "subtract"
+            "operation": "subtract",
+            "mirror_x": false,
+            "mirror_y": false
         },
         {
             "type": "stroke",
@@ -735,7 +797,9 @@
             "blend": 0.05999999865889549,
             "round": 0.0,
             "primitive_id": "ellipsoid",
-            "operation": "subtract"
+            "operation": "subtract",
+            "mirror_x": false,
+            "mirror_y": false
         },
         {
             "type": "stroke",
@@ -758,7 +822,9 @@
             "blend": 0.10000000149011612,
             "round": 0.019999999552965164,
             "primitive_id": "box",
-            "operation": "subtract"
+            "operation": "subtract",
+            "mirror_x": false,
+            "mirror_y": false
         },
         {
             "type": "stroke",
@@ -781,7 +847,9 @@
             "blend": 0.10000000149011612,
             "round": 0.0,
             "primitive_id": "box",
-            "operation": "subtract"
+            "operation": "subtract",
+            "mirror_x": false,
+            "mirror_y": false
         },
         {
             "type": "stroke",
@@ -804,7 +872,9 @@
             "blend": 0.07000000029802322,
             "round": 0.0,
             "primitive_id": "torus",
-            "operation": "subtract"
+            "operation": "subtract",
+            "mirror_x": false,
+            "mirror_y": false
         },
         {
             "type": "stroke",
@@ -827,7 +897,9 @@
             "blend": 0.18000000715255737,
             "round": 0.0,
             "primitive_id": "ellipsoid",
-            "operation": "subtract"
+            "operation": "subtract",
+            "mirror_x": false,
+            "mirror_y": false
         },
         {
             "type": "stroke",
@@ -850,7 +922,9 @@
             "blend": 0.07999999821186066,
             "round": 0.0,
             "primitive_id": "ellipsoid",
-            "operation": "subtract"
+            "operation": "subtract",
+            "mirror_x": false,
+            "mirror_y": false
         },
         {
             "type": "stroke",
@@ -873,7 +947,9 @@
             "blend": 0.07000000029802322,
             "round": 0.0,
             "primitive_id": "torus",
-            "operation": "subtract"
+            "operation": "subtract",
+            "mirror_x": false,
+            "mirror_y": false
         },
         {
             "type": "stroke",
@@ -896,7 +972,9 @@
             "blend": 0.3400000035762787,
             "round": 0.0,
             "primitive_id": "box",
-            "operation": "add"
+            "operation": "add",
+            "mirror_x": false,
+            "mirror_y": false
         },
         {
             "type": "stroke",
@@ -919,7 +997,9 @@
             "blend": 0.11999999731779099,
             "round": 0.0,
             "primitive_id": "box",
-            "operation": "subtract"
+            "operation": "subtract",
+            "mirror_x": false,
+            "mirror_y": false
         },
         {
             "type": "stroke",
@@ -942,7 +1022,9 @@
             "blend": 0.2199999988079071,
             "round": 0.0,
             "primitive_id": "box",
-            "operation": "subtract"
+            "operation": "subtract",
+            "mirror_x": false,
+            "mirror_y": false
         },
         {
             "type": "stroke",
@@ -965,7 +1047,53 @@
             "blend": 0.0,
             "round": 0.019999999552965164,
             "primitive_id": "capsule",
-            "operation": "add"
+            "operation": "add",
+            "mirror_x": false,
+            "mirror_y": false
         }
-    ]
+    ],
+    "material": {
+        "mat_surface": [
+            0.18000000715255737,
+            0.0,
+            0.0,
+            1.0
+        ],
+        "mat_fresnel": [
+            0.11743772029876709,
+            0.08057648688554764,
+            0.07355529814958572,
+            1.0
+        ],
+        "mat_ao": [
+            0.028469741344451904,
+            0.024555200710892677,
+            0.014184212312102318,
+            1.0
+        ],
+        "mat_background": [
+            0.024911046028137207,
+            0.024911046028137207,
+            0.024911046028137207,
+            1.0
+        ],
+        "mat_pbr": [
+            0.3400000035762787,
+            0.0,
+            1.7400000095367432,
+            0.0
+        ],
+        "mat_light_a": [
+            0.11929941177368164,
+            0.30069684982299805,
+            0.5587188601493835,
+            1.0
+        ],
+        "mat_light_b": [
+            1.0,
+            0.8612099289894104,
+            0.3999999761581421,
+            1.0
+        ]
+    }
 }

@@ -50,7 +50,7 @@ namespace GUI
     }
 
     void DrawStrokesPanel(class CScene& aScene);
-    void DrawGlobalMaterialPanel(class CScene& aScene);
+    void DrawGlobalShadingPanel(class CScene& aScene);
     void DrawMainPanel(class CScene& aScene)
     {
         const ImVec2 kViewPos = ImGui::GetMainViewport()->Pos;
@@ -67,9 +67,9 @@ namespace GUI
                     DrawStrokesPanel(aScene);
                     ImGui::EndTabItem();
                 }
-                if (ImGui::BeginTabItem("Material"))
+                if (ImGui::BeginTabItem("Shading"))
                 {
-                    DrawGlobalMaterialPanel(aScene);
+                    DrawGlobalShadingPanel(aScene);
                     ImGui::EndTabItem();
                 }
                 ImGui::EndTabBar();
@@ -271,15 +271,23 @@ namespace GUI
         }
     }
 
-    void DrawGlobalMaterialPanel(class CScene& aScene)
+    void DrawGlobalShadingPanel(class CScene& aScene)
     {
         bool lDirty = false;
-
+        ImGui::Text("Global Material");
         lDirty |= ImGui::ColorEdit3("Surface", &aScene.mGlobalMaterial.surfaceColor.x);
         lDirty |= ImGui::ColorEdit3("Fresnel", &aScene.mGlobalMaterial.fresnelColor.x);
         lDirty |= ImGui::ColorEdit3("AO", &aScene.mGlobalMaterial.aoColor.x);
+        
+        lDirty |= ImGui::DragFloat("Roughness", (float*)&aScene.mGlobalMaterial.pbr.x, 0.01f, 0.0f, 1.0f);
+        //lDirty |= ImGui::DragFloat("Metalness", (float*)&aScene.mGlobalMaterial.pbr.y, 0.01f, 0.0f, 1.0f);
+        lDirty |= ImGui::DragFloat("FresnelExp", (float*)&aScene.mGlobalMaterial.pbr.z, 0.01f, 0.2f, 8.0f);
 
+        ImGui::Spacing();
         ImGui::Separator();
+        ImGui::Text("Environment");
+        lDirty |= ImGui::ColorEdit3("Light A", &aScene.mGlobalMaterial.lightAColor.x);
+        lDirty |= ImGui::ColorEdit3("Light B", &aScene.mGlobalMaterial.lightBColor.x);
         lDirty |= ImGui::ColorEdit3("Background", &aScene.mGlobalMaterial.backgroundColor.x);
 
         if (lDirty)
