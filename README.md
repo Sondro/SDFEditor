@@ -4,7 +4,7 @@
 
 SDFEditor is a Constructive Solid Geometry editor with a non destructive workflow that uses Sparse Voxel Signed Distance Fields and Raymarching to render the scene.
 
-The project is coded in C++, uses OpenGL 4.5 to interpret the primitives data in GPU, generate the SDF volume and render it. The interface is also rendered with OpenGL using Dear Imgui.
+The project is coded in C++, uses OpenGL 4.5 to evaluate the primitives data in GPU, generate the SDF volume and render it. The interface is also rendered with OpenGL using Dear Imgui.
 
 ### SDFEditor Features
 
@@ -60,17 +60,36 @@ You can use the Shading panel to configure a global material properties, lights 
 - nlohmann JSON
 - stb
 
-## Important TODOs
+## Future plans 
+This project is open to collaboration and proposals, so if you want to contribute or just point what could be interesting to implement, you are welcome.
+
+### Important TODOs and known issues
+- Fix Camera Rotate input implementation, is interacting with imgui, should be done instead with GLFW callbacks and blocking imgui.
+- Fix Raymarcher issues that are causing some artifacts.
+- Manage Multiple strokes selection transform, this require some rework on how gizmos are used.
+
+### Looking forward
+- Port renderer to other APIs, a vulkan version compatible with may MoltenVK would be interesting.
+- Add framebuffers functionality to do offscreen render (for other required TODOs).
+- Optimize Raymarching, probably with cone-tracing, but can also be interesting to do checkerobard rendering.
+- Optimize stroke evaluation pass, as it is not scaling well with big scenes.
+- Scene hirearchy, this also require a transformation stack in strokes evaluation shader.
+- Per primitive material would be interesting, but requires extra space in the Atlas buffer to store all those values.
+- Adaptive or configurable SDF Lut volume size, now is a fixed size box.
+- Temporal Antialiasing.
+- Pathtracer, with a different material model.
 
 ## Source code notes
-- ThirdParty directory contains all the third party libraries used in the project, including the imgui backend.
-- sbx is a library I use for other tool projects with common utilities, I removed most of it for now, the intention is move generic functionality from SDFEditor source to sbx.
+
+### Libraries
+- ThirdParty directory contains all the third party libraries used in this project, including the imgui backend. This libraries are compiled as part of the sbx library.
+- sbx is a library that carries common utilities from other tool projects. Most of it is removed for now, the intention is move generic functionality from SDFEditor source to sbx.
 
 ### SDFEditor modules
-- GPU contains the renderer code, with a RAII wrapper for some OpenGL 4.5 resources.
-- GUI has most of the imgui calls to draw the user interface, gizmos and manage selection.
-- Tool contains the scene data components where strokes are stored, and the main tool class that controls the camera and shortcuts, calls to renderer, draws the gui, etc.
-- Math & Utils are generic funcionality used by the tool, candidates to be part of sbx.
+- /GPU contains the renderer code that generates SDF data and draws the scene. The resources used from OpenGL 4.5 API are wrapped by a RAII-style set of classes.
+- /GUI has most of the imgui calls to draw the user interface, gizmos and manage selection.
+- /Tool contains the scene data components where strokes are stored, and the main tool class that controls the camera and shortcuts, calls to renderer, draws the gui, etc.
+- /Math & /Utils are generic funcionality used by the tool, candidates to be part of sbx.
 
 ### Shaders
 Indside Data/Shaders directory you can find all the shaders used by the tool, a further explanation on how they work will be added in the future.
