@@ -187,7 +187,7 @@ void CRenderer::UpdateSceneData(CScene const& aScene)
 {
     if (aScene.IsDirty())
     {
-        size_t lSizeBytes = aScene.mStorkesArray.size() * sizeof(stroke_t);
+        size_t lSizeBytes = aScene.mStrokesArray.size() * sizeof(stroke_t);
 
         if (lSizeBytes > mStrokesBuffer->GetStorageSize())
         {
@@ -197,10 +197,10 @@ void CRenderer::UpdateSceneData(CScene const& aScene)
         }
 
         //stroke_t* lStrokesBufferMappedMemory = (stroke_t*)mStrokesBuffer->Map();
-        for (size_t i = 0; i < aScene.mStorkesArray.size(); i++)
+        for (size_t i = 0; i < aScene.mStrokesArray.size(); i++)
         {
-            //::memcpy(lStrokesBufferMappedMemory + i, (void*)&aScene.mStorkesArray[i], sizeof(stroke_t));
-            mStrokesBuffer->UpdateSubData(sizeof(stroke_t) * i, sizeof(stroke_t), (void*)&aScene.mStorkesArray[i]);
+            //::memcpy(lStrokesBufferMappedMemory + i, (void*)&aScene.mStrokesArray[i], sizeof(stroke_t));
+            mStrokesBuffer->UpdateSubData(sizeof(stroke_t) * i, sizeof(stroke_t), (void*)&aScene.mStrokesArray[i]);
         }
         //mStrokesBuffer->Unmap();
 
@@ -213,7 +213,7 @@ void CRenderer::UpdateSceneData(CScene const& aScene)
 
         for (uint32_t lHandler : lProgramHandlers)
         {
-            glProgramUniform1ui(lHandler, EUniformLoc::uStrokesNum, aScene.mStorkesArray.size() & 0xFFFFFFFF);
+            glProgramUniform1ui(lHandler, EUniformLoc::uStrokesNum, aScene.mStrokesArray.size() & 0xFFFFFFFF);
         }
 
         // clear slot count

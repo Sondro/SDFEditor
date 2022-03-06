@@ -28,7 +28,7 @@ using TPushStateFlags = uint32_t;
 struct TStoredSceneState
 {
     TPushStateFlags             mFlags;
-    std::vector< TStrokeInfo >* mStorkesArray;
+    std::vector< TStrokeInfo >* mStrokesArray;
     std::vector< uint32_t >*    mSelectedItems;
     TGlobalMaterialBufferData*  mGlobalMaterial;
 

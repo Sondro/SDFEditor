@@ -38,7 +38,7 @@ namespace GUI
 
         bool ValidStrokeSelected(class CScene& aScene)
         {
-            return (aScene.mSelectedItems.size() == 1) && (aScene.mSelectedItems[0] < aScene.mStorkesArray.size());
+            return (aScene.mSelectedItems.size() == 1) && (aScene.mSelectedItems[0] < aScene.mStrokesArray.size());
         }
     };
 
@@ -87,7 +87,7 @@ namespace GUI
             ImGui::DragInt(" Visible list Items", &gGUIState.mVisibleItemsInList, 1, 5, 20);
             ImGui::PopItemWidth();
             ImGui::SameLine();
-            ImGui::Text("(%d total)", aScene.mStorkesArray.size() & 0xFFFFFFFF);
+            ImGui::Text("(%d total)", aScene.mStrokesArray.size() & 0xFFFFFFFF);
             gGUIState.mVisibleItemsInList = glm::clamp(gGUIState.mVisibleItemsInList, 5, 20);
         }
             
@@ -97,7 +97,7 @@ namespace GUI
         {
             const ImU32 lActiveColor = ImGui::GetColorU32(ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
             const ImU32 lHoveredColor = ImGui::GetColorU32(ImGui::GetStyleColorVec4(ImGuiCol_ButtonHovered));
-            for (int32_t i = 0; i < aScene.mStorkesArray.size(); i++)
+            for (int32_t i = 0; i < aScene.mStrokesArray.size(); i++)
             {
                 const ImVec2 lRegionOrigin = ImGui::GetCursorScreenPos() - ImVec2(2.0f, 0.0f);
                 const ImVec2 lRegionEnd = ImVec2(lRegionOrigin.x + ImGui::GetWindowWidth() + 2.0f, lRegionOrigin.y + item_height);
@@ -111,7 +111,7 @@ namespace GUI
                     ImGui::GetWindowDrawList()->AddRectFilled(lRegionOrigin, lRegionEnd, lIsSelected ? lActiveColor : lHoveredColor);
                 }
                 ImGui::GetCurrentWindow()->DC.CursorPos.y += 2.0f;
-                ImGui::Text("%s", aScene.mStorkesArray[i].mName);
+                ImGui::Text("%s", aScene.mStrokesArray[i].mName);
                 ImGui::ItemAdd(ImRect(lRegionOrigin, lRegionEnd), ImGui::GetCurrentWindow()->GetID(1000 + i));
                 if (ImGui::IsItemHovered() && ImGui::IsItemClicked())
                 {
@@ -144,11 +144,11 @@ namespace GUI
             uint32_t lCloneIndex = (aScene.mSelectedItems.size() == 1) ? aScene.mSelectedItems[0] : UINT32_MAX;
             aScene.AddNewStroke(lCloneIndex);
             aScene.mSelectedItems.clear();
-            aScene.mSelectedItems.push_back(int32_t(aScene.mStorkesArray.size() - 1));
+            aScene.mSelectedItems.push_back(int32_t(aScene.mStrokesArray.size() - 1));
             lDirty = true;
         }
 
-        ImGui::BeginDisabled(aScene.mSelectedItems.size() == 0 || aScene.mStorkesArray.size() <= 1);
+        ImGui::BeginDisabled(aScene.mSelectedItems.size() == 0 || aScene.mStrokesArray.size() <= 1);
         ImGui::SameLine();
         if (ImGui::Button("Move Up"))
         {
@@ -158,7 +158,7 @@ namespace GUI
                 int32_t lSelectedIndex = aScene.mSelectedItems[i];
                 if (lSelectedIndex > 0)
                 {
-                    std::swap(aScene.mStorkesArray[lSelectedIndex], aScene.mStorkesArray[size_t(lSelectedIndex) - 1]);
+                    std::swap(aScene.mStrokesArray[lSelectedIndex], aScene.mStrokesArray[size_t(lSelectedIndex) - 1]);
                     aScene.mSelectedItems[i] = lSelectedIndex - 1;
                 }
                 else
@@ -175,9 +175,9 @@ namespace GUI
             for (int32_t i = int32_t(aScene.mSelectedItems.size()) - 1; i >= 0; i--)
             {
                 int32_t lSelectedIndex = aScene.mSelectedItems[i];
-                if (lSelectedIndex < aScene.mStorkesArray.size() - 1)
+                if (lSelectedIndex < aScene.mStrokesArray.size() - 1)
                 {
-                    std::swap(aScene.mStorkesArray[lSelectedIndex], aScene.mStorkesArray[size_t(lSelectedIndex) + 1]);
+                    std::swap(aScene.mStrokesArray[lSelectedIndex], aScene.mStrokesArray[size_t(lSelectedIndex) + 1]);
                     aScene.mSelectedItems[i] = lSelectedIndex + 1;
                 }
                 else
@@ -192,7 +192,7 @@ namespace GUI
         if (gGUIState.ValidStrokeSelected(aScene))
         {
             int32_t lSelectedIndex = aScene.mSelectedItems[0];
-            TStrokeInfo& lStrokeInfo = aScene.mStorkesArray[lSelectedIndex];
+            TStrokeInfo& lStrokeInfo = aScene.mStrokesArray[lSelectedIndex];
             ImGui::PushID(lSelectedIndex);
 
             // NAME
@@ -226,7 +226,7 @@ namespace GUI
             lStrokeInfo.id.y |= lMirrorY ? EStrokeOp::OpMirrorY : 0;
 
             // PROPERTIES
-            //lDirty |= ImGui::DragInt4("shapeId", (int32_t*)&aScene.mStorkesArray[lSelectedIndex].id.x, 0.01f);
+            //lDirty |= ImGui::DragInt4("shapeId", (int32_t*)&aScene.mStrokesArray[lSelectedIndex].id.x, 0.01f);
 
 
             lDirty |= ImGui::DragFloat("Blend", (float*)&lStrokeInfo.posb.w, 0.01f, 0.0f, 1.0f);
@@ -249,9 +249,9 @@ namespace GUI
 
             lDirty |= ImGui::DragFloat3("Size", (float*)&lStrokeInfo.param0.x, 0.02f);
 
-            if ((ImGui::Button("Remove") || (!ImGui::GetIO().WantCaptureKeyboard && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Delete), false))) && aScene.mStorkesArray.size() > 0)
+            if ((ImGui::Button("Remove") || (!ImGui::GetIO().WantCaptureKeyboard && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Delete), false))) && aScene.mStrokesArray.size() > 0)
             {
-                aScene.mStorkesArray.erase(aScene.mStorkesArray.begin() + lSelectedIndex);
+                aScene.mStrokesArray.erase(aScene.mStrokesArray.begin() + lSelectedIndex);
                 aScene.mSelectedItems.clear();
                 lDirty = true;
             }
@@ -404,7 +404,7 @@ namespace GUI
         if (gGUIState.ValidStrokeSelected(aScene))
         {
             int32_t lSelectedIndex = aScene.mSelectedItems[0];
-            TStrokeInfo& lStrokeInfo = aScene.mStorkesArray[lSelectedIndex];
+            TStrokeInfo& lStrokeInfo = aScene.mStrokesArray[lSelectedIndex];
 
             if (!ImGui::GetIO().WantCaptureKeyboard)
             {
@@ -444,7 +444,7 @@ namespace GUI
 #if 0
         if (gGUIState.mBoundsActive)
         {
-            for (TStrokeInfo& lStrokeInfo : aScene.mStorkesArray)
+            for (TStrokeInfo& lStrokeInfo : aScene.mStrokesArray)
             {
                 //TODO: Show box reference if needed
                 if (false)
@@ -502,9 +502,9 @@ namespace GUI
 
         static const glm::vec3 kUnitVec(1.0f, 1.0f, 1.0f);
 
-        for (int32_t i = 0; i < aScene.mStorkesArray.size(); i++)
+        for (int32_t i = 0; i < aScene.mStrokesArray.size(); i++)
         {
-            TStrokeInfo& lStrokeInfo = aScene.mStorkesArray[i];
+            TStrokeInfo& lStrokeInfo = aScene.mStrokesArray[i];
            
             // Calculate box with stroke properties
             const glm::vec3 lScale = lStrokeInfo.GetScale();
@@ -523,7 +523,7 @@ namespace GUI
 
         if (lIntersectedIndex != UINT32_MAX)
         {
-            //SBX_LOG("Clicked Stroke %s", aScene.mStorkesArray[lIntersectedIndex].mName);
+            //SBX_LOG("Clicked Stroke %s", aScene.mStrokesArray[lIntersectedIndex].mName);
             aScene.mSelectedItems.push_back(lIntersectedIndex);
         }
         else

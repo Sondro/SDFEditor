@@ -20,9 +20,9 @@ void CSceneClipboard::CopySelectedItems()
 
         for (uint32_t lIndex : mScene.mSelectedItems)
         {
-            if (lIndex < mScene.mStorkesArray.size())
+            if (lIndex < mScene.mStrokesArray.size())
             {
-                mCopiedElements.push_back(mScene.mStorkesArray[lIndex]);
+                mCopiedElements.push_back(mScene.mStrokesArray[lIndex]);
             }
         }
     }
@@ -35,12 +35,12 @@ bool CSceneClipboard::AddCopiedItems()
         // iterate copied elements and add to the strokes array
         for (auto& lStroke : mCopiedElements)
         {
-            mScene.mStorkesArray.push_back(lStroke);
+            mScene.mStrokesArray.push_back(lStroke);
         }
 
         // select the added items
         mScene.mSelectedItems.clear();
-        size_t lLastIndex = mScene.mStorkesArray.size() - 1;
+        size_t lLastIndex = mScene.mStrokesArray.size() - 1;
         for (size_t i = 0, l = mCopiedElements.size(); i < l; ++i)
         {
             mScene.mSelectedItems.push_back((lLastIndex - i) & 0xFFFFFFFF);

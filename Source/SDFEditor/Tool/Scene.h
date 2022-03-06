@@ -38,7 +38,7 @@ public:
     uint32_t AddNewStroke(uint32_t aBaseStrokeIndex = UINT32_MAX);
 
     // Scene data
-    std::vector< TStrokeInfo > mStorkesArray;
+    std::vector< TStrokeInfo > mStrokesArray;
     std::vector<uint32_t> mSelectedItems;
     CCamera mCamera;
     TGlobalMaterialBufferData mGlobalMaterial;

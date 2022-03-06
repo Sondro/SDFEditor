@@ -28,7 +28,7 @@ CScene::~CScene()
 void CScene::Reset(bool aAddDefault)
 {
     mNextStrokeId = 0;
-    mStorkesArray.clear();
+    mStrokesArray.clear();
     mSelectedItems.clear();
     mStack->Reset();
     mGlobalMaterial = TGlobalMaterialBufferData();
@@ -61,16 +61,16 @@ void CScene::SetMaterialDirty()
 
 uint32_t CScene::AddNewStroke(uint32_t aBaseStrokeIndex)
 {
-    if (aBaseStrokeIndex < mStorkesArray.size())
+    if (aBaseStrokeIndex < mStrokesArray.size())
     {
-        mStorkesArray.push_back(mStorkesArray[aBaseStrokeIndex]);
+        mStrokesArray.push_back(mStrokesArray[aBaseStrokeIndex]);
         
     }
     else
     {
-        if (mStorkesArray.size() > 0)
+        if (mStrokesArray.size() > 0)
         {
-            mStorkesArray.push_back(mStorkesArray.back());
+            mStrokesArray.push_back(mStrokesArray.back());
         }
         else
         {
@@ -83,11 +83,11 @@ uint32_t CScene::AddNewStroke(uint32_t aBaseStrokeIndex)
                 {1, 0, 0, 0},                   // id
             };
 
-            mStorkesArray.emplace_back(lDefaultShape, glm::vec3(0.0f), "");
+            mStrokesArray.emplace_back(lDefaultShape, glm::vec3(0.0f), "");
         }
     }
 
-    ::snprintf(mStorkesArray.back().mName, TStrokeInfo::MAX_NAME_SIZE, "Stroke_%d", mNextStrokeId);
+    ::snprintf(mStrokesArray.back().mName, TStrokeInfo::MAX_NAME_SIZE, "Stroke_%d", mNextStrokeId);
 
     return mNextStrokeId++;
 }

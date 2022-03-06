@@ -108,7 +108,7 @@ void CSceneDocument::Save()
         lDoc["version"] = 0.1;
         ordered_json& lDocStrokes = lDoc["strokes"];
 
-        for (auto& lStroke : mScene.mStorkesArray)
+        for (auto& lStroke : mScene.mStrokesArray)
         {
             lDocStrokes.emplace_back();
             ordered_json& lDocStroke = lDocStrokes.back();
@@ -202,9 +202,9 @@ void CSceneDocument::Load()
         // json deserialization
         const json& lJsonStrokes = *lStrokesIt;
 
-        mScene.mStorkesArray.clear();
+        mScene.mStrokesArray.clear();
         mScene.mSelectedItems.clear();
-        mScene.mStorkesArray.reserve(lJsonStrokes.size());
+        mScene.mStrokesArray.reserve(lJsonStrokes.size());
 
         for (size_t i = 0, l = lJsonStrokes.size(); i < l; i++ )
         {
@@ -224,7 +224,7 @@ void CSceneDocument::Load()
             JSON_STROKE_CHECK(lJsonStroke, "mirror_x", lStroke.id.y |= (lJsonStroke["mirror_x"].get<bool>()) ? EStrokeOp::OpMirrorX : 0);
             JSON_STROKE_CHECK(lJsonStroke, "mirror_y", lStroke.id.y |= (lJsonStroke["mirror_y"].get<bool>()) ? EStrokeOp::OpMirrorY : 0);
 
-            mScene.mStorkesArray.emplace_back(lStroke);
+            mScene.mStrokesArray.emplace_back(lStroke);
         }
     }
 

@@ -9,7 +9,7 @@ constexpr size_t kMaxStackElements = 20;
 
 TStoredSceneState::TStoredSceneState(TPushStateFlags aFlags)
     : mFlags(aFlags)
-    , mStorkesArray(nullptr)
+    , mStrokesArray(nullptr)
     , mSelectedItems(nullptr)
     , mGlobalMaterial(nullptr)
 
@@ -18,10 +18,10 @@ TStoredSceneState::TStoredSceneState(TPushStateFlags aFlags)
 
 TStoredSceneState::~TStoredSceneState()
 {
-    if (mStorkesArray != nullptr)
+    if (mStrokesArray != nullptr)
     {
-        delete mStorkesArray;
-        mStorkesArray = nullptr;
+        delete mStrokesArray;
+        mStrokesArray = nullptr;
     }
 
     if (mSelectedItems != nullptr)
@@ -58,7 +58,7 @@ void CSceneStack::PushState(TPushStateFlags aFlags)
 
         if (aFlags & EPushStateFlags::EPE_STROKES)
         {
-            lState->mStorkesArray = new std::vector< TStrokeInfo >(mScene.mStorkesArray);
+            lState->mStrokesArray = new std::vector< TStrokeInfo >(mScene.mStrokesArray);
         }
 
         if (aFlags & EPushStateFlags::EPE_SELECTION)
@@ -111,9 +111,9 @@ void CSceneStack::ApplySceneState(bool aPopedSelection)
     //appply scene changes
     if (mPushedStates.size() > 0)
     {
-        if (mPushedStates.back()->mStorkesArray)
+        if (mPushedStates.back()->mStrokesArray)
         {
-            mScene.mStorkesArray = *mPushedStates.back()->mStorkesArray;
+            mScene.mStrokesArray = *mPushedStates.back()->mStrokesArray;
             mScene.SetDirty();
         }
 
