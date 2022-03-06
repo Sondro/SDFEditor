@@ -22,15 +22,26 @@ SDFEditor has a permissive license that let you use and redistribute SDFEditor i
 
 ## Building
 
-To create the Visual Studio Solution files execute GenerateSolution.bat, this will run the premake tool included in the project. This project has only been tested in Visual Studio 2019 in Windows, but porting to other systems should be easy providing a compiled version of GLFW and premake.
+To create the Visual Studio Solution files execute GenerateSolution.bat, this will run the premake tool included in the project. This project has only been tested in Visual Studio 2019 on a Windows 10 system with an Nvidia GTX 1080Ti card, but porting to other systems should be easy by providing a compiled version of GLFW and premake. 
 
-## SDFEditor Quickstart
+Compatibility with Linux and MacOSX will be added sooner or later to this repo.
 
-### Controls
+## Basic Controls
 
-WASD + Right mouse click controls camera movement
+* WASD for movement
+* Right mouse click controls camera movement
+* Left mouse clic pick scene objects and use gizmos.
+* F5 Reload the shaders
 
-F5 Reload the shaders
+## SDFEditor Showdown
+
+### Sculpting a face time-lapse
+
+[![Sculpting a face time-lapse](https://img.youtube.com/vi/LGpUlqWzjd8/0.jpg)](https://www.youtube.com/watch?v=LGpUlqWzjd8)
+
+### Materials
+
+![Material showdown](/Docs/cars_materials.png)
 
 ## Libraries
 

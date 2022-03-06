@@ -96,6 +96,7 @@ float CalcAOAtlas(in vec3 pos, in vec3 nor)
 {
     float occ = 0.0;
     float sca = 1.0, dd;
+    pos += nor * 0.01; // move towards normal a bit
     for (int i = 0; i < 5; i++)
     {
         float hr = 0.01 + 0.23 * float(i) / 4.0;
@@ -124,7 +125,8 @@ vec3 ApplyLight(in vec3 pos, in vec3 rd, in vec3 n, in vec3 alb, vec3 lgt, vec3 
 {
     //const float rough = 0.3;
     float nl = dot(n, lgt);
-    nl = (nl + 0.3) / 1.3;
+    nl = (nl + 0.3) / 1.3; // cover more area
+    nl = clamp(nl, 0.01, 1.0);
     float nv = dot(n, -rd);
     vec3 col = vec3(0.);
     //float ao = calcAO(pos, n);
@@ -187,6 +189,7 @@ vec3 ApplyMaterial(vec3 pos, vec3 rayDir, vec3 normal, float ao)
     color += ApplyLight(pos, rayDir, normal, surfaceColor.rgb, lightDir2, lightBColor.rgb, pbr.x, pbr.y);
     color = mix(color, fresnelColor.rgb, dotCam);
     color = mix(aoColor.rgb, color, ao);
+    //color += fresnelColor.rgb * (1.0 - ao) * 0.5;
 
     return color;
 }
