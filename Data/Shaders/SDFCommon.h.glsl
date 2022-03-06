@@ -190,7 +190,7 @@ float evalStroke(vec3 p, in stroke_t stroke)
     else if (stroke.id.x == 3)
     {
         vec2 params = max(stroke.param0.xy, vec2(0.0, 0.0));
-        shape = sdVerticalCapsule(position - vec3(0.0, -params.x * 0.5, 0.0), params.y, params.x);
+        shape = sdVerticalCapsule(position - vec3(0.0, -params.y + params.x, 0.0), params.y * 2.0 - params.x * 2.0, params.x);
     }
 
     return shape;
