@@ -12,17 +12,19 @@ The project is coded in C++, uses OpenGL 4.5 to evaluate the primitives data in 
 - Add / Subtract / Intersect operations
 - Primitive blending
 - Intuitive Primitive transformation gizmos thanks to ImGuizmo
+- Global material and lights configuration
 - Copy / Paste
 - Undo / Redo
 - Load / Save scene in an open JSON format
 
+
 ### License and Anti-NFT Clausule
 
-SDFEditor has a permissive license that let you use and redistribute SDFEditor in binary or source code if you follow a list of conditions. One of them is an Anti-NFT clausule that explicitly prohibits the usage of this software to produce any kind of content that would be used as NFT or for any other crypto-currency trading. Read the LICENSE.txt file for more information.
+SDFEditor has a permissive license that let you use and redistribute SDFEditor in binary or source code if you follow a list of conditions. One of them is an Anti-NFT clausule that explicitly prohibits the usage of this software to produce any kind of content that would be used as NFT or for any other crypto-currency trading. Read the [LICENSE.txt](/LICENSE.txt) file for more information.
 
 ## Building
 
-To create the Visual Studio Solution files execute GenerateSolution.bat, this will run the premake tool included in the repo. This project has only been tested in Visual Studio 2019 on a Windows 10 system with an Nvidia GTX 1080Ti card, it is expected to work out of the box with ATI cards too, but report any issue you find please.
+To create the Visual Studio Solution files execute GenerateSolution.bat, this will run the premake tool included in the repo. This project has only been tested in Visual Studio 2019 on a Windows 10 system with an Nvidia GTX 1080Ti card, it is expected to work out of the box with AMD cards too, but report any issue you find please.
 
 Porting to other systems should be easy by providing a compiled version of GLFW and premake, but MacOSX will require some OpenGL 4.5 wrapper or reimplement the renderer and imgui backend to use more than one API, the project is open to collaboration and proposals in that way.
 
@@ -46,7 +48,7 @@ Example video time-lapse creating a basic face with a few primitives.
 [![Sculpting a face time-lapse](https://img.youtube.com/vi/LGpUlqWzjd8/0.jpg)](https://www.youtube.com/watch?v=LGpUlqWzjd8)
 
 ### Shading
-You can use the Shading panel to configure a global material properties, lights and background color.
+You can use the Shading panel to configure global material properties, lights and background color.
 
 ![Material showdown](/Docs/cars_materials.png)
 
@@ -83,7 +85,7 @@ This project is open to collaboration and proposals, so if you want to contribut
 
 ### Libraries
 - ThirdParty directory contains all the third party libraries used in this project, including the imgui backend. This libraries are compiled as part of the sbx library.
-- sbx is a library that carries common utilities from other tool projects. Most of it is removed for now, the intention is move generic functionality from SDFEditor source to sbx.
+- sbx is a library that carries common utilities from other tool projects like [TexGraph](https://galloscript.itch.io/texgraph). Most of it is removed for now, the intention is move generic functionality from SDFEditor source to sbx.
 
 ### SDFEditor modules
 - /GPU contains the renderer code that generates SDF data and draws the scene. The resources used from OpenGL 4.5 API are wrapped by a RAII-style set of classes.
@@ -96,6 +98,6 @@ Indside Data/Shaders directory you can find all the shaders used by the tool, a 
 
 ## Contributors
 
-David Gallardo - Author
+David Gallardo - [@galloscript](https://twitter.com/galloscript) on Twitter - Author
 
 
