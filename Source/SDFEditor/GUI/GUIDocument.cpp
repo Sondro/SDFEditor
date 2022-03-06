@@ -14,7 +14,9 @@
 
 namespace GUI
 {
-    bool gWantCloseDocument = false;
+    bool gWantsCloseDocumentWithChanges = false;
+    bool gWantsOpenFileWithChanges = false;
+    bool gWantsNewFileWithChanges = false;
 
     void ModalYesNoDialog(const char* aName, const char* aText, TYesNoDialogCallback aCallback)
     {
@@ -63,7 +65,7 @@ namespace GUI
     {
         if (aToolApp.GetScene().mDocument->HasPendingChanges())
         {
-            ImGui::OpenPopup("DiscardChangesOpenFile");
+            gWantsOpenFileWithChanges = true;
         }
         else
         {
@@ -88,7 +90,7 @@ namespace GUI
     {
         if (aToolApp.GetScene().mDocument->HasPendingChanges())
         {
-            ImGui::OpenPopup("DiscardChangesNewDoc");
+            gWantsNewFileWithChanges = true;
         }
         else
         {
@@ -112,7 +114,7 @@ namespace GUI
     {
         if (aToolApp.GetScene().mDocument->HasPendingChanges())
         {
-            gWantCloseDocument = true;
+            gWantsCloseDocumentWithChanges = true;
         }
         else
         {
@@ -178,10 +180,22 @@ namespace GUI
             ImGui::PopStyleColor(2);
             ImGui::PopStyleVar(3);
 
-            if (gWantCloseDocument)
+            if (gWantsCloseDocumentWithChanges)
             {
                 ImGui::OpenPopup("DiscardChangesCloseApp");
-                gWantCloseDocument = false;
+                gWantsCloseDocumentWithChanges = false;
+            }
+
+            if (gWantsOpenFileWithChanges)
+            {
+                ImGui::OpenPopup("DiscardChangesOpenFile");
+                gWantsOpenFileWithChanges = false;
+            }
+
+            if (gWantsNewFileWithChanges)
+            {
+                ImGui::OpenPopup("DiscardChangesNewDoc");
+                gWantsNewFileWithChanges = false;
             }
 
             // Draw modal yes/no popups
