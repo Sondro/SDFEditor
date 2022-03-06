@@ -32,14 +32,18 @@ Compatibility with Linux and MacOSX will be added in the future.
 
 ## Basic Controls
 
-- W,A,S,D for movement
-- Q,E for vertical displacement
+- W,A,S,D for camera movement
+- Q,E for camera vertical displacement
 - R,T,Y change between Rotation, Translate, Scale modes
 - Right mouse click controls camera rotation
 - Left mouse click to pick strokes and use gizmos
 - F5 Reload the shaders and regenerate the scene
 - Ctrl+C / Ctrl+V for Copy / Paste
 - Ctrl+Z / Ctrl+Shift+Z for Undo / Redo
+- Ctrl+S Save Scene
+- Ctrl+Shift+S Save Scene as a new file
+- Ctrl+O Open Scene file
+- Ctrl+N New Scene
 
 ## SDFEditor Examples
 
