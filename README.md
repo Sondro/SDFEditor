@@ -69,8 +69,11 @@ This project is open to collaboration and proposals, so if you want to contribut
 - Fix Camera Rotate input implementation, is interacting with imgui, should be done instead with GLFW callbacks and blocking imgui.
 - Fix Raymarcher issues that are causing some artifacts.
 - Manage Multiple strokes selection transform, this require some rework on how gizmos are used.
+- Shading changes should be part of the Undo / Redo stack (wip).
 
 ### Looking forward
+- Organize a project page with documentation and TODOs.
+- Binary version distribution.
 - Port renderer to other APIs, a vulkan version compatible with may MoltenVK would be interesting.
 - Add framebuffers functionality to do offscreen render (for other required TODOs).
 - Optimize Raymarching, probably with cone-tracing, but can also be interesting to do checkerobard rendering.
